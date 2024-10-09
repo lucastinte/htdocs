@@ -1,0 +1,178 @@
+-- Creación de la tabla `clientes`
+CREATE TABLE `clientes` (
+  `id` int(6) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `apellido` varchar(30) NOT NULL,
+  `nombre` varchar(30) NOT NULL,
+  `dni` varchar(20) NOT NULL,
+  `caracteristica_tel` varchar(5) NOT NULL,  -- Campo para el código de área (característica)
+  `numero_tel` varchar(10) NOT NULL,         -- Campo para el número de teléfono
+  `email` varchar(50) NOT NULL,
+  `usuario` varchar(50) NOT NULL,
+  `direccion` varchar(100) NOT NULL,
+  `fecha_nacimiento` date NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `token` varchar(100) NOT NULL,
+  `reg_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `dni_unique` (`dni`),           -- Asegura que el DNI sea único
+  UNIQUE KEY `email_unique` (`email`)        -- Asegura que el email sea único
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+-- Creación de la tabla `usuarios` con todos los campos requeridos
+CREATE TABLE `usuarios` (
+  `id_usuario` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(50) NOT NULL,
+  `apellido` varchar(50) NOT NULL,
+  `dni` varchar(20) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `fecha_nacimiento` date DEFAULT NULL,
+  `telefono` varchar(20) DEFAULT NULL,
+  `puesto` varchar(50) DEFAULT NULL,
+  `permisos` varchar(50) DEFAULT 'ninguno',
+  `usuario` varchar(50) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `token` varchar(64),
+  PRIMARY KEY (`id_usuario`),
+  UNIQUE KEY `email` (`email`),
+  UNIQUE KEY `dni` (`dni`),
+  UNIQUE KEY `usuario` (`usuario`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Insertar datos de prueba en la tabla `usuarios`
+INSERT INTO `usuarios` 
+(`nombre`, `apellido`, `dni`, `email`, `fecha_nacimiento`, `telefono`, `puesto`, `permisos`, `usuario`, `password`) 
+VALUES 
+('Juan', 'Pérez', '12345678', 'juan.perez@example.com', '1990-05-15', '123456789', 'Desarrollador', 'crear', 'juanperez', '12345');
+
+-- Creación de la tabla `turnos`
+CREATE TABLE `turnos` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `nombre` VARCHAR(100),
+  `apellido` VARCHAR(100),
+  `email` VARCHAR(100),
+  `telefono` VARCHAR(20),
+  `fecha` DATE,
+  `hora` TIME,
+  `comentario` TEXT,
+  `presupuesto` BOOLEAN,
+  `cliente_existente` BOOLEAN,
+  `creado_en` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE IF NOT EXISTS horarios_disponibles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    fecha_hora DATETIME NOT NULL,
+    disponible BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+INSERT INTO `horarios_disponibles` (`fecha_hora`, `disponible`) VALUES
+('2024-08-01 09:00:00', TRUE),
+('2024-08-02 11:00:00', TRUE),
+('2024-08-03 13:00:00', TRUE),
+('2024-08-04 15:00:00', TRUE),
+('2024-08-05 10:00:00', TRUE);
+-- Creación de la tabla `talentos`
+CREATE TABLE `talentos` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `nombre` VARCHAR(255) NOT NULL,
+  `apellido` VARCHAR(255) NOT NULL,
+  `email` VARCHAR(255) NOT NULL,
+  `puesto` VARCHAR(255) NOT NULL,
+  `tel` VARCHAR(15) NOT NULL,
+  `cv_path` VARCHAR(255) NOT NULL,
+  `comentarios` TEXT, 
+  `fecha_postulacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `proyectos` (
+  `id` int(6) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id_cliente` int(6) UNSIGNED NOT NULL,
+  `nombre_proyecto` varchar(100) NOT NULL,
+  `descripcion` text,
+  `fecha_inicio` date NOT NULL,
+  `fecha_fin` date,
+  `estado` int(3) UNSIGNED NOT NULL DEFAULT 0, 
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`id_cliente`) REFERENCES `clientes`(`id`) ON DELETE CASCADE 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Creación de la tabla `archivos`
+CREATE TABLE `archivos` (
+  `id` int(6) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id_proyecto` int(6) UNSIGNED NOT NULL,
+  `nombre_archivo` varchar(100) NOT NULL,
+  `tipo` varchar(50) NOT NULL,
+  `ruta` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`id_proyecto`) REFERENCES proyectos(`id`) ON DELETE CASCADE 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- Creación de la tabla `presupuestos`
+CREATE TABLE `presupuestos` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `nombre` VARCHAR(100) NOT NULL,
+  `ocupacion` TEXT NOT NULL,
+  `habitantes` TEXT NOT NULL,
+  `seguridad` TEXT NOT NULL,
+  `trabajo_en_casa` TEXT NOT NULL,
+  `salud` TEXT NOT NULL,
+  `telefono` VARCHAR(20) NOT NULL,
+  `email` VARCHAR(255) NOT NULL,
+  `direccion` VARCHAR(255) NOT NULL,
+  `fobias` TEXT,
+  `intereses` TEXT,
+  `rutinas` TEXT,
+  `pasatiempos` TEXT,
+  `visitas` VARCHAR(20), 
+  `detalles_visitas` TEXT,
+  `vehiculos` TEXT,
+  `mascotas` TEXT,
+  `aprendizaje` TEXT,
+  `negocio` TEXT,
+  `muebles` TEXT,
+  `detalles_casa` TEXT,
+  `turno` DATETIME, 
+  `fecha_creacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `entrevista_completada` BOOLEAN DEFAULT FALSE -- Nuevo campo
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `primera_encuesta` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `id_presupuesto` INT NOT NULL,
+  `tipo_cocina` ENUM('simple', 'con_isla', 'con_comedor', 'con_desayunador') NOT NULL,
+  `tipo_bano` ENUM('simple', 'con_antebano') NOT NULL,
+  `tipo_dormitorio_principal` ENUM('simple', 'con_bano', 'con_vestidor', 'con_bano_y_vestidor') NOT NULL,
+  `tipo_dormitorio_secundario` ENUM('simple', 'con_bano', 'con_placard') NOT NULL,
+  `tipo_comedor` ENUM('simple', 'integrado') NOT NULL,
+  `tipo_estar` ENUM('simple', 'integrado', 'con_hogar') NOT NULL,
+  `tipo_patio_servicio` ENUM('simple', 'con_lavadero', 'con_deposito') NOT NULL,
+  `tipo_plantas` ENUM('ninguna', 'interior', 'exterior') NOT NULL,
+  `tipo_escalera` ENUM('ninguna', 'interior', 'exterior') NOT NULL,
+  `cantidad_habitantes` INT,
+  `capacidad_quincho` INT,
+  `otros_ambientes` TEXT,
+  `tipo_cochera` ENUM('ninguna', 'simple', 'doble', 'galeria') NOT NULL,
+  FOREIGN KEY (`id_presupuesto`) REFERENCES `presupuestos`(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `segunda_encuesta` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `id_presupuesto` INT NOT NULL,
+    `tipo_cimiento` VARCHAR(50),
+    `tipo_mamposteria` VARCHAR(50),
+    `espesor_mamposteria` FLOAT,
+    `tipo_estructura` VARCHAR(50),
+    `tipo_techo` VARCHAR(50),
+    `tipo_contrapiso` VARCHAR(50),
+    `espesor_contrapiso` FLOAT,
+    `observaciones_contrapiso` TEXT,
+    FOREIGN KEY (`id_presupuesto`) REFERENCES `presupuestos`(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Creación de la tabla `configuraciones`
+CREATE TABLE `configuraciones` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `mostrar_talentos` TINYINT(1) DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Insertar datos en la tabla `configuraciones`
+INSERT INTO `configuraciones` (`mostrar_talentos`) VALUES (1);

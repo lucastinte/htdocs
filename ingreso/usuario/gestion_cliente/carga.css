@@ -1,0 +1,210 @@
+header {
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  position: relative;
+  /* Add a subtle gradient */
+  background-image: linear-gradient(to right, #f5f5f5, #ffffff);
+}
+header .container {
+  display: flex;
+  justify-content: space-between; /* Alinea el logo a la izquierda y el menú a la derecha */
+  align-items: center;
+}
+
+header .logo {
+  font-weight: bold;
+  color: blueviolet;
+  font-size: 2em;
+  /* Add a text shadow for depth */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* H2 Headings */
+h2 {
+  color: blueviolet; /* Match the header color */
+  font-size: 1.8em;
+  margin: 20px 0px 20px 0px;
+  border-bottom: 2px solid #eee; /* Add a subtle underline */
+  padding-bottom: 10px;
+}
+
+/* ... other styles ... */
+
+header nav a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  transition: color 0.3s ease, background-color 0.3s ease;
+  padding: 8px 12px;
+  border-radius: 5px;
+}
+/* Estilo base para todos los enlaces */
+header nav a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  transition: color 0.3s ease, background-color 0.3s ease;
+  padding: 8px 12px;
+  border-radius: 5px;
+}
+
+/* Estilo específico para el botón "Crear Cliente" */
+header nav a[href="alta.php"] {
+  /* Asumiendo que el enlace a alta.php es para crear clientes */
+  background-color: #4caf50; /* Verde claro */
+  color: white;
+  /* Otros estilos para personalizar aún más */
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Sombra sutil */
+}
+
+header nav a[href="alta.php"]:hover {
+  background-color: #3e8e41; /* Verde más oscuro al pasar el ratón */
+}
+header nav a:hover {
+  color: #fff;
+  background-color: blueviolet;
+}
+/* Form Styles */
+body {
+  font-family: "Roboto", sans-serif;
+  margin: 0;
+  background-color: #f8f9fa;
+  background-image: linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.5),
+      rgba(0, 0, 0, 0.5)
+    ),
+    url("/imagen/servicios/canchas.png"); /* Imagen de fondo */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+#upload-project {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 30px;
+  border-radius: 10px;
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.9
+  ); /* Fondo semi-transparente para el formulario */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#upload-project h1 {
+  font-size: 2.5em;
+  margin-bottom: 20px;
+  text-align: center;
+  color: blueviolet;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+form label {
+  font-size: 1.2em;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+form input[type="text"],
+form input[type="date"],
+form textarea,
+form select {
+  font-size: 1em;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+form button {
+  font-size: 1.2em;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  background-color: blueviolet;
+  color: white;
+  cursor: pointer;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+form button:hover {
+  background-color: rgb(101, 33, 165);
+}
+
+form input[type="number"] {
+  font-size: 1em;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.1);
+  width: 80px;
+  text-align: center;
+  background-color: #ffffff;
+  color: #666;
+}
+
+form input[type="number"]:focus {
+  outline: none;
+  border-color: blueviolet;
+  box-shadow: 0 0 0 1px blueviolet;
+}
+
+.message {
+  text-align: center;
+  padding: 10px;
+  margin: 10px auto;
+  width: 80%;
+  max-width: 600px;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.message.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+form input[type="file"] {
+  /* Existing styles */
+  font-size: 1em;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* New styles for a more attractive button */
+form input[type="file"]::file-selector-button {
+  color: white;
+  background-color: blueviolet;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+form input[type="file"]::file-selector-button:hover {
+  background-color: rgb(101, 33, 165);
+}

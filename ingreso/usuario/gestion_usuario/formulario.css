@@ -1,0 +1,79 @@
+/* Estilos generales */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: url("/imagen/portada/p10.jpg") no-repeat center center fixed; /* Imagen de fondo centrada y fija */
+  background-size: cover; /* Ajusta el tamaño de la imagen para cubrir todo el fondo */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 500px; /* Aumenta el ancho máximo para una mejor apariencia */
+  background-color: rgba(248, 246, 248, 0.9); /* Fondo semitransparente */
+  padding: 30px; /* Aumenta el padding para mayor espacio */
+  border-radius: 12px; /* Borde más redondeado */
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+  margin: 20px;
+}
+
+h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px; /* Espacio debajo del título */
+}
+
+.login-form {
+  width: 100%;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #555; /* Color de texto de las etiquetas */
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="date"] {
+  width: calc(100% - 22px); /* Ajuste del ancho con padding */
+  padding: 12px; /* Más padding para campos de entrada */
+  margin: 5px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+button {
+  background-color: #6200ea; /* Color de fondo */
+  color: white;
+  padding: 15px; /* Mayor padding */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%;
+  transition: background-color 0.3s ease; /* Transición suave para hover */
+}
+
+button:hover {
+  background-color: #3700b3; /* Color de fondo al pasar el mouse */
+}
+
+button:active {
+  background-color: #03dac5; /* Color de fondo al hacer clic */
+}
+
+/* Añadir espacio entre el botón y el formulario */
+a button {
+  margin-top: 20px;
+}

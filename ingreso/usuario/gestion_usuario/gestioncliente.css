@@ -1,0 +1,206 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Roboto", sans-serif;
+  line-height: 1.6; /* Mejora la legibilidad */
+  color: #333; /* Color de texto base */
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px; /* Espacio interior para evitar que el contenido toque los bordes */
+}
+
+header {
+  background-color: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra más definida */
+  padding: 15px 0; /* Reduce el padding para un aspecto más compacto */
+  position: sticky; /* Hace que el header permanezca visible al hacer scroll */
+  top: 0;
+  z-index: 1000;
+}
+
+header .container {
+  display: flex;
+  justify-content: space-between; /* Alinea el logo a la izquierda y el menú a la derecha */
+  align-items: center;
+}
+
+header .logo {
+  font-weight: bold;
+  color: blueviolet;
+  font-size: 2em;
+  letter-spacing: 1px;
+  transition: transform 0.3s ease; /* Transición suave para el logo */
+}
+
+header .logo:hover {
+  transform: scale(
+    1.1
+  ); /* Aumenta ligeramente el tamaño del logo al pasar el mouse */
+}
+
+header nav ul {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 30px; /* Utiliza gap para un espaciado más uniforme */
+}
+
+header nav li {
+  margin: 0; /* Elimina márgenes adicionales para que el gap funcione mejor */
+}
+
+header a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  padding: 10px 15px; /* Espacio adicional alrededor del texto */
+  border-radius: 5px;
+  transition: background-color 0.3s ease, color 0.3s ease; /* Transición suave */
+}
+
+header a:hover {
+  background-color: blueviolet;
+  color: white;
+}
+
+/* Sección Hero */
+
+/* Pie de página */
+footer {
+  background-color: #eee;
+  padding: 20px 0;
+  text-align: center;
+}
+
+footer p {
+  color: #666;
+}
+/* ... (Estilos existentes) ... */
+
+/* Sección de gestión de usuarios */
+#user-management {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centra horizontalmente el contenido */
+  padding: 40px;
+}
+
+#user-management h1 {
+  margin-bottom: 30px;
+}
+
+#user-management form {
+  /* ... (Estilos existentes) ... */
+  width: 80%; /* Ajusta el ancho del formulario según tus necesidades */
+  max-width: 600px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group input[type="password"] {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="password"]:focus {
+  border-color: blueviolet;
+  outline: none;
+}
+
+/* Tabla */
+#user-management table {
+  width: 80%; /* Ajusta el ancho de la tabla según tus necesidades */
+  max-width: 800px;
+  border-collapse: collapse;
+  margin-top: 30px; /* Espacio entre el formulario y la tabla */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#user-management th,
+#user-management td {
+  padding: 12px 15px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+#user-management th {
+  background-color: blueviolet;
+  color: white;
+}
+
+#user-management tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+#user-management tr:hover {
+  background-color: #ddd;
+}
+
+/* Botones */
+#user-management button[type="submit"],
+#user-management button[type="button"] {
+  background-color: blueviolet;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  margin: 10px 10px; /* Espacio entre botones */
+}
+
+#user-management button[type="submit"]:hover,
+#user-management button[type="button"]:hover {
+  background-color: #9932cc;
+}
+
+/* Botón Eliminar (opcional) */
+#user-management .eliminar {
+  background-color: #dc3545; /* Color rojo para el botón Eliminar */
+}
+
+#user-management .eliminar:hover {
+  background-color: #c82333; /* Color rojo más oscuro al pasar el mouse */
+}
+/* Media Queries */
+@media (max-width: 720px) {
+  header .container {
+    flex-direction: column;
+  }
+
+  header nav ul {
+    flex-direction: column;
+    gap: 20px; /* Ajusta el espacio entre los elementos en pantallas pequeñas */
+    margin-top: 20px;
+  }
+
+  header nav li {
+    margin: 0;
+  }
+
+  header .logo {
+    margin-bottom: 15px; /* Agrega un pequeño espacio debajo del logo */
+  }
+}

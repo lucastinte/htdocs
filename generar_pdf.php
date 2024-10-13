@@ -23,7 +23,7 @@ if (isset($_GET['id'])) {
         $pdf->SetMargins(10, 10, 10); // Márgenes más pequeños
 
         // Agregar logo
-        $pdf->Image('logo.png', 10, 10, 30);
+        $pdf->Image('logo.png', 10, 10, 40);
         $pdf->Ln(20); // Espacio debajo del logo
 
         // Título del documento con ID del cuestionario

@@ -22,13 +22,13 @@ if (isset($_GET['email'])) {
         $mail->Port = 587;
 
         // Remitente y destinatario
-        $mail->setFrom($config['from_email'], 'Mat Construcciones');
+        $mail->setFrom($config['from_email'], 'Proyectar Q');
         $mail->addAddress($email);
 
         // Contenido del correo
         $mail->isHTML(true);
         $mail->Subject = 'Confirmación de postulación';
-        $mail->Body    = "Hola,<br><br>Gracias por postularte. Hemos recibido tu postulación exitosamente. Nos pondremos en contacto contigo pronto.<br><br>Saludos,<br>Mat Construcciones.";
+        $mail->Body    = "Hola,<br><br>Gracias por postularte. Hemos recibido tu postulación exitosamente. Nos pondremos en contacto contigo pronto.<br><br>Saludos,<br>Proyectar Q.";
 
         $mail->send();
         

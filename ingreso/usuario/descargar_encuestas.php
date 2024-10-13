@@ -25,7 +25,7 @@ $pdf->SetAutoPageBreak(true, 10); // Habilitar salto de página automático
 header('Content-Type: text/html; charset=utf8'); // Asegurar la codificación UTF-8
 
 // Encabezado
-$pdf->Image('../../logo.png', 10, 10, 30); 
+$pdf->Image('../../logo.png', 10, 10, 40); 
 $pdf->SetFont('Arial', 'B', 18);
 $pdf->Cell(0, 15, '', 0, 1, 'C');
 $pdf->SetFont('Arial', '', 12);
@@ -50,8 +50,8 @@ $pdf->Ln(5);
 $pdf->SetFont('Arial', 'B', 12);
 $pdf->Cell(10, 10, 'Item', 1, 0, 'C'); 
 $pdf->Cell(80, 10, utf8_decode('Pregunta'), 1, 0, 'C'); 
-$pdf->Cell(20, 10, 'Resp.', 1, 0, 'C'); 
-$pdf->Cell(80, 10, utf8_decode('Observaciones'), 1, 1, 'C');
+$pdf->Cell(40, 10, 'Resp.', 1, 0, 'C'); // Ajustado a 40 para más espacio en la respuesta
+$pdf->Cell(60, 10, utf8_decode('Observaciones'), 1, 1, 'C'); // Reducido a 60
 $pdf->SetFont('Arial', '', 12);
 
 $item = 1;
@@ -59,23 +59,27 @@ foreach ($data_primera_encuesta as $key => $value) {
     if ($key != 'id' && $key != 'id_presupuesto') {
         $pdf->Cell(10, 10, $item++, 1, 0, 'C');
         $pdf->Cell(80, 10, utf8_decode(ucwords(str_replace('_', ' ', $key))), 1, 0, 'L');
-        $pdf->Cell(20, 10, utf8_decode($value), 1, 0, 'C');
-        $pdf->Cell(80, 10, '', 1, 1, 'L'); // Dejar espacio para observaciones
+        $pdf->Cell(40, 10, utf8_decode($value), 1, 0, 'C'); // Más espacio para respuestas
+        $pdf->Cell(60, 10, '', 1, 1, 'L'); // Observaciones
     }
 }
 
+
+// Segunda Encuesta - Construcción
 // Segunda Encuesta - Construcción
 $pdf->AddPage();
 $pdf->SetFont('Arial', 'B', 14);
 $pdf->Cell(0, 10, utf8_decode('Segunda Encuesta - Detalles de Construcción'), 0, 1, 'L');
 $pdf->Ln(5);
 
+// Cambiar a fuente regular (sin negrita) para el contenido de la tabla
+$pdf->SetFont('Arial', '', 12); // Cambia a una fuente regular aquí
+
 // Tabla de la segunda encuesta
-$pdf->SetFont('Arial', 'B', 12);
 $pdf->Cell(80, 10, utf8_decode('Característica'), 1, 0, 'C'); 
 $pdf->Cell(110, 10, utf8_decode('Detalle'), 1, 1, 'C');
-$pdf->SetFont('Arial', '', 12);
 
+// Ajustar el resto de los campos de la segunda encuesta
 $pdf->Cell(80, 10, utf8_decode('Tipo de Cimiento'), 1, 0, 'L');
 $pdf->Cell(110, 10, utf8_decode($data_segunda_encuesta['tipo_cimiento']), 1, 1, 'C');
 
@@ -98,9 +102,8 @@ $pdf->Cell(80, 10, utf8_decode('Espesor de Contrapiso'), 1, 0, 'L');
 $pdf->Cell(110, 10, $data_segunda_encuesta['espesor_contrapiso'] . ' cm', 1, 1, 'C');
 
 $pdf->Cell(80, 10, utf8_decode('Observaciones del Contrapiso'), 1, 0, 'L');
-
-// Centrar las observaciones del contrapiso
 $pdf->MultiCell(110, 10, utf8_decode($data_segunda_encuesta['observaciones_contrapiso']), 1, 'C');
+
 
 // Salida del PDF
 $pdf->Output('encuestas_completas.pdf', 'D'); 

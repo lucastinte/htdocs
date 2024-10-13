@@ -30,7 +30,7 @@ include "header.php";
                 <h1>Un equipo caracterizado por el cumplimiento</h1>
                 <p>Pensamos que el desarrollo de un proyecto es
                     la construccion de un sueño, la alquimia de lo posible</p>
-                <button>Saber Mas</button>
+                <button><a href="enviar_presupuesto.php">Saber Mas</a></button>
             </div>
         </div>
     </section>

@@ -128,7 +128,15 @@ main {
   text-decoration: none;
   color: white;
 }
+section#Nosotros button a {
+  color: white; /* Cambia el color de las letras a blanco */
 
+  text-decoration: none; /* Elimina el subrayado */
+}
+
+section#Nosotros button a:hover {
+  text-decoration: none; /* Asegúrate de que no aparezca subrayado al pasar el ratón */
+}
 #Nosotros .container {
   display: flex;
   justify-content: space-evenly;

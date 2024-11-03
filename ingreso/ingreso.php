@@ -17,9 +17,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($cliente && password_verify($password, $cliente['password'])) { // Verificar contraseña hasheada
         // Si la contraseña es correcta para clientes, redirige a la vista de clientes
-        $_SESSION['usuario'] = $usuario;
-        header("Location: cliente/cliente.php");
-        exit();
+        if ($cliente['activo'] == 1) {
+            $_SESSION['usuario'] = $usuario;
+            header("Location: cliente/cliente.php");
+            exit();
+        } else {
+            // Mostrar un mensaje si el cliente está inactivo
+            echo "<script>
+                alert('Tu cuenta está desactivada. Comunícate con el soporte para más información.');
+                window.location.href = 'ingreso.php';
+            </script>";
+        }
     } else {
         // Verificar en la tabla 'usuarios' para usuarios con contraseñas en texto plano
         $consulta_usuario = "SELECT * FROM usuarios WHERE usuario = ? AND password = ?";

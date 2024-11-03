@@ -204,7 +204,21 @@ mysqli_close($conexion);
     <form action="turnos.php" method="POST">
         <input type="hidden" name="action" value="crear_horario">
         <label for="fecha_hora">Fecha y Hora:</label>
-        <input type="datetime-local" id="fecha_hora" name="fecha_hora" required>
+        <input type="datetime-local" id="fecha_hora" name="fecha_hora" required min="<?php echo date('Y-m-d\TH:i'); ?>">
+        <script>
+    // Función para prevenir la selección de fechas pasadas (opcional, si quieres una validación adicional)
+    function preventPastDate() {
+        var fechaHoraInput = document.getElementById('fecha_hora');
+        fechaHoraInput.addEventListener('change', function() {
+            if (new Date(this.value) < new Date()) {
+                alert('Por favor, selecciona una fecha y hora futuras.');
+                this.value = ''; // Limpia el campo si se selecciona una fecha pasada
+            }
+        });
+    }
+
+    window.onload = preventPastDate;
+</script>
         <button type="submit" class="btn-create">Crear Horario</button>
     </form>
 

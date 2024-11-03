@@ -57,11 +57,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     } elseif ($accion == 'cargar_proyecto') {
         // Código para carga de proyecto (aquí puedes añadir la lógica para cargar proyectos)
+    } elseif ($accion == 'activar') {
+        // Activar cliente
+        $query = "UPDATE clientes SET activo = 1 WHERE id = $id_cliente";
+        if (mysqli_query($conexion, $query)) {
+            $message_usuario = "Cliente activado correctamente.";
+        } else {
+            $message_usuario = "Error al activar el cliente: " . mysqli_error($conexion);
+        }
     }
 }
 
 // Obtener todos los clientes
-$query = "SELECT id, apellido, nombre, dni, caracteristica_tel, numero_tel, email, usuario, direccion, fecha_nacimiento FROM clientes";
+$query = "SELECT id, apellido, nombre, dni, caracteristica_tel, numero_tel, email, usuario, direccion, fecha_nacimiento, activo FROM clientes";
 $result = mysqli_query($conexion, $query);
 
 if (!$result) {
@@ -165,6 +173,14 @@ if (!$result) {
                                 <input type="hidden" name="id_cliente" value="<?php echo htmlspecialchars($row['id']); ?>">
                                 <button type="submit">Eliminar</button>
                             </form>
+                            <?php if ($row['activo'] == 0) { ?>
+        <form action="gestioncliente.php" method="post" style="display:inline;">
+            <input type="hidden" name="accion" value="activar">
+            <input type="hidden" name="id_cliente" value="<?php echo htmlspecialchars($row['id']); ?>">
+            <button type="submit" onclick="return confirmAction('¿Estás seguro de que deseas activar este cliente?');">Activar</button>
+        </form>
+    <?php } elseif ($row['activo'] == 1) { ?>
+    <?php } ?>
                         </td>
                     </tr>
                     <?php } ?>

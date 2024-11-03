@@ -12,6 +12,7 @@ CREATE TABLE `clientes` (
   `fecha_nacimiento` date NOT NULL,
   `password` varchar(255) NOT NULL,
   `token` varchar(100) NOT NULL,
+  `activo` BOOLEAN DEFAULT 1,
   `reg_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `dni_unique` (`dni`),           -- Asegura que el DNI sea único

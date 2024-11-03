@@ -189,6 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             z-index: -1; /* Asegura que esté detrás del contenido */
         }
     </style>
+    
 </head>
 <body>
     <main>
@@ -284,6 +285,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <option value="">No hay turnos disponibles</option>
                     <?php endif; ?>
                 </select>
+                
                 <button type="submit">Enviar</button>
             </form>
         </section>

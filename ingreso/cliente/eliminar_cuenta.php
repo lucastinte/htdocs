@@ -20,9 +20,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $cliente = mysqli_fetch_assoc($resultado_cliente);
 
     if ($cliente && password_verify($password, $cliente['password'])) {
-        // Eliminar la cuenta del usuario
-        $sql = "DELETE FROM clientes WHERE email='$usuario'";
+     // En lugar de eliminar:
+// $sql = "DELETE FROM clientes WHERE email='$usuario'";
 
+// Actualizar el estado a inactivo:
+$sql = "UPDATE clientes SET activo = 0 WHERE email='$usuario'";
         if (mysqli_query($conexion, $sql)) {
             session_unset();
             session_destroy();

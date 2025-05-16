@@ -19,7 +19,7 @@ include "header.php";
                 <main>
     <section id="hero">
         <h1>Construimos tus ideas <br> desarrollamos tus sueños</h1>
-            <button><a href="enviar_presupuesto.php">COMIEzNZA</a></button>
+            <button><a href="enviar_presupuesto.php">COMIEzzNZA</a></button>
     </section>
 
     <section id="Nosotros">

@@ -25,14 +25,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 mysqli_stmt_close($stmt);
             }
         } elseif ($_POST['action'] == 'crear_horario') {
-            $fecha_hora = $_POST['fecha_hora'];
-            $query = "INSERT INTO horarios_disponibles (fecha_hora, disponible) VALUES (?, TRUE)";
-            $stmt = mysqli_prepare($conexion, $query);
-            if ($stmt) {
-                mysqli_stmt_bind_param($stmt, 's', $fecha_hora);
-                mysqli_stmt_execute($stmt);
-                mysqli_stmt_close($stmt);
+    $fecha_hora = $_POST['fecha_hora'];
+
+    // Buscar horarios con diferencia menor a 5 minutos
+    $query = "SELECT * FROM horarios_disponibles WHERE ABS(TIMESTAMPDIFF(MINUTE, fecha_hora, ?)) < 5";
+    $stmt = mysqli_prepare($conexion, $query);
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, 's', $fecha_hora);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        if (mysqli_num_rows($result) > 0) {
+            // Ya existe un horario dentro de 5 minutos
+            $_SESSION['error'] = 'Ya existe un horario dentro de los 5 minutos de diferencia.';
+        } else {
+            // Insertar el nuevo horario
+            $insert_query = "INSERT INTO horarios_disponibles (fecha_hora, disponible) VALUES (?, TRUE)";
+            $insert_stmt = mysqli_prepare($conexion, $insert_query);
+            if ($insert_stmt) {
+                mysqli_stmt_bind_param($insert_stmt, 's', $fecha_hora);
+                mysqli_stmt_execute($insert_stmt);
+                mysqli_stmt_close($insert_stmt);
+                $_SESSION['success'] = 'Horario creado exitosamente.';
             }
+        }
+        mysqli_stmt_close($stmt);
+    }
         } elseif ($_POST['action'] == 'eliminar_vencidos') {
             $delete_query = "DELETE FROM horarios_disponibles WHERE fecha_hora < NOW()";
             mysqli_query($conexion, $delete_query);
@@ -166,6 +183,17 @@ mysqli_close($conexion);
 </section>
 
 <section id="horarios">
+    <?php
+if (isset($_SESSION['error'])) {
+    echo "<p style='color: red; font-weight: bold; text-align:center'>" . $_SESSION['error'] . "</p>";
+    unset($_SESSION['error']);
+}
+if (isset($_SESSION['success'])) {
+    echo "<p style='color: green; font-weight: bold; text-align:center'>" . $_SESSION['success'] . "</p>";
+    unset($_SESSION['success']);
+}
+?>
+
     <h2>Horarios Disponibles</h2>
     <?php if (mysqli_num_rows($result_horarios) == 0) { ?>
         <p>No hay horarios disponibles.</p>

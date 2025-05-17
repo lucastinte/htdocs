@@ -145,6 +145,54 @@ $result_disponibles = mysqli_query($conexion, $query_disponibles);
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+        body {
+            position: relative;
+            background-image: url("./imagen/nosotros/imagen2.png");
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.7);
+            z-index: -1;
+        }
+     .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+    margin-bottom: 2em;
+    align-items: flex-start;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75em;
+    font-size: 1.1em;
+    background-color: rgba(255, 255, 255, 0.6);
+    padding: 8px 12px;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.checkbox-item label {
+    flex: 1;
+    margin: 0;
+    cursor: pointer;
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: blueviolet;
+}
+
     </style>
 </head>
 <body>
@@ -182,14 +230,15 @@ $result_disponibles = mysqli_query($conexion, $query_disponibles);
                     <label for="comentario">Comentario:</label>
                     <textarea id="comentario" name="comentario"></textarea>
 
-                    <div>
-                        <input type="checkbox" id="presupuesto" name="presupuesto">
-                        <label for="presupuesto">¿Ya realizó un presupuesto?</label>
-                    </div>
-
-                    <div>
-                        <input type="checkbox" id="cliente_existente" name="cliente_existente">
-                        <label for="cliente_existente">¿Es un cliente existente?</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <label for="presupuesto">¿Ya realizó un presupuesto?</label>
+                            <input type="checkbox" id="presupuesto" name="presupuesto">
+                        </div>
+                        <div class="checkbox-item">
+                            <label for="cliente_existente">¿Es un cliente existente?</label>
+                            <input type="checkbox" id="cliente_existente" name="cliente_existente">
+                        </div>
                     </div>
 
                     <button type="submit">Agendar Turno</button>

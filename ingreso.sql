@@ -4,19 +4,19 @@ CREATE TABLE `clientes` (
   `apellido` varchar(30) NOT NULL,
   `nombre` varchar(30) NOT NULL,
   `dni` varchar(20) NOT NULL,
-  `caracteristica_tel` varchar(5) NOT NULL,  -- Campo para el código de área (característica)
-  `numero_tel` varchar(10) NOT NULL,         -- Campo para el número de teléfono
+  `caracteristica_tel` varchar(5) NOT NULL,
+  `numero_tel` varchar(10) NOT NULL,
   `email` varchar(50) NOT NULL,
   `usuario` varchar(50) NOT NULL,
   `direccion` varchar(100) NOT NULL,
   `fecha_nacimiento` date NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `token` varchar(100) NOT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `token` varchar(100) DEFAULT NULL,
   `activo` BOOLEAN DEFAULT 1,
   `reg_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
-  UNIQUE KEY `dni_unique` (`dni`),           -- Asegura que el DNI sea único
-  UNIQUE KEY `email_unique` (`email`)        -- Asegura que el email sea único
+  UNIQUE KEY `dni_unique` (`dni`),
+  UNIQUE KEY `email_unique` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 

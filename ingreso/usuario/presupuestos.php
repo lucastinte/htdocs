@@ -55,6 +55,51 @@ mysqli_close($conexion);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Presupuestos</title>
     <link rel="stylesheet" href="usuarioform.css">
+    <style>
+        a {
+    text-decoration: none; /* Elimina la línea subrayada */
+    color: inherit; /* Hereda el color del texto del elemento padre */
+}
+        .icon-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+            margin: 0 5px;
+            padding: 5px;
+            position: relative;
+            transition: transform 0.2s ease;
+        }
+
+        .icon-button:hover {
+            transform: scale(1.2);
+        }
+
+        .icon-button .tooltip {
+            visibility: hidden;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            text-align: center;
+            border-radius: 5px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-size: 0.8em;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .icon-button:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+   
+    </style>
 </head>
 <body>
 
@@ -93,17 +138,22 @@ mysqli_close($conexion);
                         <td><?php echo htmlspecialchars($row['direccion']); ?></td>
                         <td><?php echo htmlspecialchars($row['turno']); ?></td>
                         <td><?php echo htmlspecialchars($row['fecha_creacion']); ?></td>
-                        <td> 
+                        <td>
                             <form action="" method="POST" style="display: inline;">
                                 <input type="hidden" name="id" value="<?php echo htmlspecialchars($row['id']); ?>">
                                 <input type="hidden" name="action" value="eliminar">
-                                <button type="submit" class="btn-delete">Eliminar</button> 
+                                <button type="submit" class="icon-button icon-delete">
+                                    🗑️<span class="tooltip">Eliminar</span>
+                                </button>
                             </form>
-                            <a href="../../generar_pdf.php?id=<?php echo htmlspecialchars($row['id']); ?>" class="btn-download">Descargar Cuestionario</a> 
+                            <a href="../../generar_pdf.php?id=<?php echo htmlspecialchars($row['id']); ?>" class="icon-button icon-download">📄<span class="tooltip">Descargar Cuestionario</span>
+                            </a>
                             <?php if ($row['entrevista_completada']) : ?>
-                                <a href="descargar_encuestas.php?id=<?php echo htmlspecialchars($row['id']); ?>" class="btn-download">Descargar Encuestas</a>
+                                <a href="descargar_encuestas.php?id=<?php echo htmlspecialchars($row['id']); ?>" class="icon-button icon-download">📥<span class="tooltip">Descargar Encuestas</span>
+                                </a>
                             <?php else : ?>
-                                <a href="continuar_entrevista.php?id=<?php echo htmlspecialchars($row['id']); ?>" class="btn-continue">Continuar la Entrevista</a>
+                                <a href="continuar_entrevista.php?id=<?php echo htmlspecialchars($row['id']); ?>" class="icon-button icon-continue">➡️<span class="tooltip">Continuar Entrevista</span>
+                                </a>
                             <?php endif; ?>
                         </td>
                     </tr>

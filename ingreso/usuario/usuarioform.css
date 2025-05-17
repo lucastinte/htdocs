@@ -179,19 +179,21 @@ form {
   font-size: 1em;
 }
 
-button[type="submit"] {
-  background-color: #007bff;
+
+
+/* Updated styles for delete button to remove all colors */
+button[type="submit"].icon-delete {
+  background: none;
+  color: inherit; /* Inherit color from parent */
+  padding: 0;
   border: none;
-  color: #fff;
-  padding: 10px 15px;
-  border-radius: 4px;
+  font-size: 1.2em;
   cursor: pointer;
-  font-size: 1em;
-  transition: background-color 0.3s;
+  transition: transform 0.2s ease;
 }
 
-button[type="submit"]:hover {
-  background-color: #0056b3;
+button[type="submit"].icon-delete:hover {
+  transform: scale(1.2);
 }
 
 /* Estilos para el enlace de retroceso */

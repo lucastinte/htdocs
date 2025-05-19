@@ -6,7 +6,7 @@ session_start();
 // Manejar el envío del formulario
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $usuario = $_POST['usuario'];
-    $password = $_POST['password']; // Cambié 'contraseña' por 'password'
+    $password = $_POST['password']; // 
 
     // Verificar en la tabla 'clientes'
     $consulta_cliente = "SELECT * FROM clientes WHERE email = ?";
@@ -163,7 +163,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <h1>INGRESAR</h1>
             <hr>
             <div class="form-group">
-                <label for="usuario">Usuario o Email:</label>
+                <label for="usuario">Usuario o Email (si es cliente):</label>
                 <input type="text" id="usuario" name="usuario" placeholder="Ingrese su nombre" required>
             </div>
             <div class="form-group">

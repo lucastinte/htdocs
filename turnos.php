@@ -99,10 +99,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             unlink($rutaPDF);
 
             // Mensaje de confirmación
-            echo "<script>
-                    alert('El turno ha sido agendado y el correo de confirmación ha sido enviado con éxito.');
-                    window.location.href = '/';
-                  </script>";
+            header('Location: turnos.php?success=1');
+            exit();
         } catch (Exception $e) {
             echo "Error al enviar el mensaje. Mailer Error: {$mail->ErrorInfo}";
         }
@@ -116,6 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 // Obtener fechas y horas disponibles a partir de la fecha y hora actuales
 $query_disponibles = "SELECT fecha_hora FROM horarios_disponibles WHERE disponible = TRUE AND fecha_hora >= NOW() ORDER BY fecha_hora ASC";
 $result_disponibles = mysqli_query($conexion, $query_disponibles);
+$success = isset($_GET['success']) && $_GET['success'] == '1';
 ?>
 
 <!DOCTYPE html>
@@ -139,6 +138,13 @@ $result_disponibles = mysqli_query($conexion, $query_disponibles);
             background-color: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
+            text-align: center;
+            padding: 10px;
+            margin: 10px auto;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 5px;
+            font-size: 16px;
         }
         .message.error {
             background-color: #f8d7da;
@@ -200,6 +206,9 @@ $result_disponibles = mysqli_query($conexion, $query_disponibles);
         <h1 class="color-acento">Agenda un turno con Nosotros</h1>
         <section id="turnos">
             <div class="container">
+                <?php if ($success) { ?>
+                    <p class="message success">¡El turno ha sido agendado y el correo de confirmación ha sido enviado con éxito!</p>
+                <?php } ?>
                 <?php if (isset($message_turno)) { ?>
                     <p class="message <?php echo strpos($message_turno, 'exitosamente') !== false ? 'success' : 'error'; ?>"><?php echo htmlspecialchars($message_turno); ?></p>
                 <?php } ?>

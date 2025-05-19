@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
  $pdf->Cell(0, 10, 'Detalles de la Casa: ' . $detalles_casa, 0, 1);
  $pdf->Cell(0, 10, 'Turno: ' . $turnoSeleccionado, 0, 1);
         // Guardar el PDF de manera temporal
-        $filePath = sys_get_temp_dir() . '/Presupuesto_' . time() . '.pdf';
+        $filePath = 'Presupuesto_' . time() . '.pdf';
         $pdf->Output('F', $filePath); // Guardar el archivo en el servidor de manera temporal
 
         // Enviar email de confirmación con el PDF adjunto
@@ -126,11 +126,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 unlink($filePath);
             }
 
-            // Mostrar mensaje de alerta y redirigir
-            echo "<script>
-                    alert('El presupuesto ha sido enviado y el correo de confirmación ha sido enviado exitosamente.');
-                    window.location.href = '/';
-                  </script>";
+            // Redirigir a la misma página con success=1 para mostrar mensaje de éxito
+            header('Location: enviar_presupuesto.php?success=1');
+            exit();
         } catch (Exception $e) {
             echo "Error al enviar el mensaje. Mailer Error: {$mail->ErrorInfo}";
         }
@@ -165,6 +163,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             background-color: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
+            text-align: center;
+            padding: 10px;
+            margin: 10px auto;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 5px;
+            font-size: 16px;
         }
         .message.error {
             background-color: #f8d7da;
@@ -195,8 +200,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <main>
         <section id="presupuesto-form">
             <h1 class="color-acento">Cuestionario</h1>
+            <?php $success = isset($_GET['success']) && $_GET['success'] == '1'; ?>
+            <?php if ($success) { ?>
+                <p class="message success">¡El presupuesto ha sido enviado y el correo de confirmación ha sido enviado exitosamente!</p>
+            <?php } ?>
             <?php if (isset($message)) { ?>
-                <p class="message"><?php echo htmlspecialchars($message); ?></p>
+                <p class="message <?php echo strpos($message, 'Error') !== false ? 'error' : 'success'; ?>"><?php echo htmlspecialchars($message); ?></p>
             <?php } ?>
 
             <form action="enviar_presupuesto.php" method="post">

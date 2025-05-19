@@ -59,6 +59,18 @@ mysqli_close($conexion);
         .message.error {
             color: red; /* Cambia esto al color que prefieras para el mensaje de error */
         }
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            text-align: center;
+            padding: 10px;
+            margin: 10px auto;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 5px;
+            font-size: 16px;
+        }
         form {
             text-align: center;
         }
@@ -95,10 +107,10 @@ mysqli_close($conexion);
         <section id="talentos-form">
             <h1 class="color-acento">Postula tu Talento</h1>
             <?php if ($success) { ?>
-                <p class="message">¡Correo enviado exitosamente! Nos pondremos en contacto contigo pronto.</p>
+                <p class="message success">¡Correo enviado exitosamente! Nos pondremos en contacto contigo pronto.</p>
             <?php } ?>
             <?php if (isset($message)) { ?>
-                <p class="message <?php echo strpos($message, 'Error') !== false ? 'error' : ''; ?>"><?php echo htmlspecialchars($message); ?></p>
+                <p class="message <?php echo strpos($message, 'Error') !== false ? 'error' : 'success'; ?>"><?php echo htmlspecialchars($message); ?></p>
             <?php } ?>
 
             <form action="talentos.php" method="post" enctype="multipart/form-data">

@@ -37,6 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
+// Mostrar mensaje de éxito si viene de enviar_correo_talentos.php
+$success = isset($_GET['success']) && $_GET['success'] == '1';
+
 include "header.php";
 mysqli_close($conexion);
 ?>
@@ -91,6 +94,9 @@ mysqli_close($conexion);
     <main>
         <section id="talentos-form">
             <h1 class="color-acento">Postula tu Talento</h1>
+            <?php if ($success) { ?>
+                <p class="message">¡Correo enviado exitosamente! Nos pondremos en contacto contigo pronto.</p>
+            <?php } ?>
             <?php if (isset($message)) { ?>
                 <p class="message <?php echo strpos($message, 'Error') !== false ? 'error' : ''; ?>"><?php echo htmlspecialchars($message); ?></p>
             <?php } ?>

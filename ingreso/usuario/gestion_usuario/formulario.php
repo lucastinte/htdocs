@@ -7,7 +7,7 @@ require '../gestion_cliente/PHPMailer/SMTP.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-$config = include('../../../config.php'); // Asegúrate de la ruta correcta
+$config = include(__DIR__ . '../../../config.php'); // Asegúrate de la ruta correcta
 
 session_start();
 

@@ -126,7 +126,7 @@ include "header.php";
 
     <section id="final">
         <h2>Listo para Construir?</h2>
-        <button>COMIENZA</button>
+        <button><a href="enviar_presupuesto.php">COMIENZA</button>
     </section>
     </main>
 

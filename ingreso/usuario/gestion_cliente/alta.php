@@ -113,149 +113,90 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     exit();
 }
 ?>
-
-
-
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>Formulario de Registro</title>
-    <link rel="stylesheet" href="../../../../index.css">
+    <link rel="stylesheet" href="gestioncliente.css">
     <style>
-        .message {
+        body {
+            background-image: linear-gradient(0deg, rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/imagen/servicios/casas.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+        }
+        .sf form {
+            background-color: rgba(255,255,255,0.95);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            margin: 40px auto;
+        }
+        h2, h3 {
+            color: blueviolet;
             text-align: center;
-            padding: 10px;
-            margin: 10px auto;
-            width: 80%;
-            max-width: 600px;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        .message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .error {
-            color: red;
-            font-size: 0.875em;
         }
     </style>
-    <script>
-        function validateDni(dni) {
-            const errorElement = document.getElementById('dni-error');
-            if (!/^\d+$/.test(dni) || dni < 5000000) {
-                errorElement.textContent = 'El DNI debe ser un número mayor o igual a 5 millones.';
-                return false;
-            } else {
-                errorElement.textContent = '';
-                return true;
-            }
-        }
-        function validatePhone(caracteristica, numero) {
-    const errorElement = document.getElementById('tel-error');
-    
-    if (/^15\d{8}$/.test(numero)) {
-        // Validación para números de celular
-        if (!/^\d{3,5}$/.test(caracteristica) || !/^15\d{8}$/.test(numero)) {
-            errorElement.textContent = 'Para celulares, el número debe comenzar con 15 seguido de 8 dígitos.';
-            return false;
-        }
-    } else {
-        // Validación para teléfonos fijos
-        if (!/^0\d{2,4}$/.test(caracteristica) || !/^\d{6,8}$/.test(numero)) {
-            errorElement.textContent = 'Para teléfonos fijos, el código de área debe comenzar con 0, seguido de 2 a 4 dígitos, y el número local debe tener entre 6 y 8 dígitos.';
-            return false;
-        }
-    }
-    
-    errorElement.textContent = '';
-    return true;
-}
-        function validateAge(birthDate) {
-            const errorElement = document.getElementById('age-error');
-            const today = new Date();
-            const birth = new Date(birthDate);
-            let age = today.getFullYear() - birth.getFullYear();
-            const month = today.getMonth() - birth.getMonth();
-            if (month < 0 || (month === 0 && today.getDate() < birth.getDate())) {
-                age--;
-            }
-
-            if (age < 18) {
-                errorElement.textContent = 'Debes tener al menos 18 años para registrarte.';
-                return false;
-            } else {
-                errorElement.textContent = '';
-                return true;
-            }
-        }
-
-       
-function handleInput(event) {
-    const field = event.target;
-    const fieldName = field.name;
-    if (fieldName === 'dni') {
-        validateDni(field.value);
-    } else if (fieldName === 'caracteristica_tel' || fieldName === 'numero_tel') {
-        const caracteristica = document.getElementById('caracteristica_tel').value;
-        const numero = document.getElementById('numero_tel').value;
-        validatePhone(caracteristica, numero);
-    } else if (fieldName === 'fecha_nacimiento') {
-        validateAge(field.value);
-    }
-}
-    </script>
 </head>
 <body>
-    <main style="padding: 20px;">
-    <form action="alta.php" method="post" onsubmit="return validateForm();">
-    <h3 style="text-align: center;">Registro de Clientes</h3>
-
-    <label for="apellido">Apellido:</label>
-    <input type="text" id="apellido" name="apellido" required><br><br>
-
-    <label for="nombre">Nombre:</label>
-    <input type="text" id="nombre" name="nombre" required><br><br>
-
-    <label for="dni">DNI:</label>
-    <input type="text" id="dni" name="dni" oninput="handleInput(event)" required>
-    <div id="dni-error" class="error"></div><br>
-
-    <label for="caracteristica_tel">Código de Área (Argentina):</label>
-    <input type="text" id="caracteristica_tel" name="caracteristica_tel" oninput="handleInput(event)" required>
-    <div id="tel-error" class="error"></div><br>
-
-    <label for="numero_tel">Número de Teléfono:</label>
-    <input type="text" id="numero_tel" name="numero_tel" oninput="handleInput(event)" required>
-    <div id="tel-error" class="error"></div><br>
-
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email" required><br><br>
-
-    <label for="usuario">Nombre de Usuario:</label>
-    <input type="text" id="usuario" name="usuario" required><br><br>
-    
-    <label for="direccion">Dirección:</label>
-    <input type="text" id="direccion" name="direccion" required><br><br>
-
-    <label for="fecha_nacimiento">Fecha de Nacimiento:</label>
-    <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" oninput="handleInput(event)" required>
-    <div id="age-error" class="error"></div><br>
-
-    <input type="submit" value="Registrar">
-</form>
-
+    <header>
+        <div class="container">
+            <p class="logo">Mat Construcciones</p>
+            <nav>
+                <a href="alta.php" class="btn-green">Crear Cliente</a>
+                <a href="carga.php">Cargar Proyecto</a>
+                <a href="proyectos.php">Ver Proyecto</a>
+                <a href="gestioncliente.php">Volver</a>
+            </nav>
+        </div>
+    </header>
+    <main>
+        <div class="sf">
+            <form action="alta.php" method="post">
+                <h3>Registro de Clientes</h3>
+                <div class="form-group">
+                    <label for="apellido">Apellido:</label>
+                    <input type="text" id="apellido" name="apellido" required>
+                </div>
+                <div class="form-group">
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" name="nombre" required>
+                </div>
+                <div class="form-group">
+                    <label for="dni">DNI:</label>
+                    <input type="text" id="dni" name="dni" required>
+                </div>
+                <div class="form-group">
+                    <label for="caracteristica_tel">Código de Área (Argentina):</label>
+                    <input type="text" id="caracteristica_tel" name="caracteristica_tel" required>
+                </div>
+                <div class="form-group">
+                    <label for="numero_tel">Número de Teléfono:</label>
+                    <input type="text" id="numero_tel" name="numero_tel" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="usuario">Nombre de Usuario:</label>
+                    <input type="text" id="usuario" name="usuario" required>
+                </div>
+                <div class="form-group">
+                    <label for="direccion">Dirección:</label>
+                    <input type="text" id="direccion" name="direccion" required>
+                </div>
+                <div class="form-group">
+                    <label for="fecha_nacimiento">Fecha de Nacimiento:</label>
+                    <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" required>
+                </div>
+                <button type="submit">Registrar</button>
+            </form>
+        </div>
     </main>
-    <button style="width: 100px; margin: 20px auto; padding: 10px;">
-        <a href="./gestioncliente.php" style="text-decoration: none; color: aliceblue;">Volver</a>
-    </button>
 </body>
 </html>

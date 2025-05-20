@@ -59,91 +59,100 @@ if (isset($_POST['cargar_proyecto'])) {
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cargar Proyecto</title>
-    <link rel="stylesheet" href="carga.css">
+    <link rel="stylesheet" href="gestioncliente.css">
     <style>
-        .message {
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/imagen/servicios/canchas.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+        }
+
+        .sf form {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            margin: 40px auto;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: blueviolet;
             text-align: center;
-            padding: 10px;
-            margin: 10px auto;
-            width: 80%;
-            max-width: 600px;
-            border-radius: 5px;
-            font-size: 16px;
         }
-        .message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-       
     </style>
 </head>
 
 <body>
-
-<header>
+    <header>
         <div class="container">
             <p class="logo">Mat Construcciones</p>
             <nav>
-                <a href="alta.php">Crear Cliente</a>
+                <a href="alta.php" class="btn-green">Crear Cliente</a>
                 <a href="carga.php">Cargar Proyecto</a>
                 <a href="proyectos.php">Ver Proyecto</a>
                 <a href="gestioncliente.php">Volver</a>
             </nav>
         </div>
     </header>
-
-    <section id="upload-project">
-        <h1>Cargar Proyecto</h1>
-
-        <?php if (isset($message)) { ?>
-        <p><?php echo htmlspecialchars($message); ?></p>
-        <?php } ?>
-
-        <form action="carga.php" method="post" enctype="multipart/form-data">
-            <label for="id_cliente">Cliente:</label>
-            <select name="id_cliente" id="id_cliente" required>
-                <?php
-                $result = mysqli_query($conexion, "SELECT id, nombre FROM clientes");
-                while ($row = mysqli_fetch_assoc($result)) {
-                    echo "<option value='" . htmlspecialchars($row['id']) . "'>" . htmlspecialchars($row['nombre']) . "</option>";
-                }
-                ?>
-            </select>
-
-            <label for="nombre_proyecto">Nombre del Proyecto:</label>
-            <input type="text" id="nombre_proyecto" name="nombre_proyecto" required>
-
-            <label for="descripcion">Descripción:</label>
-            <textarea id="descripcion" name="descripcion" required></textarea>
-
-            <label for="fecha_inicio">Fecha de Inicio:</label>
-            <input type="date" id="fecha_inicio" name="fecha_inicio" required>
-
-            <label for="fecha_fin">Fecha de Fin:</label>
-            <input type="date" id="fecha_fin" name="fecha_fin">
-
-            <label for="estado">Estado (% de avance):</label>
-<input type="number" id="estado" name="estado" min="0" max="100" required>
-
-            <label for="archivos">Archivos:</label>
-            <input type="file" id="archivos" name="archivos[]" multiple>
-
-            <button type="submit" name="cargar_proyecto">Cargar Proyecto</button>
-        </form>
-    </section>
-
+    <main>
+        <div class="sf">
+            
+            <?php if (isset($message)) { ?>
+            <p class="message success"><?php echo htmlspecialchars($message); ?></p>
+            <?php } ?>
+            <form action="carga.php" method="post" enctype="multipart/form-data">
+                <h3>Cargar Proyecto al Cliente</h3>
+                <div class="form-group">
+                    <label for="id_cliente">Cliente:</label>
+                    <select name="id_cliente" id="id_cliente" required>
+                        <?php
+                        $result = mysqli_query($conexion, "SELECT id, nombre FROM clientes");
+                        while ($row = mysqli_fetch_assoc($result)) {
+                            echo "<option value='" . htmlspecialchars($row['id']) . "'>" . htmlspecialchars($row['nombre']) . "</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="nombre_proyecto">Nombre del Proyecto:</label>
+                    <input type="text" id="nombre_proyecto" name="nombre_proyecto" required>
+                </div>
+                <div class="form-group">
+                    <label for="descripcion">Descripción:</label>
+                    <textarea id="descripcion" name="descripcion" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="fecha_inicio">Fecha de Inicio:</label>
+                    <input type="date" id="fecha_inicio" name="fecha_inicio" required>
+                </div>
+                <div class="form-group">
+                    <label for="fecha_fin">Fecha de Fin:</label>
+                    <input type="date" id="fecha_fin" name="fecha_fin">
+                </div>
+                <div class="form-group">
+                    <label for="estado">Estado (% de avance):</label>
+                    <input type="number" id="estado" name="estado" min="0" max="100" required>
+                </div>
+                <div class="form-group">
+                    <label for="archivos">Archivos:</label>
+                    <input type="file" id="archivos" name="archivos[]" multiple>
+                </div>
+                <button type="submit" name="cargar_proyecto">Cargar Proyecto</button>
+            </form>
+        </div>
+    </main>
 </body>
 
 </html>

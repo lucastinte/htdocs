@@ -27,16 +27,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } elseif ($_POST['action'] == 'crear_horario') {
     $fecha_hora = $_POST['fecha_hora'];
 
-    // Buscar horarios con diferencia menor a 5 minutos
-    $query = "SELECT * FROM horarios_disponibles WHERE ABS(TIMESTAMPDIFF(MINUTE, fecha_hora, ?)) < 5";
+    // Buscar horarios con diferencia menor a 30 minutos
+    $query = "SELECT * FROM horarios_disponibles WHERE ABS(TIMESTAMPDIFF(MINUTE, fecha_hora, ?)) < 30";
     $stmt = mysqli_prepare($conexion, $query);
     if ($stmt) {
         mysqli_stmt_bind_param($stmt, 's', $fecha_hora);
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
         if (mysqli_num_rows($result) > 0) {
-            // Ya existe un horario dentro de 5 minutos
-            $_SESSION['error'] = 'Ya existe un horario dentro de los 5 minutos de diferencia.';
+            // Ya existe un horario dentro de 30 minutos
+            $_SESSION['error'] = 'Ya existe un horario dentro de los 30 minutos de diferencia.';
         } else {
             // Insertar el nuevo horario
             $insert_query = "INSERT INTO horarios_disponibles (fecha_hora, disponible) VALUES (?, TRUE)";

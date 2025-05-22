@@ -86,11 +86,62 @@ if (!$result) {
         }
        
     </style>
+    <script src="/modal-q.js"></script>
+    <link rel="stylesheet" href="/modal-q.css">
     <script>
+        // Mostrar mensajes de éxito/error con modal
+        <?php if (isset($message_email) && $message_email) { ?>
+          showModalQ('<?php echo addslashes($message_email); ?>', <?php echo (strpos($message_email, 'exito') !== false ? 'false' : 'true'); ?>, null, <?php echo (strpos($message_email, 'exito') !== false ? "'Éxito'" : "'Error'"); ?>, <?php echo (strpos($message_email, 'exito') !== false ? "'success'" : "'error'"); ?>);
+          <?php if (strpos($message_email, 'exito') !== false) { ?>
+          document.addEventListener('DOMContentLoaded', function() {
+            const okBtn = document.querySelector('#modal-q button');
+            if (okBtn) {
+              okBtn.addEventListener('click', function() {
+                window.location.href = 'gestioncliente.php';
+              });
+            }
+          });
+          <?php } ?>
+        <?php } elseif (isset($message_password) && $message_password) { ?>
+          showModalQ('<?php echo addslashes($message_password); ?>', <?php echo (strpos($message_password, 'exito') !== false ? 'false' : 'true'); ?>, null, <?php echo (strpos($message_password, 'exito') !== false ? "'Éxito'" : "'Error'"); ?>, <?php echo (strpos($message_password, 'exito') !== false ? "'success'" : "'error'"); ?>);
+          <?php if (strpos($message_password, 'exito') !== false) { ?>
+          document.addEventListener('DOMContentLoaded', function() {
+            const okBtn = document.querySelector('#modal-q button');
+            if (okBtn) {
+              okBtn.addEventListener('click', function() {
+                window.location.href = 'gestioncliente.php';
+              });
+            }
+          });
+          <?php } ?>
+        <?php } ?>
+        // Confirmación con modal para actualizar
         function confirmUpdate(message) {
-            return confirm(message);
+            showModalQ(message, false, null, 'Confirmar Acción');
+            setTimeout(() => {
+                const modal = document.getElementById('modal-q');
+                const content = modal.querySelector('.modal-content');
+                let btns = content.querySelectorAll('button');
+                btns.forEach(btn => btn.remove());
+                // Botón Sí
+                const btnSi = document.createElement('button');
+                btnSi.textContent = 'Sí';
+                btnSi.onclick = function() {
+                    closeModalQ();
+                    event.target.form.submit();
+                };
+                // Botón No
+                const btnNo = document.createElement('button');
+                btnNo.textContent = 'No';
+                btnNo.onclick = function() {
+                    closeModalQ();
+                };
+                content.appendChild(btnSi);
+                content.appendChild(btnNo);
+            }, 100);
+            return false;
         }
-    </script>
+        </script>
 </head>
 
 <body>
@@ -111,13 +162,14 @@ if (!$result) {
 
     <section id="client-list">
         <h1>Modificar Clientes</h1>
-
-        <?php if (isset($message_email)) { ?>
-        <p><?php echo htmlspecialchars($message_email); ?></p>
-        <?php } ?>
-        <?php if (isset($message_password)) { ?>
-        <p><?php echo htmlspecialchars($message_password); ?></p>
-        <?php } ?>
+        <!-- Modal Q para mensajes -->
+        <div id="modal-q" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;">
+          <div class="modal-content">
+            <h2 id="modal-q-title"></h2>
+            <p id="modal-q-msg"></p>
+            <button onclick="closeModalQ()">OK</button>
+          </div>
+        </div>
 
         <table>
             <thead>

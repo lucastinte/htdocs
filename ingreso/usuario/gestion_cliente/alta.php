@@ -147,8 +147,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $exito = isset($_SESSION['alta_exito']) ? $_SESSION['alta_exito'] : '';
                 unset($_SESSION['alta_errores'], $_SESSION['alta_data'], $_SESSION['alta_exito']);
                 ?>
-                <?php if (!empty($exito)) { echo '<div class="error-message" style="color:green">' . $exito . '</div>'; } ?>
-                <?php if (isset($errores['general'])) { echo '<div class="error-message">' . $errores['general'] . '</div>'; } ?>
+                <!-- Mensajes generales ahora se muestran con showModalQ -->
+                <div id="modal-q" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;">
+                  <div class="modal-content">
+                    <h2 id="modal-q-title"></h2>
+                    <p id="modal-q-msg"></p>
+                    <button onclick="closeModalQ()">OK</button>
+                  </div>
+                </div>
+                <link rel="stylesheet" href="/modal-q.css">
+                <script src="/modal-q.js"></script>
+                <script>
+                <?php if (!empty($exito)) { ?>
+                  showModalQ('<?php echo addslashes($exito); ?>', false, null, 'Registro Exitoso', 'success');
+                  document.addEventListener('DOMContentLoaded', function() {
+                    const okBtn = document.querySelector('#modal-q button');
+                    if (okBtn) {
+                      okBtn.addEventListener('click', function() {
+                        window.location.href = 'gestioncliente.php';
+                      });
+                    }
+                  });
+                <?php } elseif (isset($errores['general'])) { ?>
+                  showModalQ('<?php echo addslashes($errores['general']); ?>', true, null, 'Error', 'error');
+                <?php } ?>
+                </script>
                 <div class="form-group">
                     <label for="apellido">Apellido:</label>
                     <input type="text" id="apellido" name="apellido" required value="<?= isset($data['apellido']) ? htmlspecialchars($data['apellido']) : '' ?>">

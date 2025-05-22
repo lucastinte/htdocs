@@ -43,6 +43,7 @@ if (!$result) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Baja de Clientes</title>
     <link rel="stylesheet" href="../usuarioform.css">
+    <link rel="stylesheet" href="/modal-q.css">
     <style>
         .message {
             text-align: center;
@@ -53,21 +54,60 @@ if (!$result) {
             border-radius: 5px;
             font-size: 16px;
         }
+
         .message.success {
             background-color: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
         }
+
         .message.error {
             background-color: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
-       
     </style>
+    <script src="/modal-q.js"></script>
     <script>
+        // Mostrar mensajes de éxito/error con modal
+        <?php if (isset($message) && $message) { ?>
+          showModalQ('<?php echo addslashes($message); ?>', <?php echo (strpos($message, 'exito') !== false ? 'false' : 'true'); ?>, null, <?php echo (strpos($message, 'exito') !== false ? "'Éxito'" : "'Error'"); ?>, <?php echo (strpos($message, 'exito') !== false ? "'success'" : "'error'"); ?>);
+          <?php if (strpos($message, 'exito') !== false) { ?>
+          document.addEventListener('DOMContentLoaded', function() {
+            const okBtn = document.querySelector('#modal-q button');
+            if (okBtn) {
+              okBtn.addEventListener('click', function() {
+                window.location.href = 'gestioncliente.php';
+              });
+            }
+          });
+          <?php } ?>
+        <?php } ?>
+        // Confirmación con modal para eliminar
         function confirmDelete() {
-            return confirm('¿Estás seguro de que deseas eliminar este cliente?');
+            showModalQ('¿Estás seguro de que deseas eliminar este cliente?', false, null, 'Confirmar Eliminación');
+            setTimeout(() => {
+                const modal = document.getElementById('modal-q');
+                const content = modal.querySelector('.modal-content');
+                let btns = content.querySelectorAll('button');
+                btns.forEach(btn => btn.remove());
+                // Botón Sí
+                const btnSi = document.createElement('button');
+                btnSi.textContent = 'Sí';
+                btnSi.onclick = function() {
+                    closeModalQ();
+                    event.target.form.submit();
+                };
+                // Botón No
+                const btnNo = document.createElement('button');
+                btnNo.textContent = 'No';
+                btnNo.onclick = function() {
+                    closeModalQ();
+                };
+                content.appendChild(btnSi);
+                content.appendChild(btnNo);
+            }, 100);
+            return false;
         }
     </script>
 </head>
@@ -90,10 +130,14 @@ if (!$result) {
 
     <section id="client-list" class="forms">
         <h1>Eliminar Clientes</h1>
-
-        <?php if (isset($message)) { ?>
-        <p><?php echo htmlspecialchars($message); ?></p>
-        <?php } ?>
+        <!-- Modal Q para mensajes -->
+        <div id="modal-q" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;">
+          <div class="modal-content">
+            <h2 id="modal-q-title"></h2>
+            <p id="modal-q-msg"></p>
+            <button onclick="closeModalQ()">OK</button>
+          </div>
+        </div>
 
         <table>
             <thead>

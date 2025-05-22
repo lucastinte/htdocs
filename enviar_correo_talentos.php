@@ -32,7 +32,6 @@ if (isset($_GET['email'])) {
 
         $mail->send();
         
-        // Mostrar mensaje de alerta y redirigir
         echo "<script>\nwindow.location.href = '/talentos.php?success=1';\n</script>";
     } catch (Exception $e) {
         echo "Error al enviar el mensaje. Mailer Error: {$mail->ErrorInfo}";

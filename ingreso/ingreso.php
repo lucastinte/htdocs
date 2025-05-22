@@ -24,10 +24,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit();
         } else {
             // Mostrar un mensaje si el cliente está inactivo
-            echo "<script>
-                alert('Tu cuenta está desactivada. Comunícate con el soporte para más información.');
-                window.location.href = 'ingreso.php';
-            </script>";
+            echo "<script>window.onload = function(){ showAndRedirect('Tu cuenta está desactivada. Comunícate con el soporte para más información.', true, 'Cuenta Inactiva'); };</script>";
+            echo "<script>setTimeout(function(){ window.location.href = 'ingreso.php'; }, 2000);</script>";
         }
     } else {
         // Verificar en la tabla 'usuarios' para usuarios con contraseñas en texto plano
@@ -44,10 +42,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit();
         } else {
             // Si no hay coincidencias en ninguna tabla
-            echo "<script>
-                alert('Error en el ingreso. Verifica tus credenciales e intenta de nuevo.');
-                window.location.href = 'ingreso.php';
-            </script>";
+            echo "<script>window.onload = function(){ showAndRedirect('Error en el ingreso. Verifica tus credenciales e intenta de nuevo.', true, 'Error de Ingreso'); };</script>";
+            echo "<script>setTimeout(function(){ window.location.href = 'ingreso.php'; }, 2000);</script>";
         }
 
         $stmt_usuario->close();
@@ -167,8 +163,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="text" id="usuario" name="usuario" placeholder="Ingrese su nombre" required>
             </div>
             <div class="form-group">
-                <label for="password">Contraseña:</label> <!-- Cambié 'contraseña' por 'password' -->
-                <input type="password" id="password" name="password" placeholder="Ingrese su contraseña" required> <!-- Cambié 'contraseña' por 'password' -->
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" placeholder="Ingrese su contraseña" required>
             </div>
             <hr>
             <button type="submit">Ingresar</button>
@@ -176,5 +172,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <p></p>
         <a href="../index.php"><button>Volver</button></a>
     </div>
+    <!-- Modal Q reutilizable -->
+    <div id="modal-q" style="display:none">
+      <div class="modal-content">
+        <h2 id="modal-q-title"></h2>
+        <p id="modal-q-msg"></p>
+        <button onclick="closeModalQ()">OK</button>
+      </div>
+    </div>
+    <link rel="stylesheet" href="../modal-q.css">
+    <script src="../modal-q.js"></script>
+    <script>
+    function showAndRedirect(msg, isError, title) {
+      showModalQ(msg, isError, null, title);
+      setTimeout(function(){ window.location.href = 'ingreso.php'; }, 2000);
+    }
+    </script>
 </body>
 </html>

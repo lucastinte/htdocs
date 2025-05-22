@@ -53,18 +53,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param("ss", $hashed_password, $email);
         if ($stmt->execute()) {
             echo "<script>
-                alert('Contraseña establecida exitosamente.');
-                window.location.href = '/';
+                showModalQ('Contraseña establecida exitosamente.', false, null, 'Éxito');
+                setTimeout(() => { window.location.href = '/'; }, 3000);
             </script>";
         } else {
-            echo "Error al actualizar la contraseña: " . $stmt->error;
+            echo "<script>
+                showModalQ('Error al actualizar la contraseña: " . $stmt->error . "', true, null, 'Error');
+            </script>";
         }
 
         $stmt->close();
         $conexion->close();
         exit();
     } else {
-        echo "<script>alert('Las contraseñas no coinciden.');</script>";
+        echo "<script>
+            showModalQ('Las contraseñas no coinciden.', true, null, 'Error');
+        </script>";
     }
 }
 ?>

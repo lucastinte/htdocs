@@ -234,19 +234,28 @@ if (isset($_SESSION['success'])) {
         <label for="fecha_hora">Fecha y Hora:</label>
         <input type="datetime-local" id="fecha_hora" name="fecha_hora" required min="<?php echo date('Y-m-d\TH:i'); ?>">
         <script>
-    // Función para prevenir la selección de fechas pasadas (opcional, si quieres una validación adicional)
+    // Función para prevenir la selección de fechas pasadas usando el modal
     function preventPastDate() {
         var fechaHoraInput = document.getElementById('fecha_hora');
         fechaHoraInput.addEventListener('change', function() {
             if (new Date(this.value) < new Date()) {
-                alert('Por favor, selecciona una fecha y hora futuras.');
-                this.value = ''; // Limpia el campo si se selecciona una fecha pasada
+                showModalQ('Por favor, selecciona una fecha y hora futuras.', true, null, 'Fecha inválida');
+                this.value = '';
             }
         });
     }
-
     window.onload = preventPastDate;
-</script>
+    </script>
+    <!-- Modal Q reutilizable -->
+    <div id="modal-q" style="display:none">
+      <div class="modal-content">
+        <h2 id="modal-q-title"></h2>
+        <p id="modal-q-msg"></p>
+        <button onclick="closeModalQ()">OK</button>
+      </div>
+    </div>
+    <link rel="stylesheet" href="../modal-q.css">
+    <script src="../modal-q.js"></script>
         <button type="submit" class="btn-create">Crear Horario</button>
     </form>
 

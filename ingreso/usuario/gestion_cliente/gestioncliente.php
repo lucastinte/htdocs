@@ -84,9 +84,48 @@ if (!$result) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Clientes</title>
     <link rel="stylesheet" href="gestioncliente.css">
+    <link rel="stylesheet" href="/modal-q.css">
+    <script src="/modal-q.js"></script>
     <script>
         function confirmAction(message) {
             return confirm(message);
+        }
+
+        function confirmActionModal(message, callback) {
+            showModalQ(message, false, null, 'Confirmar Acción');
+            setTimeout(() => {
+                const modal = document.getElementById('modal-q');
+                const content = modal.querySelector('.modal-content');
+                let btns = content.querySelectorAll('button');
+                btns.forEach(btn => btn.remove());
+                // Botón Sí
+                const btnSi = document.createElement('button');
+                btnSi.textContent = 'Sí';
+                btnSi.onclick = function() {
+                    closeModalQ();
+                    callback(true);
+                };
+                // Botón No
+                const btnNo = document.createElement('button');
+                btnNo.textContent = 'No';
+                btnNo.onclick = function() {
+                    closeModalQ();
+                    callback(false);
+                };
+                content.appendChild(btnSi);
+                content.appendChild(btnNo);
+            }, 100);
+        }
+
+        // Reemplazo para formularios de eliminar y activar
+        function handleFormSubmitWithModal(e, message) {
+            e.preventDefault();
+            confirmActionModal(message, function(confirmado) {
+                if (confirmado) {
+                    e.target.submit();
+                }
+            });
+            return false;
         }
 
         function rellenarFormulario(id, apellido, nombre, dni, caracteristica_tel, numero_tel, email, usuario, direccion, fecha_nacimiento) {
@@ -168,19 +207,18 @@ if (!$result) {
                                 '<?php echo htmlspecialchars($row['direccion']); ?>',
                                 '<?php echo htmlspecialchars($row['fecha_nacimiento']); ?>'
                             );">Seleccionar</button>
-                            <form action="gestioncliente.php" method="post" style="display:inline;" onsubmit="return confirmAction('¿Estás seguro de que deseas eliminar este cliente?');">
+                            <form action="gestioncliente.php" method="post" style="display:inline;" onsubmit="return handleFormSubmitWithModal(event, '¿Estás seguro de que deseas eliminar este cliente?');">
                                 <input type="hidden" name="accion" value="eliminar">
                                 <input type="hidden" name="id_cliente" value="<?php echo htmlspecialchars($row['id']); ?>">
                                 <button type="submit">Eliminar</button>
                             </form>
                             <?php if ($row['activo'] == 0) { ?>
-        <form action="gestioncliente.php" method="post" style="display:inline;">
-            <input type="hidden" name="accion" value="activar">
-            <input type="hidden" name="id_cliente" value="<?php echo htmlspecialchars($row['id']); ?>">
-            <button type="submit" onclick="return confirmAction('¿Estás seguro de que deseas activar este cliente?');">Activar</button>
-        </form>
-    <?php } elseif ($row['activo'] == 1) { ?>
-    <?php } ?>
+<form action="gestioncliente.php" method="post" style="display:inline;" onsubmit="return handleFormSubmitWithModal(event, '¿Estás seguro de que deseas activar este cliente?');">
+    <input type="hidden" name="accion" value="activar">
+    <input type="hidden" name="id_cliente" value="<?php echo htmlspecialchars($row['id']); ?>">
+    <button type="submit">Activar</button>
+</form>
+<?php } ?>
                         </td>
                     </tr>
                     <?php } ?>
@@ -189,7 +227,7 @@ if (!$result) {
 
             <h2>Modificar Cliente</h2>
             <div class="sf">
-                <form action="gestioncliente.php" method="post" onsubmit="return confirmAction('¿Estás seguro de que deseas realizar esta acción?');">
+                <form action="gestioncliente.php" method="post" id="form-modificar-cliente">
                     <input type="hidden" name="accion" id="accion" value="">
                     <input type="hidden" name="id_cliente" id="id_cliente" value="">
                     <div class="form-group">
@@ -232,12 +270,32 @@ if (!$result) {
                         <label for="password">Contraseña:</label>
                         <input type="password" id="password" name="password" placeholder="Solo ingrese si desea cambiarla">
                     </div>
-                    <button type="submit" onclick="document.getElementById('accion').value = 'modificar';">Modificar</button>
+                    <button type="submit" onclick="document.getElementById('accion').value = 'modificar'; return confirmModificarCliente(event);">Modificar</button>
                 </form>
             </div>
+            <script>
+function confirmModificarCliente(e) {
+    e.preventDefault();
+    confirmActionModal('¿Estás seguro de que deseas realizar esta acción?', function(confirmado) {
+        if (confirmado) {
+            document.getElementById('form-modificar-cliente').submit();
+        }
+    });
+    return false;
+}
+</script>
 
         </div>
     </section>
+
+    <!-- Modal Q para mensajes -->
+<div id="modal-q" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;">
+  <div class="modal-content" style="background:#fff;color:#181828;border-radius:24px;padding:40px 30px 30px 30px;text-align:center;min-width:320px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,0.25);transition:border 0.2s, color 0.2s;">
+    <h2 id="modal-q-title"></h2>
+    <p id="modal-q-msg"></p>
+    <button onclick="closeModalQ()">OK</button>
+  </div>
+</div>
 
 </body>
 </html>

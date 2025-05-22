@@ -7,7 +7,8 @@ require '../gestion_cliente/PHPMailer/SMTP.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-$config = include(__DIR__ . '../../../config.php'); // Asegúrate de la ruta correcta
+// CORRECCIÓN FINAL: ruta correcta para incluir config.php (misma altura que modal-q.js)
+$config = include($_SERVER['DOCUMENT_ROOT'] . '/config.php');
 
 session_start();
 
@@ -61,10 +62,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Si hay errores, mostrarlos y detener el proceso
     if (!empty($errores)) {
-        echo "<script>";
-        echo "alert('" . implode("\n", $errores) . "');";
-        echo "window.location.href = 'formulario.php';"; 
-        echo "</script>";
+        echo "<html><head>"
+            . '<link rel="stylesheet" href="/modal-q.css">'
+            . '<script src="/modal-q.js"></script>'
+            . "</head><body>"
+            . '<div id="modal-q" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;">'
+            . '<div class="modal-content" style="background:#fff;color:#181828;border-radius:24px;padding:40px 30px 30px 30px;text-align:center;min-width:320px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,0.25);transition:border 0.2s, color 0.2s;">'
+            . '<h2 id="modal-q-title"></h2>'
+            . '<p id="modal-q-msg"></p>'
+            . '<button onclick="closeModalQ()">OK</button>'
+            . '</div></div>'
+            . "<script>showModalQ('" . implode("<br>", $errores) . "', true, null, 'Errores de Validación');setTimeout(() => { window.location.href = 'formulario.php'; }, 3000);</script>"
+            . "</body></html>";
         $conexion->close();
         exit();
     } 
@@ -84,12 +93,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         enviarCorreo($email, $token);
 
         // Mostrar un mensaje de éxito al usuario
-        echo "<script>";
-        echo "alert('Usuario registrado con éxito. Revisa tu correo electrónico para establecer tu contraseña.');";
-        echo "window.location.href = 'gestionusuario.php';"; // Redirigir a la página de gestión de usuarios
-        echo "</script>";
+        echo "<html><head>"
+            . '<link rel="stylesheet" href="/modal-q.css">'
+            . '<script src="/modal-q.js"></script>'
+            . "</head><body>"
+            . '<div id="modal-q" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;">'
+            . '<div class="modal-content" style="background:#fff;color:#181828;border-radius:24px;padding:40px 30px 30px 30px;text-align:center;min-width:320px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,0.25);transition:border 0.2s, color 0.2s;">'
+            . '<h2 id="modal-q-title"></h2>'
+            . '<p id="modal-q-msg"></p>'
+            . '<button onclick="closeModalQ()">OK</button>'
+            . '</div></div>'
+            . "<script>showModalQ('Usuario registrado con éxito. Revisa tu correo electrónico para establecer tu contraseña.', false, null, 'Registro Exitoso');setTimeout(() => { window.location.href = 'gestionusuario.php'; }, 3000);</script>"
+            . "</body></html>";
     } else {
-        echo "Error al registrar el usuario: " . $stmt_insertar->error;
+        echo "<html><head>"
+            . '<link rel="stylesheet" href="/modal-q.css">'
+            . '<script src="/modal-q.js"></script>'
+            . "</head><body>"
+            . '<div id="modal-q" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;">'
+            . '<div class="modal-content" style="background:#fff;color:#181828;border-radius:24px;padding:40px 30px 30px 30px;text-align:center;min-width:320px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,0.25);transition:border 0.2s, color 0.2s;">'
+            . '<h2 id="modal-q-title"></h2>'
+            . '<p id="modal-q-msg"></p>'
+            . '<button onclick="closeModalQ()">OK</button>'
+            . '</div></div>'
+            . "<script>showModalQ('Error al registrar el usuario: " . $stmt_insertar->error . "', true, null, 'Error de Registro');</script>"
+            . "</body></html>";
     }
 
     $stmt_insertar->close();
@@ -142,6 +170,8 @@ function enviarCorreo($email, $token) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Usuarios</title>
     <link rel="stylesheet" href="formulario.css">
+    <link rel="stylesheet" href="/modal-q.css">
+    <script src="/modal-q.js"></script>
 </head>
 <body>
     <div class="container">
@@ -192,6 +222,15 @@ function enviarCorreo($email, $token) {
         </form>
         <p></p>
         <a href="/ingreso/usuario/gestion_usuario/gestionusuario.php"><button>VOLVER</button></a>
+    </div>
+
+    <!-- Modal Q para mensajes -->
+    <div id="modal-q" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;">
+      <div class="modal-content" style="background:#fff;color:#181828;border-radius:24px;padding:40px 30px 30px 30px;text-align:center;min-width:320px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,0.25);transition:border 0.2s, color 0.2s;">
+        <h2 id="modal-q-title"></h2>
+        <p id="modal-q-msg"></p>
+        <button onclick="closeModalQ()">OK</button>
+      </div>
     </div>
 </body>
 </html>

@@ -200,13 +200,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <main>
         <section id="presupuesto-form">
             <h1 class="color-acento">Cuestionario</h1>
-            <?php $success = isset($_GET['success']) && $_GET['success'] == '1'; ?>
-            <?php if ($success) { ?>
-                <p class="message success">¡El presupuesto ha sido enviado y el correo de confirmación ha sido enviado exitosamente!</p>
-            <?php } ?>
-            <?php if (isset($message)) { ?>
-                <p class="message <?php echo strpos($message, 'Error') !== false ? 'error' : 'success'; ?>"><?php echo htmlspecialchars($message); ?></p>
-            <?php } ?>
 
             <form action="enviar_presupuesto.php" method="post">
                 <label for="nombre">Apellido y Nombre:</label>
@@ -299,6 +292,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </form>
         </section>
     </main>
+
+    <!-- Modal Q reutilizable -->
+    <div id="modal-q" style="display:none">
+      <div class="modal-content">
+        <h2 id="modal-q-title"></h2>
+        <p id="modal-q-msg"></p>
+        <button onclick="closeModalQ()">OK</button>
+      </div>
+    </div>
+    <link rel="stylesheet" href="modal-q.css">
+    <script src="modal-q.js"></script>
+    <script>
+    <?php if (isset($_GET['success']) && $_GET['success'] == '1') { ?>
+      showModalQ('¡El presupuesto ha sido enviado y el correo de confirmación ha sido enviado exitosamente!', false, null, '¡Presupuesto Enviado!');
+    <?php } elseif (isset($message)) { ?>
+      showModalQ('<?php echo htmlspecialchars($message); ?>', <?php echo (strpos($message, 'Error') !== false ? 'true' : 'false'); ?>, null, <?php echo (strpos($message, 'Error') !== false ? "'Error al Enviar Presupuesto'" : "'¡Presupuesto Enviado!'"); ?>);
+    <?php } ?>
+    </script>
 
     <footer>
         <div class="container">

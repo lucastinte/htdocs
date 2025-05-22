@@ -163,30 +163,28 @@ function getProjectFiles($id_proyecto) {
 
 <script>
 function eliminarProyecto(idProyecto) {
-    if (confirm("¿Estás seguro de que deseas eliminar este proyecto?")) {
-        // Realizar la solicitud AJAX
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", "proyectos.php", true);
-        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    // Realizar la solicitud AJAX
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "proyectos.php", true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                // Si la respuesta es exitosa, elimina el proyecto de la tabla
-                var respuesta = JSON.parse(xhr.responseText);
-                if (respuesta.success) {
-                    // Eliminar la fila del proyecto del DOM
-                    var filaProyecto = document.getElementById("proyecto-" + idProyecto);
-                    filaProyecto.parentNode.removeChild(filaProyecto);
-                    alert(respuesta.message);
-                } else {
-                    alert("Error al eliminar el proyecto: " + respuesta.message);
-                }
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            // Si la respuesta es exitosa, elimina el proyecto de la tabla
+            var respuesta = JSON.parse(xhr.responseText);
+            if (respuesta.success) {
+                // Eliminar la fila del proyecto del DOM
+                var filaProyecto = document.getElementById("proyecto-" + idProyecto);
+                filaProyecto.parentNode.removeChild(filaProyecto);
+                showModalQ(respuesta.message, false, null, 'Éxito');
+            } else {
+                showModalQ("Error al eliminar el proyecto: " + respuesta.message, true, null, 'Error');
             }
-        };
+        }
+    };
 
-        // Enviar la solicitud con el ID del proyecto
-        xhr.send("id_proyecto=" + idProyecto + "&accion=eliminar");
-    }
+    // Enviar la solicitud con el ID del proyecto
+    xhr.send("id_proyecto=" + idProyecto + "&accion=eliminar");
 }
 </script>
 

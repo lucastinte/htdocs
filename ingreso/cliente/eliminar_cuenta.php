@@ -40,15 +40,9 @@ $sql = "UPDATE clientes SET activo = 0 WHERE email='$usuario'";
     mysqli_close($conexion);
 
     if ($exito) {
-        echo "<script>
-            alert('$mensaje');
-            window.location.href = '/index.php';
-        </script>";
+        echo '<script>window.onload = function() { showModalQ("' . addslashes($mensaje) . '", false, null, "Cuenta eliminada"); setTimeout(function(){ window.location.href = "/index.php"; }, 2000); };</script>';
     } else {
-        echo "<script>
-            alert('$mensaje');
-            window.location.href = 'eliminar_cuenta.php';
-        </script>";
+        echo '<script>window.onload = function() { showModalQ("' . addslashes($mensaje) . '", true, null, "Error"); setTimeout(function(){ window.location.href = "eliminar_cuenta.php"; }, 2000); };</script>';
     }
 }
 ?>
@@ -90,5 +84,14 @@ $sql = "UPDATE clientes SET activo = 0 WHERE email='$usuario'";
         <a href="cliente.php" class="back-button">Volver a Gestión de Cliente</a>
     </section>
 </body>
-
+<!-- Modal Q reutilizable -->
+<div id="modal-q" style="display:none">
+  <div class="modal-content">
+    <h2 id="modal-q-title"></h2>
+    <p id="modal-q-msg"></p>
+    <button onclick="closeModalQ()">OK</button>
+  </div>
+</div>
+<link rel="stylesheet" href="../modal-q.css">
+<script src="../modal-q.js"></script>
 </html>

@@ -206,12 +206,23 @@ $success = isset($_GET['success']) && $_GET['success'] == '1';
         <h1 class="color-acento">Agenda un turno con Nosotros</h1>
         <section id="turnos">
             <div class="container">
+                <!-- Modal Q reutilizable -->
+                <div id="modal-q" style="display:none">
+                  <div class="modal-content">
+                    <h2 id="modal-q-title"></h2>
+                    <p id="modal-q-msg"></p>
+                    <button onclick="closeModalQ()">OK</button>
+                  </div>
+                </div>
+                <link rel="stylesheet" href="modal-q.css">
+                <script src="modal-q.js"></script>
+                <script>
                 <?php if ($success) { ?>
-                    <p class="message success">¡El turno ha sido agendado y el correo de confirmación ha sido enviado con éxito!</p>
+                  showModalQ('¡El turno ha sido agendado y el correo de confirmación ha sido enviado con éxito!', false, null, '¡Turno Reservado!');
+                <?php } elseif (isset($message_turno)) { ?>
+                  showModalQ('<?php echo htmlspecialchars($message_turno); ?>', <?php echo (strpos($message_turno, 'exitosamente') !== false ? 'false' : 'true'); ?>, null, <?php echo (strpos($message_turno, 'exitosamente') !== false ? "'¡Turno Reservado!'" : "'Error al Agendar Turno'"); ?>);
                 <?php } ?>
-                <?php if (isset($message_turno)) { ?>
-                    <p class="message <?php echo strpos($message_turno, 'exitosamente') !== false ? 'success' : 'error'; ?>"><?php echo htmlspecialchars($message_turno); ?></p>
-                <?php } ?>
+                </script>
 
                 <form action="turnos.php" method="post">
                     <label for="nombre">Nombre:</label>

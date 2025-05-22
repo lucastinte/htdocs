@@ -74,8 +74,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($stmt_update->execute()) {
             $message_usuario = "Usuario modificado con éxito.";
+            echo "<script>
+                showModalQ('$message_usuario', false, null, 'Éxito');
+            </script>";
         } else {
             $message_usuario = "Error al modificar el usuario: " . $stmt_update->error;
+            echo "<script>
+                showModalQ('$message_usuario', true, null, 'Error');
+            </script>";
         }
     } elseif ($accion == 'eliminar' && ($permisos_usuario_actual == 'modificar' || $permisos_usuario_actual == 'crear')) {
         $query = "DELETE FROM usuarios WHERE id_usuario = ?";
@@ -84,8 +90,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
         if ($stmt_delete->execute()) {
             $message_usuario = "Usuario eliminado con éxito.";
+            echo "<script>
+                showModalQ('$message_usuario', false, null, 'Éxito');
+            </script>";
         } else {
             $message_usuario = "Error al eliminar el usuario: " . $stmt_delete->error;
+            echo "<script>
+                showModalQ('$message_usuario', true, null, 'Error');
+            </script>";
         }
     } else {
         $message_usuario = "No tienes permisos para realizar esta acción.";
@@ -128,6 +140,82 @@ if (!$result) {
         document.getElementById('permisos').value = permisos;
         document.getElementById('usuario').value = usuario;
     }
+
+    function confirmDeleteUsuario(idUsuario) {
+        showModalQ(
+            '¿Estás seguro de que deseas eliminar este usuario?',
+            false,
+            null,
+            'Confirmar Eliminación'
+        );
+        // Guardar el id temporalmente para usarlo en la acción de sí
+        window.usuarioAEliminar = idUsuario;
+        // Cambiar el botón OK del modal por Sí/No
+        setTimeout(() => {
+            const modal = document.getElementById('modal-q');
+            const content = modal.querySelector('.modal-content');
+            let btns = content.querySelectorAll('button');
+            btns.forEach(btn => btn.remove());
+            // Botón Sí
+            const btnSi = document.createElement('button');
+            btnSi.textContent = 'Sí';
+            btnSi.onclick = function() {
+                // Crear y enviar el formulario de eliminación
+                const form = document.createElement('form');
+                form.method = 'post';
+                form.action = 'gestionusuario.php';
+                form.style.display = 'none';
+                const inputAccion = document.createElement('input');
+                inputAccion.type = 'hidden';
+                inputAccion.name = 'accion';
+                inputAccion.value = 'eliminar';
+                form.appendChild(inputAccion);
+                const inputId = document.createElement('input');
+                inputId.type = 'hidden';
+                inputId.name = 'id_usuario';
+                inputId.value = window.usuarioAEliminar;
+                form.appendChild(inputId);
+                document.body.appendChild(form);
+                form.submit();
+            };
+            // Botón No
+            const btnNo = document.createElement('button');
+            btnNo.textContent = 'No';
+            btnNo.onclick = closeModalQ;
+            content.appendChild(btnSi);
+            content.appendChild(btnNo);
+        }, 100);
+    }
+
+    function confirmFormAction(event) {
+        event.preventDefault();
+        showModalQ(
+            '¿Estás seguro de que deseas realizar esta acción?',
+            false,
+            null,
+            'Confirmar Acción'
+        );
+        setTimeout(() => {
+            const modal = document.getElementById('modal-q');
+            const content = modal.querySelector('.modal-content');
+            let btns = content.querySelectorAll('button');
+            btns.forEach(btn => btn.remove());
+            // Botón Sí
+            const btnSi = document.createElement('button');
+            btnSi.textContent = 'Sí';
+            btnSi.onclick = function() {
+                closeModalQ();
+                document.getElementById('form-gestionusuario').submit();
+            };
+            // Botón No
+            const btnNo = document.createElement('button');
+            btnNo.textContent = 'No';
+            btnNo.onclick = closeModalQ;
+            content.appendChild(btnSi);
+            content.appendChild(btnNo);
+        }, 100);
+        return false;
+    }
     </script>
 </head>
 
@@ -152,7 +240,7 @@ if (!$result) {
         <p><?php echo htmlspecialchars($message_usuario); ?></p>
     <?php } ?>
 
-    <form action="gestionusuario.php" method="post" onsubmit="return confirmAction('¿Estás seguro de que deseas realizar esta acción?');">
+    <form action="gestionusuario.php" method="post" id="form-gestionusuario">
     <input type="hidden" name="accion" id="accion" value="">
     <input type="hidden" name="id_usuario" id="id_usuario" value="">
 
@@ -200,7 +288,7 @@ if (!$result) {
         <input type="password" id="password" name="password">
     </div>
 
-    <button type="submit">Guardar</button>
+    <button type="submit" onclick="return confirmFormAction(event)">Guardar</button>
     <button type="reset">Cancelar</button>
 </form>
 
@@ -237,14 +325,10 @@ if (!$result) {
                     <button type="button" onclick="rellenarFormulario('<?php echo $usuario['id_usuario']; ?>', '<?php echo $usuario['nombre']; ?>', '<?php echo $usuario['apellido']; ?>', '<?php echo $usuario['dni']; ?>', '<?php echo $usuario['email']; ?>', '<?php echo $usuario['fecha_nacimiento']; ?>', '<?php echo $usuario['telefono']; ?>', '<?php echo $usuario['puesto']; ?>', '<?php echo $usuario['permisos']; ?>', '<?php echo $usuario['usuario']; ?>')">Modificar</button>
                     <?php if ($usuario['id_usuario'] != $id_usuario_logueado) { ?>
                         <!-- Permitir eliminar si no es el usuario logueado -->
-                        <form action="gestionusuario.php" method="post" style="display:inline-block;">
-                            <input type="hidden" name="accion" value="eliminar">
-                            <input type="hidden" name="id_usuario" value="<?php echo $usuario['id_usuario']; ?>">
-                            <button type="submit" onclick="return confirmAction('¿Estás seguro de que deseas eliminar este usuario?');">Eliminar</button>
-                        </form>
+                        <button type="button" onclick="confirmDeleteUsuario('<?php echo $usuario['id_usuario']; ?>')">Eliminar</button>
                     <?php } else { ?>
-                        <!-- Mostrar alerta si intenta eliminarse a sí mismo -->
-                        <button type="button" onclick="alert('No puedes eliminar tu propia cuenta mientras estás logueado.');">Eliminar</button>
+                        <!-- Mostrar modal si intenta eliminarse a sí mismo -->
+                        <button type="button" onclick="showModalQ('No puedes eliminar tu propia cuenta mientras estás logueado.', true, null, 'Acción no permitida');">Eliminar</button>
                     <?php } ?>
                 </td>
             </tr>
@@ -253,6 +337,17 @@ if (!$result) {
 </table>
 
 </section>
+
+<!-- Modal Q para mensajes -->
+<div id="modal-q" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;">
+  <div class="modal-content" style="background:#fff;color:#181828;border-radius:24px;padding:40px 30px 30px 30px;text-align:center;min-width:320px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,0.25);transition:border 0.2s, color 0.2s;">
+    <h2 id="modal-q-title"></h2>
+    <p id="modal-q-msg"></p>
+    <button onclick="closeModalQ()">OK</button>
+  </div>
+</div>
+<link rel="stylesheet" href="/modal-q.css">
+<script src="/modal-q.js"></script>
 
 </body>
 </html>

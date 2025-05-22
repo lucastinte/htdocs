@@ -91,12 +91,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($stmt_delete->execute()) {
             $message_usuario = "Usuario eliminado con éxito.";
             echo "<script>
-                showModalQ('$message_usuario', false, null, 'Éxito');
+                showModalQ('$message_usuario', false, null, 'Éxito', 'success');
             </script>";
         } else {
             $message_usuario = "Error al eliminar el usuario: " . $stmt_delete->error;
             echo "<script>
-                showModalQ('$message_usuario', true, null, 'Error');
+                showModalQ('$message_usuario', true, null, 'Error', 'error');
             </script>";
         }
     } else {

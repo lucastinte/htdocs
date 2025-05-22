@@ -40,15 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $errores[] = "Debes ser mayor de edad para registrarte.";
     }
 
-    // 2. Validar formato de teléfono
-    if (!preg_match('/^\d{10}$/', $telefono)) { 
-        $errores[] = "El formato del teléfono no es válido.";
-    }
-
-    // 3. Validar longitud del DNI
-    if (strlen($dni) < 8) {
-        $errores[] = "El DNI debe tener al menos 8 caracteres.";
-    }
+    
 
     // 4. Verificar si el email, DNI o usuario ya existen
     $query_verificar = "SELECT 1 FROM usuarios WHERE email = ? OR dni = ? OR usuario = ?";
@@ -65,14 +57,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "<html><head>"
             . '<link rel="stylesheet" href="/modal-q.css">'
             . '<script src="/modal-q.js"></script>'
+            . "<script>
+            function closeModalQAndReload() {
+                closeModalQ();
+                window.location.href = 'formulario.php';
+            }
+        </script>"
             . "</head><body>"
             . '<div id="modal-q" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;">'
             . '<div class="modal-content" style="background:#fff;color:#181828;border-radius:24px;padding:40px 30px 30px 30px;text-align:center;min-width:320px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,0.25);transition:border 0.2s, color 0.2s;">'
             . '<h2 id="modal-q-title"></h2>'
             . '<p id="modal-q-msg"></p>'
-            . '<button onclick="closeModalQ()">OK</button>'
+            . '<button onclick="closeModalQAndReload()">OK</button>'
             . '</div></div>'
-            . "<script>showModalQ('" . implode("<br>", $errores) . "', true, null, 'Errores de Validación');setTimeout(() => { window.location.href = 'formulario.php'; }, 3000);</script>"
+            . "<script>showModalQ('" . implode("<br>", $errores) . "', true, null, 'Errores de Validación');</script>"
             . "</body></html>";
         $conexion->close();
         exit();
@@ -101,9 +99,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             . '<div class="modal-content" style="background:#fff;color:#181828;border-radius:24px;padding:40px 30px 30px 30px;text-align:center;min-width:320px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,0.25);transition:border 0.2s, color 0.2s;">'
             . '<h2 id="modal-q-title"></h2>'
             . '<p id="modal-q-msg"></p>'
-            . '<button onclick="closeModalQ()">OK</button>'
+            . '<button id="modal-q-ok-btn" onclick="closeModalQ(); window.location.href=\'gestionusuario.php\';">OK</button>'
             . '</div></div>'
-            . "<script>showModalQ('Usuario registrado con éxito. Revisa tu correo electrónico para establecer tu contraseña.', false, null, 'Registro Exitoso');setTimeout(() => { window.location.href = 'gestionusuario.php'; }, 3000);</script>"
+            . "<script>showModalQ('Usuario registrado con éxito. Revisa tu correo electrónico para establecer tu contraseña.', false, null, 'Registro Exitoso');</script>"
+            . "<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var okBtn = document.getElementById('modal-q-ok-btn');
+  if (okBtn) {
+    okBtn.addEventListener('click', function() {
+      window.location.href = 'gestionusuario.php';
+    });
+  }
+});
+</script>"
             . "</body></html>";
     } else {
         echo "<html><head>"

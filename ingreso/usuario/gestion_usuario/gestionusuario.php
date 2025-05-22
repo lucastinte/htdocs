@@ -89,10 +89,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt_delete->bind_param("i", $id_usuario);
         
         if ($stmt_delete->execute()) {
-            $message_usuario = "Usuario eliminado con éxito.";
-            echo "<script>
-                showModalQ('$message_usuario', false, null, 'Éxito', 'success');
-            </script>";
+            $message_usuario = "<span style='color: #2ecc40; font-weight: bold;'>Usuario eliminado con éxito.</span>";
         } else {
             $message_usuario = "Error al eliminar el usuario: " . $stmt_delete->error;
             echo "<script>
@@ -237,7 +234,9 @@ if (!$result) {
     <h1>Gestión de Usuarios</h1>
 
     <?php if (!empty($message_usuario)) { ?>
-        <p><?php echo htmlspecialchars($message_usuario); ?></p>
+        <p style="color: #2ecc40; font-weight: bold;">
+            <?php echo strip_tags($message_usuario); ?>
+        </p>
     <?php } ?>
 
     <form action="gestionusuario.php" method="post" id="form-gestionusuario">

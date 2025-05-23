@@ -1,0 +1,86 @@
+/* Modal Q solo para talentos.php (modo oscuro/acento violeta) */
+#modal-q {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0; top: 0; width: 100vw; height: 100vh;
+  background: rgba(20,20,30,0.85);
+  justify-content: center;
+  align-items: center;
+}
+#modal-q .modal-content {
+  background: #23232b;
+  color: #fff;
+  border-radius: 18px;
+  padding: 40px 30px 30px 30px;
+  text-align: center;
+  min-width: 320px;
+  max-width: 90vw;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+  transition: border 0.2s, color 0.2s;
+}
+#modal-q .modal-content h2 {
+  color: #fff;
+  font-size: 1.5em;
+  margin-bottom: 18px;
+}
+#modal-q .modal-content p {
+  color: #e0e0e0;
+  font-size: 1.1em;
+  margin-bottom: 24px;
+}
+#modal-q .modal-content button {
+  background: #007bff;;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 32px;
+  font-size: 1.1em;
+  font-weight: 600;
+  margin: 0 12px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+#modal-q .modal-content button:hover {
+  color: #fff;
+}
+.modal-content-talentos {
+  background: #181828 !important;
+  color: #fff !important;
+  border-radius: 18px;
+  padding: 40px 30px 30px 30px;
+  text-align: center;
+  min-width: 320px;
+  max-width: 90vw;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+  border: 2px solid #23232b !important; /* borde oscuro, no violeta */
+  transition: border 0.2s, color 0.2s;
+}
+.modal-content-talentos h2 {
+  color: #fff;
+  font-size: 1.5em;
+  margin-bottom: 18px;
+}
+.modal-content-talentos p {
+  color: #e0e0e0;
+  font-size: 1.1em;
+  margin-bottom: 24px;
+}
+.modal-content-talentos button {
+  background: #5eade7;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 32px;
+  font-size: 1.1em;
+  font-weight: 600;
+  margin: 0 12px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.modal-content-talentos button:hover {
+  background: #5eade7 !important;
+  color: #fff;
+}

@@ -51,6 +51,24 @@ mysqli_close($conexion);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulario Talentos</title>
     <link rel="stylesheet" href="index.css">
+     <style>
+        body {
+            position: relative;
+            background-image: url("../../imagen/nosotros/imagen2.png");
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+         body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.7);
+            z-index: -1;
+        }
+    </style>
 </head>
 <body>
     <main>

@@ -43,6 +43,9 @@ mysqli_close($conexion);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Talentos</title>
     <link rel="stylesheet" href="usuarioform.css">
+    <link rel="stylesheet" href="/modal-q.css">
+    <link rel="stylesheet" href="/ingreso/usuario/talentos-modal-q.css">
+    <script src="/modal-q.js"></script>
 </head>
 <body>
 
@@ -82,7 +85,7 @@ mysqli_close($conexion);
                         <td><a href="/<?php echo htmlspecialchars($row['cv_path']); ?>" download>Descargar CV</a></td>
                         <td><?php echo htmlspecialchars($row['fecha_postulacion']); ?></td>
                         <td>
-                            <form action="" method="POST" style="display: inline;">
+                            <form action="" method="POST" style="display: inline;" onsubmit="return confirmarEliminarTalento(event, this);">
                                 <input type="hidden" name="id" value="<?php echo htmlspecialchars($row['id']); ?>">
                                 <input type="hidden" name="action" value="eliminar">
                                 <button type="submit" class="btn-delete">Eliminar</button>
@@ -94,6 +97,68 @@ mysqli_close($conexion);
         </table>
     <?php } ?>
 </section>
+
+<!-- Modal Q reutilizable -->
+<div id="modal-q" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(20,20,30,0.85);justify-content:center;align-items:center;">
+  <div class="modal-content modal-content-talentos">
+    <h2 id="modal-q-title"></h2>
+    <p id="modal-q-msg"></p>
+    <button onclick="closeModalQ()">OK</button>
+  </div>
+</div>
+<script>
+function confirmarEliminarTalento(e, form) {
+    e.preventDefault();
+    showModalQ('¿Estás seguro de que deseas eliminar este talento?', false, null, 'Confirmar Eliminación');
+    setTimeout(() => {
+        const modal = document.getElementById('modal-q');
+        const content = modal.querySelector('.modal-content-talentos');
+        let btns = content.querySelectorAll('button');
+        btns.forEach(btn => btn.remove());
+        // Botón Sí
+        const btnSi = document.createElement('button');
+        btnSi.textContent = 'Sí';
+        btnSi.onclick = function() {
+            closeModalQ();
+            // Enviar el formulario por AJAX para evitar recarga
+            const formData = new FormData(form);
+            fetch('', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else {
+                    showModalQ('Talento eliminado exitosamente.', false, null, 'Éxito', 'success');
+                    setTimeout(() => {
+                        const modal = document.getElementById('modal-q');
+                        const content = modal.querySelector('.modal-content-talentos');
+                        let btns = content.querySelectorAll('button');
+                        btns.forEach(btn => btn.remove());
+                        const btnOk = document.createElement('button');
+                        btnOk.textContent = 'OK';
+                        btnOk.onclick = function() {
+                            closeModalQ();
+                            window.location.reload();
+                        };
+                        content.appendChild(btnOk);
+                    }, 100);
+                }
+            });
+        };
+        // Botón No
+        const btnNo = document.createElement('button');
+        btnNo.textContent = 'No';
+        btnNo.onclick = function() {
+            closeModalQ();
+        };
+        content.appendChild(btnSi);
+        content.appendChild(btnNo);
+    }, 100);
+    return false;
+}
+</script>
 
 </body>
 </html>

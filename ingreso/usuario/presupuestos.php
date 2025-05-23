@@ -55,6 +55,8 @@ mysqli_close($conexion);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Presupuestos</title>
     <link rel="stylesheet" href="usuarioform.css">
+    <link rel="stylesheet" href="/ingreso/usuario/talentos-modal-q.css">
+    <script src="/modal-q.js"></script>
     <style>
         a {
     text-decoration: none; /* Elimina la línea subrayada */
@@ -139,12 +141,10 @@ mysqli_close($conexion);
                         <td><?php echo htmlspecialchars($row['turno']); ?></td>
                         <td><?php echo htmlspecialchars($row['fecha_creacion']); ?></td>
                         <td>
-                            <form action="" method="POST" style="display: inline;">
+                            <form action="" method="POST" style="display: inline;" onsubmit="return confirmarEliminarPresupuesto(event, this);">
                                 <input type="hidden" name="id" value="<?php echo htmlspecialchars($row['id']); ?>">
                                 <input type="hidden" name="action" value="eliminar">
-                                <button type="submit" class="icon-button icon-delete">
-                                    🗑️<span class="tooltip">Eliminar</span>
-                                </button>
+                                <button type="submit" class="icon-button icon-delete" style="background:none;">🗑️<span class="tooltip">Eliminar</span></button>
                             </form>
                             <a href="../../generar_pdf.php?id=<?php echo htmlspecialchars($row['id']); ?>" class="icon-button icon-download">📄<span class="tooltip">Descargar Cuestionario</span>
                             </a>
@@ -162,6 +162,68 @@ mysqli_close($conexion);
         </table>
     <?php } ?>
 </section>
+
+<!-- Modal Q reutilizable para presupuestos -->
+<div id="modal-q" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(20,20,30,0.85);justify-content:center;align-items:center;">
+  <div class="modal-content modal-content-talentos">
+    <h2 id="modal-q-title"></h2>
+    <p id="modal-q-msg"></p>
+    <button onclick="closeModalQ()">OK</button>
+  </div>
+</div>
+<script>
+function confirmarEliminarPresupuesto(e, form) {
+    e.preventDefault();
+    showModalQ('¿Estás seguro de que deseas eliminar este presupuesto?', false, null, 'Confirmar Eliminación');
+    setTimeout(() => {
+        const modal = document.getElementById('modal-q');
+        const content = modal.querySelector('.modal-content-talentos');
+        let btns = content.querySelectorAll('button');
+        btns.forEach(btn => btn.remove());
+        // Botón Sí
+        const btnSi = document.createElement('button');
+        btnSi.textContent = 'Sí';
+        btnSi.onclick = function() {
+            closeModalQ();
+            // Enviar el formulario por AJAX para evitar recarga
+            const formData = new FormData(form);
+            fetch('', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else {
+                    showModalQ('Presupuesto eliminado exitosamente.', false, null, 'Éxito', 'success');
+                    setTimeout(() => {
+                        const modal = document.getElementById('modal-q');
+                        const content = modal.querySelector('.modal-content-talentos');
+                        let btns = content.querySelectorAll('button');
+                        btns.forEach(btn => btn.remove());
+                        const btnOk = document.createElement('button');
+                        btnOk.textContent = 'OK';
+                        btnOk.onclick = function() {
+                            closeModalQ();
+                            window.location.reload();
+                        };
+                        content.appendChild(btnOk);
+                    }, 100);
+                }
+            });
+        };
+        // Botón No
+        const btnNo = document.createElement('button');
+        btnNo.textContent = 'No';
+        btnNo.onclick = function() {
+            closeModalQ();
+        };
+        content.appendChild(btnSi);
+        content.appendChild(btnNo);
+    }, 100);
+    return false;
+}
+</script>
 
 </body>
 </html>

@@ -61,6 +61,8 @@ function getProjectFiles($id_proyecto) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ver Proyectos</title>
     <link rel="stylesheet" href="gestioncliente.css">
+    <link rel="stylesheet" href="/modal-q.css">
+    <script src="/modal-q.js"></script>
     <style>
         .message {
             text-align: center;
@@ -145,7 +147,7 @@ function getProjectFiles($id_proyecto) {
                     ?>
                 </td>
                 <td>
-                    <form action="actualizar_estado.php" method="post">
+                    <form action="actualizar_estado.php" method="post" onsubmit="return confirmarActualizarEstado(this);">
                         <input type="hidden" name="id_proyecto" value="<?php echo $row['id']; ?>">
                         <input type="number" name="estado" min="0" max="100" value="<?php echo htmlspecialchars($row['estado']); ?>" required>
                         <button type="submit">Actualizar</button>
@@ -153,7 +155,7 @@ function getProjectFiles($id_proyecto) {
                 </td>
                 <td>
                     <!-- Botón para eliminar el proyecto usando AJAX -->
-                    <button class="btn-red" onclick="eliminarProyecto(<?php echo $row['id']; ?>)">Eliminar</button>
+                    <button class="btn-red" type="button" onclick="eliminarProyecto(<?php echo $row['id']; ?>)">Eliminar</button>
                 </td>
             </tr>
             <?php } ?>
@@ -161,30 +163,93 @@ function getProjectFiles($id_proyecto) {
     </table>
 </section>
 
+<!-- Modal Q reutilizable -->
+<div id="modal-q" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;">
+  <div class="modal-content">
+    <h2 id="modal-q-title"></h2>
+    <p id="modal-q-msg"></p>
+  </div>
+</div>
+
 <script>
+function confirmarActualizarEstado(form) {
+    showModalQ('¿Estás seguro de que deseas actualizar el estado del proyecto?', false, null, 'Confirmar Actualización');
+    setTimeout(() => {
+        const modal = document.getElementById('modal-q');
+        const content = modal.querySelector('.modal-content');
+        let btns = content.querySelectorAll('button');
+        btns.forEach(btn => btn.remove());
+        // Botón Sí
+        const btnSi = document.createElement('button');
+        btnSi.textContent = 'Sí';
+        btnSi.onclick = function() {
+            closeModalQ();
+            form.submit();
+        };
+        // Botón No
+        const btnNo = document.createElement('button');
+        btnNo.textContent = 'No';
+        btnNo.onclick = function() {
+            closeModalQ();
+        };
+        content.appendChild(btnSi);
+        content.appendChild(btnNo);
+    }, 100);
+    return false;
+}
+
 function eliminarProyecto(idProyecto) {
-    // Realizar la solicitud AJAX
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "proyectos.php", true);
-    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            // Si la respuesta es exitosa, elimina el proyecto de la tabla
-            var respuesta = JSON.parse(xhr.responseText);
-            if (respuesta.success) {
-                // Eliminar la fila del proyecto del DOM
-                var filaProyecto = document.getElementById("proyecto-" + idProyecto);
-                filaProyecto.parentNode.removeChild(filaProyecto);
-                showModalQ(respuesta.message, false, null, 'Éxito');
-            } else {
-                showModalQ("Error al eliminar el proyecto: " + respuesta.message, true, null, 'Error');
-            }
-        }
-    };
-
-    // Enviar la solicitud con el ID del proyecto
-    xhr.send("id_proyecto=" + idProyecto + "&accion=eliminar");
+    showModalQ('¿Estás seguro de que deseas eliminar este proyecto?', false, null, 'Confirmar Eliminación');
+    setTimeout(() => {
+        const modal = document.getElementById('modal-q');
+        const content = modal.querySelector('.modal-content');
+        let btns = content.querySelectorAll('button');
+        btns.forEach(btn => btn.remove());
+        // Botón Sí
+        const btnSi = document.createElement('button');
+        btnSi.textContent = 'Sí';
+        btnSi.onclick = function() {
+            closeModalQ();
+            // Realizar la solicitud AJAX
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "proyectos.php", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var respuesta = JSON.parse(xhr.responseText);
+                    // Mostrar solo OK en el modal de resultado
+                    showModalQ(respuesta.message, !respuesta.success, null, respuesta.success ? 'Éxito' : 'Error', respuesta.success ? 'success' : 'error');
+                    setTimeout(() => {
+                        const modal = document.getElementById('modal-q');
+                        const content = modal.querySelector('.modal-content');
+                        let btns = content.querySelectorAll('button');
+                        btns.forEach(btn => btn.remove());
+                        const btnOk = document.createElement('button');
+                        btnOk.textContent = 'OK';
+                        btnOk.onclick = function() {
+                            closeModalQ();
+                            window.location.reload();
+                        };
+                        content.appendChild(btnOk);
+                    }, 100);
+                    // Eliminar la fila solo si fue éxito
+                    if (respuesta.success) {
+                        var filaProyecto = document.getElementById("proyecto-" + idProyecto);
+                        if (filaProyecto) filaProyecto.parentNode.removeChild(filaProyecto);
+                    }
+                }
+            };
+            xhr.send("id_proyecto=" + idProyecto + "&accion=eliminar");
+        };
+        // Botón No
+        const btnNo = document.createElement('button');
+        btnNo.textContent = 'No';
+        btnNo.onclick = function() {
+            closeModalQ();
+        };
+        content.appendChild(btnSi);
+        content.appendChild(btnNo);
+    }, 100);
 }
 </script>
 

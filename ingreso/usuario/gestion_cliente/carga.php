@@ -106,12 +106,15 @@ if (isset($_POST['cargar_proyecto'])) {
             </nav>
         </div>
     </header>
+
+         <?php if (isset($message)) { ?>
+            <p class="message success" style="color: #c5ecc6; font-weight: bold; text-align: center; font-size: 1.1em; margin: 18px;">
+                <?php echo htmlspecialchars($message); ?>
+            </p>
+            <?php } ?>
     <main>
         <div class="sf">
-            
-            <?php if (isset($message)) { ?>
-            <p class="message success"><?php echo htmlspecialchars($message); ?></p>
-            <?php } ?>
+           
             <form action="carga.php" method="post" enctype="multipart/form-data">
                 <h3>Cargar Proyecto al Cliente</h3>
                 <div class="form-group">

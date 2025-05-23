@@ -55,6 +55,7 @@ $sql = "UPDATE clientes SET activo = 0 WHERE email='$usuario'";
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eliminar Cuenta</title>
     <link rel="stylesheet" href="clienteform.css">
+    <link rel="stylesheet" href="/ingreso/usuario/talentos-modal-q.css">
 </head>
 
 <body>
@@ -74,7 +75,7 @@ $sql = "UPDATE clientes SET activo = 0 WHERE email='$usuario'";
 
     <section id="delete-account">
         <h1>Eliminar Cuenta</h1>
-        <form action="eliminar_cuenta.php" method="post">
+        <form id="form-eliminar-cuenta" method="post" action="eliminar_cuenta.php" onsubmit="return confirmarEliminarCuenta(event);">
             <div class="form-group">
                 <label for="password">Contraseña Actual:</label>
                 <input type="password" id="password" name="password" required>
@@ -83,15 +84,62 @@ $sql = "UPDATE clientes SET activo = 0 WHERE email='$usuario'";
         </form>
         <a href="cliente.php" class="back-button">Volver a Gestión de Cliente</a>
     </section>
-</body>
 <!-- Modal Q reutilizable -->
-<div id="modal-q" style="display:none">
-  <div class="modal-content">
+<div id="modal-q" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(20,20,30,0.85);justify-content:center;align-items:center;">
+  <div class="modal-content modal-content-talentos">
     <h2 id="modal-q-title"></h2>
     <p id="modal-q-msg"></p>
     <button onclick="closeModalQ()">OK</button>
   </div>
 </div>
-<link rel="stylesheet" href="../modal-q.css">
-<script src="../modal-q.js"></script>
+<script src="/modal-q.js"></script>
+<script>
+function confirmarEliminarCuenta(e) {
+    e.preventDefault();
+    // Aquí podrías validar la contraseña antes de mostrar el modal si lo deseas
+    showModalQ('¿Seguro que quieres eliminar tu cuenta?', false, null, 'Confirmar Eliminación');
+    setTimeout(() => {
+        const modal = document.getElementById('modal-q');
+        const content = modal.querySelector('.modal-content-talentos');
+        let btns = content.querySelectorAll('button');
+        btns.forEach(btn => btn.remove());
+        // Botón Sí
+        const btnSi = document.createElement('button');
+        btnSi.textContent = 'Sí';
+        btnSi.onclick = function() {
+            closeModalQ();
+            document.getElementById('form-eliminar-cuenta').submit();
+        };
+        // Botón No
+        const btnNo = document.createElement('button');
+        btnNo.textContent = 'No';
+        btnNo.onclick = function() {
+            closeModalQ();
+        };
+        content.appendChild(btnSi);
+        content.appendChild(btnNo);
+    }, 100);
+    return false;
+}
+</script>
+<?php
+if (isset($eliminacion_exitosa) && $eliminacion_exitosa) {
+    echo '<script>';
+    echo 'showModalQ("Su cuenta fue eliminada exitosamente.", false, null, "Cuenta eliminada", "success");';
+    echo 'setTimeout(function() {';
+    echo '  const modal = document.getElementById("modal-q");';
+    echo '  const content = modal.querySelector(".modal-content-talentos");';
+    echo '  let btns = content.querySelectorAll("button");';
+    echo '  btns.forEach(btn => btn.remove());';
+    echo '  const btnOk = document.createElement("button");';
+    echo '  btnOk.textContent = "OK";';
+    echo '  btnOk.onclick = function() {';
+    echo '    closeModalQ(); window.location.href = "/ingreso/ingreso.php";';
+    echo '  };';
+    echo '  content.appendChild(btnOk);';
+    echo '}, 100);';
+    echo '</script>';
+}
+?>
+</body>
 </html>

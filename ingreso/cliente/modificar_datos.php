@@ -20,11 +20,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fecha_nacimiento = $_POST['fecha_nacimiento'];
 
     if (updateUserData($_SESSION['usuario'], $apellido, $nombre, $dni, $caracteristica_tel, $numero_tel, $direccion, $fecha_nacimiento)) {
-        echo "<script>window.onload = function() { showModalQ('Datos actualizados exitosamente.', false, null, 'Datos Actualizados'); setTimeout(function(){ window.location.href = 'modificar_datos.php'; }, 2000); };</script>";
+        // Redirigir a la misma página para mostrar los datos actualizados
+        header("Location: modificar_datos.php");
+        exit();
     } else {
-        echo "<script>window.onload = function() { showModalQ('Error al actualizar los datos.', true, null, 'Error'); setTimeout(function(){ window.location.href = 'modificar_datos.php'; }, 2000); };</script>";
+        // Manejo de error, redirigir a la misma página o mostrar un mensaje de error
+        header("Location: modificar_datos.php?error=1");
+        exit();
     }
-    exit();
 }
 
 $cliente = getUserData($_SESSION['usuario']);
@@ -89,14 +92,4 @@ $cliente = getUserData($_SESSION['usuario']);
     <a href="cliente.php" class="back-button">Volver a Gestión de Cliente</a>
 </section>
 </body>
-<!-- Modal Q reutilizable -->
-<div id="modal-q" style="display:none">
-  <div class="modal-content">
-    <h2 id="modal-q-title"></h2>
-    <p id="modal-q-msg"></p>
-    <button onclick="closeModalQ()">OK</button>
-  </div>
-</div>
-<link rel="../modal-q.css" rel="stylesheet">
-<script src="../modal-q.js"></script>
 </html>

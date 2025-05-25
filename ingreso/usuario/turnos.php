@@ -79,12 +79,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     exit();
 }
 
-// Consultar turnos
-$query_turnos = "SELECT * FROM turnos WHERE CONCAT(fecha, ' ', hora) >= NOW()";
+// --- Paginación de turnos ---
+$turnos_por_pagina = 5;
+$total_turnos_query = "SELECT COUNT(*) as total FROM turnos WHERE CONCAT(fecha, ' ', hora) >= NOW()";
+$total_turnos_result = mysqli_query($conexion, $total_turnos_query);
+$total_turnos_row = mysqli_fetch_assoc($total_turnos_result);
+$total_turnos = $total_turnos_row['total'];
+$total_paginas = ceil($total_turnos / $turnos_por_pagina);
+$pagina_actual = isset($_GET['pagina']) ? max(1, intval($_GET['pagina'])) : 1;
+$offset = ($pagina_actual - 1) * $turnos_por_pagina;
+
+$query_turnos = "SELECT * FROM turnos WHERE CONCAT(fecha, ' ', hora) >= NOW() ORDER BY fecha, hora LIMIT $turnos_por_pagina OFFSET $offset";
 $result_turnos = mysqli_query($conexion, $query_turnos);
 
-// Consultar horarios disponibles
-$query_horarios = "SELECT * FROM horarios_disponibles WHERE disponible = TRUE ORDER BY fecha_hora ASC";
+// --- Paginación de horarios disponibles ---
+$horarios_por_pagina = 5;
+$total_horarios_query = "SELECT COUNT(*) as total FROM horarios_disponibles WHERE disponible = TRUE";
+$total_horarios_result = mysqli_query($conexion, $total_horarios_query);
+$total_horarios_row = mysqli_fetch_assoc($total_horarios_result);
+$total_horarios = $total_horarios_row['total'];
+$total_paginas_horarios = ceil($total_horarios / $horarios_por_pagina);
+$pagina_actual_horarios = isset($_GET['pagina_horarios']) ? max(1, intval($_GET['pagina_horarios'])) : 1;
+$offset_horarios = ($pagina_actual_horarios - 1) * $horarios_por_pagina;
+
+$query_horarios = "SELECT * FROM horarios_disponibles WHERE disponible = TRUE ORDER BY fecha_hora ASC LIMIT $horarios_por_pagina OFFSET $offset_horarios";
 $result_horarios = mysqli_query($conexion, $query_horarios);
 
 mysqli_close($conexion);
@@ -179,6 +197,18 @@ mysqli_close($conexion);
                 <?php } ?>
             </tbody>
         </table>
+        <!-- Controles de paginación -->
+        <div style="text-align:center; margin: 20px 0;">
+            <?php if ($total_paginas > 1): ?>
+                <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
+                    <?php if ($i == $pagina_actual): ?>
+                        <strong style="margin:0 6px; color:#4CAF50; font-size:1.1em;">[<?php echo $i; ?>]</strong>
+                    <?php else: ?>
+                        <a href="?pagina=<?php echo $i; ?>" style="margin:0 6px; color:#333; text-decoration:none; font-weight:bold;"> <?php echo $i; ?> </a>
+                    <?php endif; ?>
+                <?php endfor; ?>
+            <?php endif; ?>
+        </div>
     <?php } ?>
 </section>
 
@@ -226,6 +256,18 @@ if (isset($_SESSION['success'])) {
                 <?php } ?>
             </tbody>
         </table>
+        <!-- Controles de paginación para horarios -->
+        <div style="text-align:center; margin: 20px 0;">
+            <?php if ($total_paginas_horarios > 1): ?>
+                <?php for ($i = 1; $i <= $total_paginas_horarios; $i++): ?>
+                    <?php if ($i == $pagina_actual_horarios): ?>
+                        <strong style="margin:0 6px; color:#4CAF50; font-size:1.1em;">[<?php echo $i; ?>]</strong>
+                    <?php else: ?>
+                        <a href="?pagina_horarios=<?php echo $i; ?>" style="margin:0 6px; color:#333; text-decoration:none; font-weight:bold;"> <?php echo $i; ?> </a>
+                    <?php endif; ?>
+                <?php endfor; ?>
+            <?php endif; ?>
+        </div>
     <?php } ?>
 
     <h3>Crear Nuevo Horario</h3>

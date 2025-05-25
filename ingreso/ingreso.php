@@ -166,6 +166,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <label for="password">Contraseña:</label>
                 <input type="password" id="password" name="password" placeholder="Ingrese su contraseña" required>
             </div>
+            <div style="text-align:right;margin-bottom:10px;">
+                <a href="recuperar_contrasena.php" target="_blank" style="font-size:0.98em;color:#5a2ea6;text-decoration:inherit">¿Olvidaste tu contraseña?</a>
+            </div>
             <hr>
             <button type="submit">Ingresar</button>
         </form>

@@ -125,6 +125,8 @@ if (!$result) {
     }
 
     function rellenarFormulario(id, nombre, apellido, dni, email, fecha_nacimiento, telefono, puesto, permisos, usuario) {
+        document.getElementById('form-gestionusuario').style.display = 'block';
+        document.getElementById('titulo-gestionusuario').style.display = 'block';
         document.getElementById('accion').value = 'modificar';
         document.getElementById('id_usuario').value = id;
         document.getElementById('nombre').value = nombre;
@@ -136,6 +138,7 @@ if (!$result) {
         document.getElementById('puesto').value = puesto;
         document.getElementById('permisos').value = permisos;
         document.getElementById('usuario').value = usuario;
+        window.scrollTo({top: document.getElementById('form-gestionusuario').offsetTop - 40, behavior: 'smooth'});
     }
 
     function confirmDeleteUsuario(idUsuario) {
@@ -213,6 +216,12 @@ if (!$result) {
         }, 100);
         return false;
     }
+
+    function ocultarFormularioGestionUsuario() {
+        document.getElementById('form-gestionusuario').reset();
+        document.getElementById('form-gestionusuario').style.display = 'none';
+        document.getElementById('titulo-gestionusuario').style.display = 'none';
+    }
     </script>
 </head>
 
@@ -231,110 +240,97 @@ if (!$result) {
 </header>
 
 <section id="user-management">
-    <h1>Gestión de Usuarios</h1>
-
-    <?php if (!empty($message_usuario)) { ?>
-        <p style="color: #2ecc40; font-weight: bold;">
-            <?php echo strip_tags($message_usuario); ?>
-        </p>
-    <?php } ?>
-
-    <form action="gestionusuario.php" method="post" id="form-gestionusuario">
-    <input type="hidden" name="accion" id="accion" value="">
-    <input type="hidden" name="id_usuario" id="id_usuario" value="">
-
-    <div class="form-group">
-        <label for="nombre">Nombre:</label>
-        <input type="text" id="nombre" name="nombre" required>
-    </div>
-    <div class="form-group">
-        <label for="apellido">Apellido:</label>
-        <input type="text" id="apellido" name="apellido" required>
-    </div>
-    <div class="form-group">
-        <label for="dni">DNI:</label>
-        <input type="text" id="dni" name="dni" required>
-    </div>
-    <div class="form-group">
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-    </div>
-    <div class="form-group">
-        <label for="fecha_nacimiento">Fecha de Nacimiento:</label>
-        <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" required>
-    </div>
-    <div class="form-group">
-        <label for="telefono">Teléfono:</label>
-        <input type="text" id="telefono" name="telefono" required>
-    </div>
-    <div class="form-group">
-        <label for="puesto">Puesto:</label>
-        <input type="text" id="puesto" name="puesto" required>
-    </div>
-    <div class="form-group">
-        <label for="permisos">Permisos:</label>
-        <select id="permisos" name="permisos" required>
-            <option value="crear">Crear</option>
-            <option value="modificar">Modificar</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <label for="usuario">Usuario:</label>
-        <input type="text" id="usuario" name="usuario" required>
-    </div>
-    <div class="form-group">
-        <label for="password">Contraseña:</label>
-        <input type="password" id="password" name="password">
-    </div>
-
-    <button type="submit" onclick="return confirmFormAction(event)">Guardar</button>
-    <button type="reset">Cancelar</button>
-</form>
-
     <h2>Lista de Usuarios</h2>
-
-<table>
-    <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>DNI</th>
-            <th>Email</th>
-            <th>Fecha de Nacimiento</th>
-            <th>Teléfono</th>
-            <th>Puesto</th>
-            <th>Permisos</th>
-            <th>Usuario</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php while ($usuario = mysqli_fetch_assoc($result)) { ?>
+    <table>
+        <thead>
             <tr>
-                <td><?php echo htmlspecialchars($usuario['nombre']); ?></td>
-                <td><?php echo htmlspecialchars($usuario['apellido']); ?></td>
-                <td><?php echo htmlspecialchars($usuario['dni']); ?></td>
-                <td><?php echo htmlspecialchars($usuario['email']); ?></td>
-                <td><?php echo htmlspecialchars($usuario['fecha_nacimiento']); ?></td>
-                <td><?php echo htmlspecialchars($usuario['telefono']); ?></td>
-                <td><?php echo htmlspecialchars($usuario['puesto']); ?></td>
-                <td><?php echo htmlspecialchars($usuario['permisos']); ?></td>
-                <td><?php echo htmlspecialchars($usuario['usuario']); ?></td>
-                <td>
-                    <button type="button" onclick="rellenarFormulario('<?php echo $usuario['id_usuario']; ?>', '<?php echo $usuario['nombre']; ?>', '<?php echo $usuario['apellido']; ?>', '<?php echo $usuario['dni']; ?>', '<?php echo $usuario['email']; ?>', '<?php echo $usuario['fecha_nacimiento']; ?>', '<?php echo $usuario['telefono']; ?>', '<?php echo $usuario['puesto']; ?>', '<?php echo $usuario['permisos']; ?>', '<?php echo $usuario['usuario']; ?>')">Modificar</button>
-                    <?php if ($usuario['id_usuario'] != $id_usuario_logueado) { ?>
-                        <!-- Permitir eliminar si no es el usuario logueado -->
-                        <button type="button" onclick="confirmDeleteUsuario('<?php echo $usuario['id_usuario']; ?>')">Eliminar</button>
-                    <?php } else { ?>
-                        <!-- Mostrar modal si intenta eliminarse a sí mismo -->
-                        <button type="button" onclick="showModalQ('No puedes eliminar tu propia cuenta mientras estás logueado.', true, null, 'Acción no permitida');">Eliminar</button>
-                    <?php } ?>
-                </td>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>DNI</th>
+                <th>Email</th>
+                <th>Fecha de Nacimiento</th>
+                <th>Teléfono</th>
+                <th>Puesto</th>
+                <th>Permisos</th>
+                <th>Usuario</th>
+                <th>Acciones</th>
             </tr>
-        <?php } ?>
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            <?php while ($usuario = mysqli_fetch_assoc($result)) { ?>
+                <tr>
+                    <td><?php echo htmlspecialchars($usuario['nombre']); ?></td>
+                    <td><?php echo htmlspecialchars($usuario['apellido']); ?></td>
+                    <td><?php echo htmlspecialchars($usuario['dni']); ?></td>
+                    <td><?php echo htmlspecialchars($usuario['email']); ?></td>
+                    <td><?php echo htmlspecialchars($usuario['fecha_nacimiento']); ?></td>
+                    <td><?php echo htmlspecialchars($usuario['telefono']); ?></td>
+                    <td><?php echo htmlspecialchars($usuario['puesto']); ?></td>
+                    <td><?php echo htmlspecialchars($usuario['permisos']); ?></td>
+                    <td><?php echo htmlspecialchars($usuario['usuario']); ?></td>
+                    <td>
+                        <button type="button" onclick="rellenarFormulario('<?php echo $usuario['id_usuario']; ?>', '<?php echo $usuario['nombre']; ?>', '<?php echo $usuario['apellido']; ?>', '<?php echo $usuario['dni']; ?>', '<?php echo $usuario['email']; ?>', '<?php echo $usuario['fecha_nacimiento']; ?>', '<?php echo $usuario['telefono']; ?>', '<?php echo $usuario['puesto']; ?>', '<?php echo $usuario['permisos']; ?>', '<?php echo $usuario['usuario']; ?>')">Modificar</button>
+                        <?php if ($usuario['id_usuario'] != $id_usuario_logueado) { ?>
+                            <button type="button" onclick="confirmDeleteUsuario('<?php echo $usuario['id_usuario']; ?>')">Eliminar</button>
+                        <?php } else { ?>
+                            <button type="button" onclick="showModalQ('No puedes eliminar tu propia cuenta mientras estás logueado.', true, null, 'Acción no permitida');">Eliminar</button>
+                        <?php } ?>
+                    </td>
+                </tr>
+            <?php } ?>
+        </tbody>
+    </table>
 
+    <h1 id="titulo-gestionusuario" style="display:none;">Gestión de Usuarios</h1>
+    <form action="gestionusuario.php" method="post" id="form-gestionusuario" style="display:none;">
+        <input type="hidden" name="accion" id="accion" value="">
+        <input type="hidden" name="id_usuario" id="id_usuario" value="">
+        <div class="form-group">
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" name="nombre" required>
+        </div>
+        <div class="form-group">
+            <label for="apellido">Apellido:</label>
+            <input type="text" id="apellido" name="apellido" required>
+        </div>
+        <div class="form-group">
+            <label for="dni">DNI:</label>
+            <input type="text" id="dni" name="dni" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+            <label for="fecha_nacimiento">Fecha de Nacimiento:</label>
+            <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" required>
+        </div>
+        <div class="form-group">
+            <label for="telefono">Teléfono:</label>
+            <input type="text" id="telefono" name="telefono" required>
+        </div>
+        <div class="form-group">
+            <label for="puesto">Puesto:</label>
+            <input type="text" id="puesto" name="puesto" required>
+        </div>
+        <div class="form-group">
+            <label for="permisos">Permisos:</label>
+            <select id="permisos" name="permisos" required>
+                <option value="crear">Crear</option>
+                <option value="modificar">Modificar</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="usuario">Usuario:</label>
+            <input type="text" id="usuario" name="usuario" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" name="password">
+        </div>
+        <button type="submit" onclick="return confirmFormAction(event)">Guardar</button>
+        <button type="button" onclick="ocultarFormularioGestionUsuario()">Cancelar</button>
+    </form>
 </section>
 
 <!-- Modal Q para mensajes -->

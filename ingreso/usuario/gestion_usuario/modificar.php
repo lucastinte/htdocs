@@ -65,9 +65,32 @@ if (!$result) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modificar Usuarios</title>
     <link rel="stylesheet" href="../usuarioform.css">
+    <style>
+        #form-modificar-usuario,
+        #titulo-modificar-usuario {
+            display: none;
+        }
+    </style>
     <script>
         function confirmUpdate(message) {
             return confirm(message);
+        }
+
+        function mostrarFormularioModificarUsuario(id, nombre, usuario) {
+            document.getElementById('form-modificar-usuario').style.display = 'block';
+            document.getElementById('titulo-modificar-usuario').style.display = 'block';
+            document.getElementById('id_usuario').value = id;
+            document.getElementById('nombre_usuario').value = nombre;
+            document.getElementById('usuario_usuario').value = usuario;
+            window.scrollTo({
+                top: document.getElementById('form-modificar-usuario').offsetTop - 40,
+                behavior: 'smooth'
+            });
+        }
+
+        function ocultarFormularioModificarUsuario() {
+            document.getElementById('form-modificar-usuario').style.display = 'none';
+            document.getElementById('titulo-modificar-usuario').style.display = 'none';
         }
     </script>
 </head>
@@ -87,15 +110,6 @@ if (!$result) {
     </header>
 
     <section id="user-list">
-        <h1>Modificar Usuarios</h1>
-
-        <?php if (isset($message_usuario)) { ?>
-        <p><?php echo htmlspecialchars($message_usuario); ?></p>
-        <?php } ?>
-        <?php if (isset($message_password)) { ?>
-        <p><?php echo htmlspecialchars($message_password); ?></p>
-        <?php } ?>
-
         <table>
             <thead>
                 <tr>
@@ -110,23 +124,28 @@ if (!$result) {
                     <td><?php echo htmlspecialchars($row['nombre']); ?></td>
                     <td><?php echo htmlspecialchars($row['usuario']); ?></td>
                     <td>
-                        <!-- Formulario para actualizar el nombre de usuario -->
-                        <form action="modificar.php" method="post" style="display:inline;" onsubmit="return confirmUpdate('¿Estás seguro de que deseas actualizar el nombre de usuario de este usuario?');">
-                            <input type="hidden" name="id_usuario" value="<?php echo htmlspecialchars($row['id_usuario']); ?>">
-                            <input type="text" name="usuario" value="<?php echo htmlspecialchars($row['usuario']); ?>" placeholder="Nuevo Nombre de Usuario" required>
-                            <button type="submit" name="actualizar_usuario">Actualizar Usuario</button>
-                        </form>
-                        <!-- Formulario para actualizar la contraseña -->
-                        <form action="modificar.php" method="post" style="display:inline;" onsubmit="return confirmUpdate('¿Estás seguro de que deseas actualizar la contraseña de este usuario?');">
-                            <input type="hidden" name="id_usuario" value="<?php echo htmlspecialchars($row['id_usuario']); ?>">
-                            <input type="password" name="password" placeholder="Nueva Contraseña" required> <!-- Cambié 'contrasena' por 'password' -->
-                            <button type="submit" name="actualizar_password">Actualizar Contraseña</button>
-                        </form>
+                        <button type="button"
+                            onclick="mostrarFormularioModificarUsuario('<?php echo htmlspecialchars($row['id_usuario']); ?>', '<?php echo htmlspecialchars($row['nombre']); ?>', '<?php echo htmlspecialchars($row['usuario']); ?>')">Modificar</button>
                     </td>
                 </tr>
                 <?php } ?>
             </tbody>
         </table>
+        <h1 id="titulo-modificar-usuario" style="display:none;">Modificar Usuario</h1>
+        <form action="modificar.php" method="post" id="form-modificar-usuario" style="display:none;">
+            <input type="hidden" name="id_usuario" id="id_usuario">
+            <div class="form-group">
+                <label for="nombre_usuario">Nombre:</label>
+                <input type="text" id="nombre_usuario" name="nombre" required>
+            </div>
+            <div class="form-group">
+                <label for="usuario_usuario">Usuario:</label>
+                <input type="text" id="usuario_usuario" name="usuario" required>
+            </div>
+            <button type="submit">Guardar Cambios</button>
+            <button type="button" onclick="ocultarFormularioModificarUsuario()"
+                style="margin-left:12px;background:#888;color:#fff;border:none;padding:8px 18px;border-radius:6px;cursor:pointer;">Cancelar</button>
+        </form>
     </section>
 
 </body>

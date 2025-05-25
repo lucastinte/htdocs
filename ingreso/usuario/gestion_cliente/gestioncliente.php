@@ -86,6 +86,11 @@ if (!$result) {
     <link rel="stylesheet" href="gestioncliente.css">
     <link rel="stylesheet" href="/modal-q.css">
     <script src="/modal-q.js"></script>
+    <style>
+        #form-modificar-cliente, #titulo-modificar-cliente {
+            display: none;
+        }
+    </style>
     <script>
         function confirmAction(message) {
             return confirm(message);
@@ -140,6 +145,13 @@ if (!$result) {
             document.getElementById('usuario').value = usuario;
             document.getElementById('direccion').value = direccion;
             document.getElementById('fecha_nacimiento').value = fecha_nacimiento;
+            document.getElementById('form-modificar-cliente').style.display = 'block';
+            document.getElementById('titulo-modificar-cliente').style.display = 'block';
+            window.scrollTo({top: document.getElementById('form-modificar-cliente').offsetTop - 40, behavior: 'smooth'});
+        }
+        function ocultarFormularioModificar() {
+            document.getElementById('form-modificar-cliente').style.display = 'none';
+            document.getElementById('titulo-modificar-cliente').style.display = 'none';
         }
     </script>
 </head>
@@ -225,7 +237,7 @@ if (!$result) {
                 </tbody>
             </table>
 
-            <h2>Modificar Cliente</h2>
+            <h2 id="titulo-modificar-cliente">Modificar Cliente</h2>
             <div class="sf">
                 <form action="gestioncliente.php" method="post" id="form-modificar-cliente">
                     <input type="hidden" name="accion" id="accion" value="">
@@ -271,6 +283,7 @@ if (!$result) {
                         <input type="password" id="password" name="password" placeholder="Solo ingrese si desea cambiarla">
                     </div>
                     <button type="submit" onclick="document.getElementById('accion').value = 'modificar'; return confirmModificarCliente(event);">Modificar</button>
+                    <button type="button" onclick="ocultarFormularioModificar()" style="margin-left:12px;background:#888;color:#fff;border:none;padding:8px 18px;border-radius:6px;cursor:pointer;">Cancelar</button>
                 </form>
             </div>
             <script>

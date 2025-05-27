@@ -75,7 +75,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <button type="button" onclick="confirmarTalentos('desactivar')">Desactivar Talentos</button>
             <?php endif; ?>
         </form>
-    </section>
+<button onclick="window.location.href='gestionar_servicios.php'" style="margin:10px;">Ir a gestión</button>
+
+
+    </section> 
 
     <!-- Modal Q reutilizable -->
     <div id="modal-q" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;">

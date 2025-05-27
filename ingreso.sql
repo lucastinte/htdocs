@@ -177,3 +177,20 @@ CREATE TABLE `configuraciones` (
 
 -- Insertar datos en la tabla `configuraciones`
 INSERT INTO `configuraciones` (`mostrar_talentos`) VALUES (1);
+
+-- Creación de la tabla `servicios`
+CREATE TABLE `servicios` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `titulo` VARCHAR(100) NOT NULL,
+    `descripcion` TEXT NOT NULL,
+    `imagen` VARCHAR(255) NOT NULL,
+    `orden` INT NOT NULL DEFAULT 0,
+    `activo` BOOLEAN DEFAULT TRUE,
+    `fecha_creacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Insertar datos iniciales
+INSERT INTO `servicios` (titulo, descripcion, imagen, orden) VALUES 
+('CANCHAS', 'Canchas de todo tipo, de cesped sintetico o natural. Para uso familiar o de alquiler.', 'canchas.png', 1),
+('HOGARES', 'Casas modernas, amplias, iluminadas, un hogar para vos y tu familia.', 'casas.jpg', 2),
+('PISCINAS', 'Todo tipo de piscinas, piletas, a medida. Con diseño unico y sorprendente.', 'piscinas.png', 3);

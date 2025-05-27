@@ -265,31 +265,17 @@ section#Nosotros button a:hover {
   border-radius: 15px;
 }
 
-.tarjeta:first-child {
-  background-image: linear-gradient(
-      0deg,
-      rgba(0, 0, 0, 0.5),
-      rgba(0, 0, 0, 0.5)
-    ),
-    url("imagen/servicios/canchas.png");
+.tarjeta {
+    background-position: center center;
+    background-size: cover;
+    padding: 50px 0px;
+    margin: 30px;
+    border-radius: 15px;
+    transition: transform 0.3s ease;
 }
 
-.tarjeta:nth-child(2) {
-  background-image: linear-gradient(
-      0deg,
-      rgba(0, 0, 0, 0.5),
-      rgba(0, 0, 0, 0.5)
-    ),
-    url("imagen/servicios/casas.jpg");
-}
-
-.tarjeta:nth-child(3) {
-  background-image: linear-gradient(
-      0deg,
-      rgba(0, 0, 0, 0.5),
-      rgba(0, 0, 0, 0.5)
-    ),
-    url("imagen/servicios/piscinas.png");
+.tarjeta:hover {
+    transform: translateY(-10px);
 }
 
 #final {

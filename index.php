@@ -40,21 +40,15 @@ include "header.php";
             <h3>GENERAR CONFIANZA</h3>
             <h2>LA EXCELENCIA EN NUESTROS TRABAJOS <br> NOS REPRESENTA</h2>
             <div class="trabajo">
-                <div class="tarjeta">
-                    <h3>CANCHAS</h3>
-                    <p>Canchas de todo tipo, de cesped sintetico o natural.
-                        Para uso familiar o de alquiler.</p>
-                </div>
-                <div class="tarjeta">
-                    <h3>HOGARES</h3>
-                    <p>Casas modernas, amplias, iluminadas, un hogar para
-                        vos y tu familia.</p>
-                </div>
-                <div class="tarjeta">
-                    <h3>PISCINAS</h3>
-                    <p>Todo tipo de piscinas, piletas, a medida. Con diseño
-                        unico y sorprendente.</p>
-                </div>
+                <?php
+                // Obtener servicios de la base de datos
+                $result = $conexion->query("SELECT * FROM servicios WHERE activo = 1 ORDER BY orden");
+                while ($servicio = $result->fetch_assoc()): ?>
+                    <div class="tarjeta" style="background-image: linear-gradient(0deg, rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('imagen/servicios/<?php echo htmlspecialchars($servicio['imagen']); ?>');">
+                        <h3><?php echo htmlspecialchars($servicio['titulo']); ?></h3>
+                        <p><?php echo htmlspecialchars($servicio['descripcion']); ?></p>
+                    </div>
+                <?php endwhile; ?>
             </div>
         </div>
     </section>

@@ -428,14 +428,28 @@ $mensajes = [
     <script>
 document.addEventListener('DOMContentLoaded', () => {
   // Traemos desde PHP los órdenes ya usados
-  const usedOrders = <?php echo json_encode(array_column($servicios, 'orden')); ?>;
+  let usedOrders = <?php echo json_encode(array_column($servicios, 'orden')); ?>;
   const inputOrden = document.getElementById('nuevo-orden');
   const errorEl    = document.getElementById('orden-error');
-  // Botón “Agregar Servicio” del mismo formulario
-  const submitBtn  = inputOrden.closest('form').querySelector('button[type="submit"]');
+  const formNuevo  = inputOrden.closest('form');
+  const submitBtn  = formNuevo.querySelector('button[type="submit"]');
+
+  function showModalQ(msg) {
+    if (typeof window.showModalQ === 'function') {
+      window.showModalQ(msg, true, null, 'Error', 'error');
+      setTimeout(window.closeModalQ, 2000);
+    } else {
+      alert(msg);
+    }
+  }
 
   function validarOrden() {
     const v = parseInt(inputOrden.value, 10);
+    if (usedOrders.length >= 5) {
+      errorEl.textContent = 'No se pueden agregar más servicios, todos los órdenes del 1 al 5 están ocupados.';
+      submitBtn.disabled = true;
+      return;
+    }
     if (isNaN(v) || v < 1 || v > 5) {
       errorEl.textContent = 'El orden debe ser un número entre 1 y 5.';
       submitBtn.disabled = true;
@@ -450,6 +464,86 @@ document.addEventListener('DOMContentLoaded', () => {
 
   inputOrden.addEventListener('input', validarOrden);
   validarOrden(); // validar al cargar
+
+  // Validación al enviar el formulario de nuevo servicio
+  formNuevo.addEventListener('submit', function(e) {
+    // Refrescar órdenes ocupados justo antes de enviar
+    usedOrders = Array.from(document.querySelectorAll('.orden-input')).map(i => parseInt(i.value, 10));
+    const v = parseInt(inputOrden.value, 10);
+    if (usedOrders.length >= 5) {
+      showModalQ('No se pueden agregar más servicios, todos los órdenes del 1 al 5 están ocupados.');
+      e.preventDefault();
+      return;
+    }
+    if (isNaN(v) || v < 1 || v > 5) {
+      showModalQ('El orden debe ser un número entre 1 y 5.');
+      e.preventDefault();
+      return;
+    }
+    if (usedOrders.includes(v)) {
+      showModalQ('Ya existe un servicio con ese orden.');
+      e.preventDefault();
+      return;
+    }
+  });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Para el formulario de nuevo servicio
+    const nuevoOrden = document.getElementById('nuevo-orden');
+    if (nuevoOrden) {
+        nuevoOrden.value = 1;
+        nuevoOrden.addEventListener('input', function() {
+            let value = parseInt(this.value);
+            if (value < 1) this.value = 1;
+            if (value > 5) this.value = 5;
+        });
+    }
+
+    // Para los formularios de servicios existentes
+    document.querySelectorAll('.servicio-card form').forEach(function(form) {
+        const ordenInput = form.querySelector('.orden-input');
+        if (!ordenInput) return;
+        const idInput = form.querySelector('input[name="id"]');
+        const servicioId = idInput ? parseInt(idInput.value) : null;
+        const ordenesOcupados = <?php echo json_encode(array_map(function($s){return ['id'=>$s['id'],'orden'=>$s['orden']];}, $servicios)); ?>;
+        ordenInput.addEventListener('input', function() {
+            let value = parseInt(this.value);
+            if (value < 1) this.value = 1;
+            if (value > 5) this.value = 5;
+            // Validar que no se repita el orden (excepto el propio)
+            const repetido = ordenesOcupados.some(function(s) {
+                return s.orden == value && s.id != servicioId;
+            });
+            const errorEl = ordenInput.parentElement.querySelector('.orden-error');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (repetido) {
+                errorEl.textContent = 'Ya existe un servicio con ese orden.';
+                submitBtn.disabled = true;
+            } else {
+                errorEl.textContent = '';
+                submitBtn.disabled = false;
+            }
+        });
+        // Validación al enviar el formulario de edición
+        form.addEventListener('submit', function(e) {
+            const value = parseInt(ordenInput.value);
+            const repetido = ordenesOcupados.some(function(s) {
+                return s.orden == value && s.id != servicioId;
+            });
+            if (repetido) {
+                const errorEl = ordenInput.parentElement.querySelector('.orden-error');
+                errorEl.textContent = 'Ya existe un servicio con ese orden.';
+                if (typeof window.showModalQ === 'function') {
+                  window.showModalQ('Ya existe un servicio con ese orden.', true, null, 'Error', 'error');
+                  setTimeout(window.closeModalQ, 2000);
+                }
+                e.preventDefault();
+                return false;
+            }
+        });
+    });
 });
 </script>
 
@@ -503,7 +597,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <!-- Dentro de <div class="form-grid"> de “Agregar Nuevo Servicio”, reemplaza tu bloque de Orden por esto: -->
 <div>
   <label>Orden (1–5):</label>
-  <input type="number" name="orden" id="nuevo-orden" value="0" required>
+  <input type="number" name="orden" id="nuevo-orden" min="1" max="5" value="1" required>
   <small id="orden-error" style="color: red; display: block; margin-top: 5px;"></small>
 </div>
 
@@ -535,8 +629,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         <small>Deja vacío para mantener la imagen actual</small>
                     </div>
                     <div>
-                        <label>Orden:</label>
-                        <input type="number" name="orden" value="<?php echo $servicio['orden']; ?>" required>
+                        <label>Orden (1-5):</label>
+                        <input type="number" name="orden" class="orden-input" min="1" max="5" value="<?php echo $servicio['orden']; ?>" required>
+                        <small class="orden-error" style="color: red; display: block; margin-top: 5px;"></small>
                     </div>
                 </div>
                 <button type="submit">Actualizar</button>

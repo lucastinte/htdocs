@@ -88,7 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($stmt_insertar->execute()) {
         // Enviar correo electrónico de confirmación
-        enviarCorreo($email, $token);
+        enviarCorreo($email, $nombre, $token);
 
         // Mostrar un mensaje de éxito al usuario
         echo "<html><head>"
@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 
-function enviarCorreo($email, $token) {
+function enviarCorreo($email, $nombre, $token) {
     global $config;
     $mail = new PHPMailer(true);
 
@@ -161,7 +161,7 @@ function enviarCorreo($email, $token) {
         $mail->isHTML(true);
         $mail->Subject = 'Establece tu contraseña';
         $confirmationLink = $base_url . "restablecer_contrasena.php?token=$token";
-        $mail->Body    = "Hola,<br><br>Gracias por registrarte. Por favor, haz clic en el siguiente enlace para establecer tu contraseña:<br><br><a href='$confirmationLink'>Establecer nueva contraseña</a><br><br>Saludos,<br>Mat Construcciones.";
+        $mail->Body    = "Hola,<br><br>Gracias por registrarte.<br><br><b>Nombre:</b> $nombre<br><b>Email:</b> $email<br><br>Por favor, haz clic en el siguiente enlace para establecer tu contraseña:<br><br><a href='$confirmationLink'>Establecer nueva contraseña</a><br><br>Saludos,<br>Mat Construcciones.";
 
         $mail->send();
     } catch (Exception $e) {

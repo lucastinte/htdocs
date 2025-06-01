@@ -73,7 +73,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->bind_param("ssssssssss", $apellido, $nombre, $dni, $caracteristica_tel, $numero_tel, $email, $usuario, $direccion, $formatted_fecha_nacimiento, $token);
     if ($stmt->execute()) {
         // Enviar correo electrónico de confirmación
-        sendConfirmationEmail($email, $token);
+        sendConfirmationEmail($email, $nombre, $token);
         $_SESSION['alta_exito'] = 'Registro exitoso. Por favor, revisa tu correo electrónico.';
         header('Location: alta.php');
         exit();

@@ -49,39 +49,51 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $fecha_nacimiento = isset($_POST['fecha_nacimiento']) ? mysqli_real_escape_string($conexion, $_POST['fecha_nacimiento']) : '';
     $telefono = isset($_POST['telefono']) ? mysqli_real_escape_string($conexion, $_POST['telefono']) : '';
     $puesto = isset($_POST['puesto']) ? mysqli_real_escape_string($conexion, $_POST['puesto']) : '';
-    $permisos = isset($_POST['permisos']) ? mysqli_real_escape_string($conexion, $_POST['permisos']) : '';
     $usuario = isset($_POST['usuario']) ? mysqli_real_escape_string($conexion, $_POST['usuario']) : '';
     $password = isset($_POST['password']) ? $_POST['password'] : '';
-    
+
+    // Obtener el permiso original de la base de datos
+    $query_permiso_original = "SELECT permisos FROM usuarios WHERE id_usuario = ?";
+    $stmt_permiso_original = $conexion->prepare($query_permiso_original);
+    $stmt_permiso_original->bind_param("i", $id_usuario);
+    $stmt_permiso_original->execute();
+    $result_permiso_original = $stmt_permiso_original->get_result();
+    $permiso_original = '';
+    if ($result_permiso_original && $result_permiso_original->num_rows > 0) {
+        $permiso_original = $result_permiso_original->fetch_assoc()['permisos'];
+    }
+
+    // Si el campo permisos no viene en el POST o está vacío, usar el original
+    if (isset($_POST['permisos']) && trim($_POST['permisos']) !== '') {
+        $permisos = mysqli_real_escape_string($conexion, $_POST['permisos']);
+    } else {
+        $permisos = $permiso_original;
+    }
+
+    // Si el usuario edita su propio registro, nunca permitir modificar el permiso
+    if ($id_usuario == $id_usuario_logueado) {
+        $permisos = $permiso_original;
+    }
+
     // Unificar permisos de "crear" y "modificar"
     if (($accion == 'modificar' && $permisos_usuario_actual == 'modificar') || ($accion == 'modificar' && $permisos_usuario_actual == 'crear')) {
-        
         $query = "UPDATE usuarios SET nombre = ?, apellido = ?, dni = ?, email = ?, fecha_nacimiento = ?, telefono = ?, puesto = ?, permisos = ?, usuario = ?";
-
         if (!empty($password)) {
             $query .= ", password = ?";
         }
-        
         $query .= " WHERE id_usuario = ?";
-
         $stmt_update = $conexion->prepare($query);
-        
         if (!empty($password)) {
             $stmt_update->bind_param("ssssssssssi", $nombre, $apellido, $dni, $email, $fecha_nacimiento, $telefono, $puesto, $permisos, $usuario, $password, $id_usuario);
         } else {
             $stmt_update->bind_param("sssssssssi", $nombre, $apellido, $dni, $email, $fecha_nacimiento, $telefono, $puesto, $permisos, $usuario, $id_usuario);
         }
-
         if ($stmt_update->execute()) {
             $message_usuario = "Usuario modificado con éxito.";
-            echo "<script>
-                showModalQ('$message_usuario', false, null, 'Éxito');
-            </script>";
+            echo "<script>\n                showModalQ('$message_usuario', false, null, 'Éxito');\n            </script>";
         } else {
             $message_usuario = "Error al modificar el usuario: " . $stmt_update->error;
-            echo "<script>
-                showModalQ('$message_usuario', true, null, 'Error');
-            </script>";
+            echo "<script>\n                showModalQ('$message_usuario', true, null, 'Error');\n            </script>";
         }
     } elseif ($accion == 'eliminar' && ($permisos_usuario_actual == 'modificar' || $permisos_usuario_actual == 'crear')) {
         $query = "DELETE FROM usuarios WHERE id_usuario = ?";

@@ -65,11 +65,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } elseif ($_POST['action'] == 'editar_horario') {
             $id = intval($_POST['id']);
             $fecha_hora = $_POST['fecha_hora'];
-            $query = "UPDATE horarios_disponibles SET fecha_hora = ? WHERE id = ?";
+            // Validar que no haya otro horario a menos de 30 minutos (excluyendo el actual)
+            $query = "SELECT * FROM horarios_disponibles WHERE id != ? AND ABS(TIMESTAMPDIFF(MINUTE, fecha_hora, ?)) < 30";
             $stmt = mysqli_prepare($conexion, $query);
             if ($stmt) {
-                mysqli_stmt_bind_param($stmt, 'si', $fecha_hora, $id);
+                mysqli_stmt_bind_param($stmt, 'is', $id, $fecha_hora);
                 mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+                if (mysqli_num_rows($result) > 0) {
+                    // Ya existe un horario dentro de 30 minutos
+                    $_SESSION['error'] = 'Ya existe un horario dentro de los 30 minutos de diferencia.';
+                } else {
+                    // Actualizar el horario
+                    $update_query = "UPDATE horarios_disponibles SET fecha_hora = ? WHERE id = ?";
+                    $update_stmt = mysqli_prepare($conexion, $update_query);
+                    if ($update_stmt) {
+                        mysqli_stmt_bind_param($update_stmt, 'si', $fecha_hora, $id);
+                        mysqli_stmt_execute($update_stmt);
+                        mysqli_stmt_close($update_stmt);
+                        $_SESSION['success'] = 'Horario editado exitosamente.';
+                    }
+                }
                 mysqli_stmt_close($stmt);
             }
         }

@@ -138,6 +138,12 @@ if (!$result) {
         document.getElementById('puesto').value = puesto;
         document.getElementById('permisos').value = permisos;
         document.getElementById('usuario').value = usuario;
+        // Bloquear el campo permisos si el usuario edita su propio usuario
+        if (id == '<?php echo $id_usuario_logueado; ?>') {
+            document.getElementById('permisos').setAttribute('disabled', 'disabled');
+        } else {
+            document.getElementById('permisos').removeAttribute('disabled');
+        }
         window.scrollTo({top: document.getElementById('form-gestionusuario').offsetTop - 40, behavior: 'smooth'});
     }
 
@@ -285,6 +291,7 @@ if (!$result) {
     <form action="gestionusuario.php" method="post" id="form-gestionusuario" style="display:none;">
         <input type="hidden" name="accion" id="accion" value="">
         <input type="hidden" name="id_usuario" id="id_usuario" value="">
+        <input type="hidden" name="permisos_original" id="permisos_original" value="">
         <div class="form-group">
             <label for="nombre">Nombre:</label>
             <input type="text" id="nombre" name="nombre" required>

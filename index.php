@@ -125,9 +125,78 @@ include "header.php";
     </main>
 
     <footer>
-        <div class="container">
-            <p>&copy;MatC</p>
+    <div class="footer-container">
+        <div class="footer-section">
+            <h3>Sobre Nosotros</h3>
+            <p>Mat Construcciones es una empresa dedicada a hacer realidad tus sueños arquitectónicos con excelencia y compromiso.</p>
         </div>
-    </footer>
+        <div class="footer-section">
+            <h3>Enlaces Rápidos</h3>
+            <ul>
+                <li><a href="index.php">Inicio</a></li>
+                <li><a href="servicios.php">Servicios</a></li>
+                <li><a href="talentos.php">Talentos</a></li>
+                <li><a href="presupuestos.php">Presupuestos</a></li>
+            </ul>
+        </div>
+        <div class="footer-section">
+            <h3>Contacto</h3>
+            <p>Email: contacto@matconstrucciones.com</p>
+            <p>Teléfono: +54 11 1234 5678</p>
+            <p>Dirección: Av. Siempre Viva 123, Buenos Aires</p>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2025 Mat Construcciones. Todos los derechos reservados.</p>
+    </div>
+</footer>
+
+<style>
+footer {
+    background-color: #4CAF50; /* Cambiado a morado */
+    color: #fff; /* Texto blanco */
+    padding: 40px 20px;
+    font-size: 14px;
+}
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.footer-section {
+    flex: 1;
+    margin: 10px;
+    min-width: 200px;
+}
+.footer-section h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #fff; /* Texto blanco */
+}
+.footer-section p, .footer-section ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.footer-section ul li {
+    margin: 5px 0;
+}
+.footer-section ul li a {
+    color: #fff; /* Texto blanco */
+    text-decoration: none;
+    transition: color 0.3s;
+}
+.footer-section ul li a:hover {
+    color: #181818; /* Texto negro al pasar el mouse */
+}
+.footer-bottom {
+    text-align: center;
+    margin-top: 20px;
+    border-top: 1px solid #fff; /* Línea blanca */
+    padding-top: 10px;
+}
+</style>
 </body>
 </html>

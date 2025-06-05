@@ -33,10 +33,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     exit();
 }
 
-// Obtener todos los proyectos
+// Filtrar proyectos por ID de cliente si se proporciona
+$id_cliente = isset($_GET['id_cliente']) ? intval($_GET['id_cliente']) : 0;
+
+// Lógica de paginación
+$proyectos_por_pagina = 4;
+$pagina_actual = isset($_GET['pagina']) ? intval($_GET['pagina']) : 1;
+$offset = ($pagina_actual - 1) * $proyectos_por_pagina;
+
+// Obtener el total de proyectos
+$query_total_proyectos = "SELECT COUNT(*) as total FROM proyectos";
+$result_total_proyectos = mysqli_query($conexion, $query_total_proyectos);
+$total_proyectos = mysqli_fetch_assoc($result_total_proyectos)['total'];
+$total_paginas = ceil($total_proyectos / $proyectos_por_pagina);
+
+// Obtener los proyectos para la página actual
 $query = "SELECT p.id, p.nombre_proyecto, c.nombre AS cliente, p.descripcion, p.fecha_inicio, p.fecha_fin, p.estado 
           FROM proyectos p
-          JOIN clientes c ON p.id_cliente = c.id";
+          JOIN clientes c ON p.id_cliente = c.id" . ($id_cliente > 0 ? " WHERE p.id_cliente = $id_cliente" : "") . " 
+          LIMIT $offset, $proyectos_por_pagina";
 $result = mysqli_query($conexion, $query);
 
 if (!$result) {
@@ -90,17 +105,38 @@ function getProjectFiles($id_proyecto) {
             padding: 5px 10px;
             cursor: pointer;
         }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pagination a {
+            margin: 0 5px;
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #333;
+            background-color: #fff;
+        }
+        .pagination a.active {
+            background-color: #4CAF50;
+            color: white;
+        }
     </style>
 </head>
 <body>
 
 <header>
     <div class="container">
-        <p class="logo">Mat Construcciones</p>
+         <div class="user-badge">
+          <?php if (isset($_SESSION['usuario'])): ?>
+           <p class="logo"> <span class="user-icon">&#128100;</span> <?php echo htmlspecialchars($_SESSION['usuario']); ?></p>
+          <?php endif; ?>
+        </div>
         <nav>
             <a href="alta.php" class="btn-green">Crear Cliente</a>
-            <a href="carga.php">Cargar Proyecto</a>
-            <a href="proyectos.php">Ver Proyecto</a>
+
             <a href="gestioncliente.php">Volver</a>
         </nav>
     </div>
@@ -124,43 +160,60 @@ function getProjectFiles($id_proyecto) {
             </tr>
         </thead>
         <tbody>
-            <?php while ($row = mysqli_fetch_assoc($result)) { ?>
-            <tr id="proyecto-<?php echo $row['id']; ?>"> <!-- Se añade un id único para cada fila del proyecto -->
-                <td><?php echo htmlspecialchars($row['nombre_proyecto']); ?></td>
-                <td><?php echo htmlspecialchars($row['cliente']); ?></td>
-                <td><?php echo htmlspecialchars($row['descripcion']); ?></td>
-                <td><?php echo htmlspecialchars($row['fecha_inicio']); ?></td>
-                <td><?php echo htmlspecialchars($row['fecha_fin']); ?></td>
-                <td><?php echo htmlspecialchars($row['estado']) . '%'; ?></td>
-                <td>
-                    <?php
-                    $files = getProjectFiles($row['id']);
-                    if (mysqli_num_rows($files) > 0) {
-                        echo '<ul>';
-                        while ($file = mysqli_fetch_assoc($files)) {
-                            echo '<li><a href="/ingreso/usuario/gestion_cliente/' . htmlspecialchars($file['ruta']) . '" download>' . htmlspecialchars($file['nombre_archivo']) . '</a> (' . htmlspecialchars($file['tipo']) . ')</li>';
+            <?php if (mysqli_num_rows($result) > 0) { ?>
+                <?php while ($row = mysqli_fetch_assoc($result)) { ?>
+                <tr id="proyecto-<?php echo $row['id']; ?>"> <!-- Se añade un id único para cada fila del proyecto -->
+                    <td><?php echo htmlspecialchars($row['nombre_proyecto']); ?></td>
+                    <td><?php echo htmlspecialchars($row['cliente']); ?></td>
+                    <td><?php echo htmlspecialchars($row['descripcion']); ?></td>
+                    <td><?php echo htmlspecialchars($row['fecha_inicio']); ?></td>
+                    <td><?php echo htmlspecialchars($row['fecha_fin']); ?></td>
+                    <td><?php echo htmlspecialchars($row['estado']) . '%'; ?></td>
+                    <td>
+                        <?php
+                        $files = getProjectFiles($row['id']);
+                        if (mysqli_num_rows($files) > 0) {
+                            echo '<ul>';
+                            while ($file = mysqli_fetch_assoc($files)) {
+                                echo '<li><a href="/ingreso/usuario/gestion_cliente/' . htmlspecialchars($file['ruta']) . '" download>' . htmlspecialchars($file['nombre_archivo']) . '</a> (' . htmlspecialchars($file['tipo']) . ')</li>';
+                            }
+                            echo '</ul>';
+                        } else {
+                            echo 'No hay archivos.';
                         }
-                        echo '</ul>';
-                    } else {
-                        echo 'No hay archivos.';
-                    }
-                    ?>
-                </td>
-                <td>
-                    <form action="actualizar_estado.php" method="post" onsubmit="return confirmarActualizarEstado(this);">
-                        <input type="hidden" name="id_proyecto" value="<?php echo $row['id']; ?>">
-                        <input type="number" name="estado" min="0" max="100" value="<?php echo htmlspecialchars($row['estado']); ?>" required>
-                        <button type="submit">Actualizar</button>
-                    </form>
-                </td>
-                <td>
-                    <!-- Botón para eliminar el proyecto usando AJAX -->
-                    <button class="btn-red" type="button" onclick="eliminarProyecto(<?php echo $row['id']; ?>)">Eliminar</button>
-                </td>
-            </tr>
+                        ?>
+                    </td>
+                    <td>
+                        <form action="actualizar_estado.php" method="post" onsubmit="return confirmarActualizarEstado(this);">
+                            <input type="hidden" name="id_proyecto" value="<?php echo $row['id']; ?>">
+                            <input type="number" name="estado" min="0" max="100" value="<?php echo htmlspecialchars($row['estado']); ?>" required>
+                            <button type="submit">Actualizar</button>
+                        </form>
+                    </td>
+                    <td>
+                        <!-- Botón para eliminar el proyecto usando AJAX -->
+                        <button class="btn-red" type="button" onclick="eliminarProyecto(<?php echo $row['id']; ?>)">Eliminar</button>
+                    </td>
+                </tr>
+                <?php } ?>
+            <?php } else { ?>
+                <tr>
+                    <td colspan="9" style="text-align: center;">No hay proyectos cargados para este cliente.</td>
+                </tr>
             <?php } ?>
         </tbody>
     </table>
+
+    <!-- Mostrar botones de paginación -->
+    <?php if ($total_paginas > 1) { ?>
+        <div class="pagination">
+            <?php for ($i = 1; $i <= $total_paginas; $i++) { ?>
+                <a href="proyectos.php?pagina=<?php echo $i; ?>" class="<?php echo ($i == $pagina_actual ? 'active' : ''); ?>">
+                    <?php echo $i; ?>
+                </a>
+            <?php } ?>
+        </div>
+    <?php } ?>
 </section>
 
 <!-- Modal Q reutilizable -->

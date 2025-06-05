@@ -28,16 +28,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $usuario = mysqli_real_escape_string($conexion, $_POST['usuario']);
         $direccion = mysqli_real_escape_string($conexion, $_POST['direccion']);
         $fecha_nacimiento = mysqli_real_escape_string($conexion, $_POST['fecha_nacimiento']);
+        $localidad = mysqli_real_escape_string($conexion, $_POST['localidad']);
+        $provincia = mysqli_real_escape_string($conexion, $_POST['provincia']);
         $password = $_POST['password'];
 
         // Actualizar los datos del cliente
         if (!empty($password)) {
             // Si se proporciona una nueva contraseña, se actualiza
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            $query = "UPDATE clientes SET apellido='$apellido', nombre='$nombre', dni='$dni', caracteristica_tel='$caracteristica_tel', numero_tel='$numero_tel', email='$email', usuario='$usuario', direccion='$direccion', fecha_nacimiento='$fecha_nacimiento', password='$hashed_password' WHERE id=$id_cliente";
+            $query = "UPDATE clientes SET apellido='$apellido', nombre='$nombre', dni='$dni', caracteristica_tel='$caracteristica_tel', numero_tel='$numero_tel', email='$email', usuario='$usuario', direccion='$direccion', fecha_nacimiento='$fecha_nacimiento', localidad='$localidad', provincia='$provincia', password='$hashed_password' WHERE id=$id_cliente";
         } else {
             // Solo actualizar los datos sin cambiar la contraseña
-            $query = "UPDATE clientes SET apellido='$apellido', nombre='$nombre', dni='$dni', caracteristica_tel='$caracteristica_tel', numero_tel='$numero_tel', email='$email', usuario='$usuario', direccion='$direccion', fecha_nacimiento='$fecha_nacimiento' WHERE id=$id_cliente";
+            $query = "UPDATE clientes SET apellido='$apellido', nombre='$nombre', dni='$dni', caracteristica_tel='$caracteristica_tel', numero_tel='$numero_tel', email='$email', usuario='$usuario', direccion='$direccion', fecha_nacimiento='$fecha_nacimiento', localidad='$localidad', provincia='$provincia' WHERE id=$id_cliente";
         }
 
         if (mysqli_query($conexion, $query)) {
@@ -68,8 +70,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// Obtener todos los clientes
-$query = "SELECT id, apellido, nombre, dni, caracteristica_tel, numero_tel, email, usuario, direccion, fecha_nacimiento, activo FROM clientes";
+// Lógica de paginación
+$clientes_por_pagina = 4;
+$pagina_actual = isset($_GET['pagina']) ? intval($_GET['pagina']) : 1;
+$offset = ($pagina_actual - 1) * $clientes_por_pagina;
+
+// Obtener el total de clientes
+$query_total_clientes = "SELECT COUNT(*) as total FROM clientes";
+$result_total_clientes = mysqli_query($conexion, $query_total_clientes);
+$total_clientes = mysqli_fetch_assoc($result_total_clientes)['total'];
+$total_paginas = ceil($total_clientes / $clientes_por_pagina);
+
+// Obtener los clientes para la página actual
+$query = "SELECT id, apellido, nombre, dni, caracteristica_tel, numero_tel, email, usuario, direccion, fecha_nacimiento, localidad, provincia, activo FROM clientes LIMIT $offset, $clientes_por_pagina";
 $result = mysqli_query($conexion, $query);
 
 if (!$result) {
@@ -90,6 +103,88 @@ if (!$result) {
         #form-modificar-cliente, #titulo-modificar-cliente {
             display: none;
         }
+        .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropbtn {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px;
+        font-size: 14px;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+        border-radius: 5px;
+        padding: 10px;
+    }
+
+    .dropdown-content ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .dropdown-content li {
+        margin-bottom: 5px;
+    }
+
+    .dropdown-content button {
+        color: black;
+        padding: 10px;
+        text-decoration: none;
+        display: block;
+        background: none;
+        border: none;
+        width: 100%;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .dropdown-content button:hover {
+        background-color: #f1f1f1;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+
+    .dropdown:hover .dropbtn {
+        background-color: #3e8e41;
+    }
+
+    .pagination {
+        margin: 20px 0;
+        text-align: center;
+    }
+
+    .pagination a {
+        color: #4CAF50;
+        padding: 10px 15px;
+        text-decoration: none;
+        border: 1px solid #4CAF50;
+        border-radius: 5px;
+        margin: 0 5px;
+    }
+
+    .pagination a.active {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .pagination a:hover:not(.active) {
+        background-color: #f1f1f1;
+    }
     </style>
     <script>
         function confirmAction(message) {
@@ -133,7 +228,7 @@ if (!$result) {
             return false;
         }
 
-        function rellenarFormulario(id, apellido, nombre, dni, caracteristica_tel, numero_tel, email, usuario, direccion, fecha_nacimiento) {
+        function rellenarFormulario(id, apellido, nombre, dni, caracteristica_tel, numero_tel, email, usuario, direccion, fecha_nacimiento, localidad, provincia) {
             document.getElementById('accion').value = 'modificar';
             document.getElementById('id_cliente').value = id;
             document.getElementById('apellido').value = apellido;
@@ -145,6 +240,8 @@ if (!$result) {
             document.getElementById('usuario').value = usuario;
             document.getElementById('direccion').value = direccion;
             document.getElementById('fecha_nacimiento').value = fecha_nacimiento;
+            document.getElementById('localidad').value = localidad;
+            document.getElementById('provincia').value = provincia;
             document.getElementById('form-modificar-cliente').style.display = 'block';
             document.getElementById('titulo-modificar-cliente').style.display = 'block';
             window.scrollTo({top: document.getElementById('form-modificar-cliente').offsetTop - 40, behavior: 'smooth'});
@@ -159,11 +256,14 @@ if (!$result) {
 
     <header>
         <div class="container">
-            <p class="logo">Mat Construcciones</p>
+             <div class="user-badge">
+          <?php if (isset($_SESSION['usuario'])): ?>
+           <p class="logo"> <span class="user-icon">&#128100;</span> <?php echo htmlspecialchars($_SESSION['usuario']); ?></p>
+          <?php endif; ?>
+        </div>
             <nav>
                 <a href="alta.php" class="btn-green">Crear Cliente</a>
-                <a href="carga.php">Cargar Proyecto</a>
-                <a href="proyectos.php">Ver Proyecto</a>
+              
                 <a href="../usuario.php">Volver</a>
             </nav>
         </div>
@@ -207,35 +307,61 @@ if (!$result) {
                         <td><?php echo htmlspecialchars($row['direccion']); ?></td>
                         <td><?php echo htmlspecialchars($row['fecha_nacimiento']); ?></td>
                         <td>
-                            <button type="button" onclick="rellenarFormulario(
-                                '<?php echo htmlspecialchars($row['id']); ?>',
-                                '<?php echo htmlspecialchars($row['apellido']); ?>',
-                                '<?php echo htmlspecialchars($row['nombre']); ?>',
-                                '<?php echo htmlspecialchars($row['dni']); ?>',
-                                '<?php echo htmlspecialchars($row['caracteristica_tel']); ?>',
-                                '<?php echo htmlspecialchars($row['numero_tel']); ?>',
-                                '<?php echo htmlspecialchars($row['email']); ?>',
-                                '<?php echo htmlspecialchars($row['usuario']); ?>',
-                                '<?php echo htmlspecialchars($row['direccion']); ?>',
-                                '<?php echo htmlspecialchars($row['fecha_nacimiento']); ?>'
-                            );">Seleccionar</button>
-                            <form action="gestioncliente.php" method="post" style="display:inline;" onsubmit="return handleFormSubmitWithModal(event, '¿Estás seguro de que deseas eliminar este cliente?');">
-                                <input type="hidden" name="accion" value="eliminar">
-                                <input type="hidden" name="id_cliente" value="<?php echo htmlspecialchars($row['id']); ?>">
-                                <button type="submit">Eliminar</button>
-                            </form>
-                            <?php if ($row['activo'] == 0) { ?>
-<form action="gestioncliente.php" method="post" style="display:inline;" onsubmit="return handleFormSubmitWithModal(event, '¿Estás seguro de que deseas activar este cliente?');">
-    <input type="hidden" name="accion" value="activar">
-    <input type="hidden" name="id_cliente" value="<?php echo htmlspecialchars($row['id']); ?>">
-    <button type="submit">Activar</button>
-</form>
-<?php } ?>
+                            <div class="dropdown">
+                                <button class="dropbtn">&#9660;</button>
+                                <div class="dropdown-content">
+                                    <ul>
+                                        <li><button type="button" onclick="rellenarFormulario(
+                                            '<?php echo htmlspecialchars($row['id']); ?>',
+                                            '<?php echo htmlspecialchars($row['apellido']); ?>',
+                                            '<?php echo htmlspecialchars($row['nombre']); ?>',
+                                            '<?php echo htmlspecialchars($row['dni']); ?>',
+                                            '<?php echo htmlspecialchars($row['caracteristica_tel']); ?>',
+                                            '<?php echo htmlspecialchars($row['numero_tel']); ?>',
+                                            '<?php echo htmlspecialchars($row['email']); ?>',
+                                            '<?php echo htmlspecialchars($row['usuario']); ?>',
+                                            '<?php echo htmlspecialchars($row['direccion']); ?>',
+                                            '<?php echo htmlspecialchars($row['fecha_nacimiento']); ?>',
+                                            '<?php echo htmlspecialchars($row['localidad']); ?>',
+                                            '<?php echo htmlspecialchars($row['provincia']); ?>'
+                                        );">Modificar</button></li>
+                                        <li><form action="proyectos.php" method="get">
+                                            <input type="hidden" name="id_cliente" value="<?php echo htmlspecialchars($row['id']); ?>">
+                                            <button type="submit">Ver Proyecto</button>
+                                        </form></li>
+                                        <li><form action="carga.php" method="get">
+                                            <input type="hidden" name="id_cliente" value="<?php echo htmlspecialchars($row['id']); ?>">
+                                            <button type="submit">Cargar Proyecto</button>
+                                        </form></li>
+                                        <li><form action="gestioncliente.php" method="post" onsubmit="return handleFormSubmitWithModal(event, '¿Estás seguro de que deseas eliminar este cliente?');">
+                                            <input type="hidden" name="accion" value="eliminar">
+                                            <input type="hidden" name="id_cliente" value="<?php echo htmlspecialchars($row['id']); ?>">
+                                            <button type="submit">Eliminar</button>
+                                        </form></li>
+                                        <?php if ($row['activo'] == 0) { ?>
+                                        <li><form action="gestioncliente.php" method="post" onsubmit="return handleFormSubmitWithModal(event, '¿Estás seguro de que deseas activar este cliente?');">
+                                            <input type="hidden" name="accion" value="activar">
+                                            <input type="hidden" name="id_cliente" value="<?php echo htmlspecialchars($row['id']); ?>">
+                                            <button type="submit">Activar</button>
+                                        </form></li>
+                                        <?php } ?>
+                                    </ul>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                     <?php } ?>
                 </tbody>
             </table>
+
+            <!-- Mostrar botones de paginación -->
+<?php if ($total_paginas > 1) { ?>
+    <div class="pagination">
+        <?php for ($i = 1; $i <= $total_paginas; $i++) { ?>
+            <a href="gestioncliente.php?pagina=<?php echo $i; ?>"<?php echo ($i == $pagina_actual ? ' class="active"' : ''); ?>><?php echo $i; ?></a>
+        <?php } ?>
+    </div>
+<?php } ?>
 
             <h2 id="titulo-modificar-cliente">Modificar Cliente</h2>
             <div class="sf">
@@ -277,6 +403,14 @@ if (!$result) {
                     <div class="form-group">
                         <label for="fecha_nacimiento">Fecha de Nacimiento:</label>
                         <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="localidad">Localidad:</label>
+                        <input type="text" name="localidad" id="localidad" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="provincia">Provincia:</label>
+                        <input type="text" name="provincia" id="provincia" required>
                     </div>
                     <div class="form-group">
                         <label for="password">Contraseña:</label>

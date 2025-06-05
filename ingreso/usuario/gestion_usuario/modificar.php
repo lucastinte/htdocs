@@ -99,7 +99,11 @@ if (!$result) {
 
     <header>
         <div class="container">
-            <p class="logo">Mat Construcciones</p>
+            <div class="user-badge">
+          <?php if (isset($_SESSION['usuario'])): ?>
+           <p class="logo"> <span class="user-icon">&#128100;</span> <?php echo htmlspecialchars($_SESSION['usuario']); ?></p>
+          <?php endif; ?>
+        </div>
             <nav>
                 <a href="formulario.php">Alta</a>
                 <a href="baja.php">Baja</a>
@@ -124,8 +128,11 @@ if (!$result) {
                     <td><?php echo htmlspecialchars($row['nombre']); ?></td>
                     <td><?php echo htmlspecialchars($row['usuario']); ?></td>
                     <td>
-                        <button type="button"
-                            onclick="mostrarFormularioModificarUsuario('<?php echo htmlspecialchars($row['id_usuario']); ?>', '<?php echo htmlspecialchars($row['nombre']); ?>', '<?php echo htmlspecialchars($row['usuario']); ?>')">Modificar</button>
+                        <?php if ($row['usuario'] !== 'gerente') { ?>
+                            <button type="button"
+                                onclick="mostrarFormularioModificarUsuario('<?php echo htmlspecialchars($row['id_usuario']); ?>', '<?php echo htmlspecialchars($row['nombre']); ?>', '<?php echo htmlspecialchars($row['usuario']); ?>')">Modificar</button>
+                            <button type="button" onclick="confirmDeleteUsuario('<?php echo htmlspecialchars($row['id_usuario']); ?>')">Eliminar</button>
+                        <?php } ?>
                     </td>
                 </tr>
                 <?php } ?>

@@ -47,8 +47,27 @@ if (isset($_POST['actualizar_password'])) {
     mysqli_stmt_close($stmt);
 }
 
+// Manejo de actualización de localidad y provincia
+if (isset($_POST['actualizar'])) {
+    $id_cliente = intval($_POST['id_cliente']);
+    $localidad = $_POST['localidad'];
+    $provincia = $_POST['provincia'];
+
+    $update_query = "UPDATE clientes SET localidad = ?, provincia = ? WHERE id = ?";
+    $stmt = mysqli_prepare($conexion, $update_query);
+    mysqli_stmt_bind_param($stmt, "ssi", $localidad, $provincia, $id_cliente);
+    mysqli_stmt_execute($stmt);
+
+    if (mysqli_stmt_affected_rows($stmt) > 0) {
+        $message_direccion = "Localidad y provincia actualizadas exitosamente.";
+    } else {
+        $message_direccion = "Error al actualizar la localidad y provincia.";
+    }
+    mysqli_stmt_close($stmt);
+}
+
 // Obtener todos los clientes
-$query = "SELECT id, nombre, email FROM clientes";
+$query = "SELECT id, nombre, email, localidad, provincia FROM clientes";
 $result = mysqli_query($conexion, $query);
 
 if (!$result) {
@@ -114,6 +133,18 @@ if (!$result) {
             }
           });
           <?php } ?>
+        <?php } elseif (isset($message_direccion) && $message_direccion) { ?>
+          showModalQ('<?php echo addslashes($message_direccion); ?>', <?php echo (strpos($message_direccion, 'exito') !== false ? 'false' : 'true'); ?>, null, <?php echo (strpos($message_direccion, 'exito') !== false ? "'Éxito'" : "'Error'"); ?>, <?php echo (strpos($message_direccion, 'exito') !== false ? "'success'" : "'error'"); ?>);
+          <?php if (strpos($message_direccion, 'exito') !== false) { ?>
+          document.addEventListener('DOMContentLoaded', function() {
+            const okBtn = document.querySelector('#modal-q button');
+            if (okBtn) {
+              okBtn.addEventListener('click', function() {
+                window.location.href = 'gestioncliente.php';
+              });
+            }
+          });
+          <?php } ?>
         <?php } ?>
         // Confirmación con modal para actualizar
         function confirmUpdate(message) {
@@ -148,7 +179,11 @@ if (!$result) {
 
     <header>
         <div class="container">
-            <p class="logo">Mat Construcciones</p>
+           <div class="user-badge">
+          <?php if (isset($_SESSION['usuario'])): ?>
+           <p class="logo"> <span class="user-icon">&#128100;</span> <?php echo htmlspecialchars($_SESSION['usuario']); ?></p>
+          <?php endif; ?>
+        </div>
             <nav>
                 <a href="alta.php">Alta</a>
                 <a href="baja.php">Baja</a>
@@ -196,6 +231,13 @@ if (!$result) {
                             <input type="hidden" name="id_cliente" value="<?php echo htmlspecialchars($row['id']); ?>">
                             <input type="password" name="contrasena" placeholder="Nueva Contraseña" required>
                             <button type="submit" name="actualizar_password">Actualizar Contraseña</button>
+                        </form>
+                        <!-- Formulario para actualizar localidad y provincia -->
+                        <form action="modificar.php" method="post" style="display:inline;">
+                            <input type="hidden" name="id_cliente" value="<?php echo htmlspecialchars($row['id']); ?>">
+                            <input type="text" name="localidad" placeholder="Localidad" required>
+                            <input type="text" name="provincia" placeholder="Provincia" required>
+                            <button type="submit" name="actualizar">Actualizar</button>
                         </form>
                     </td>
                 </tr>

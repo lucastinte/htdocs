@@ -42,8 +42,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
     exit();
 }
 
-// Consultar presupuestos
-$query_presupuestos = "SELECT * FROM presupuestos";
+// --- Paginación de presupuestos ---
+$presupuestos_por_pagina = 5;
+$total_presupuestos_query = "SELECT COUNT(*) as total FROM presupuestos";
+$total_presupuestos_result = mysqli_query($conexion, $total_presupuestos_query);
+$total_presupuestos_row = mysqli_fetch_assoc($total_presupuestos_result);
+$total_presupuestos = $total_presupuestos_row['total'];
+$total_paginas_presupuestos = ceil($total_presupuestos / $presupuestos_por_pagina);
+$pagina_actual_presupuestos = isset($_GET['pagina_presupuestos']) ? max(1, intval($_GET['pagina_presupuestos'])) : 1;
+$offset_presupuestos = ($pagina_actual_presupuestos - 1) * $presupuestos_por_pagina;
+
+$query_presupuestos = "SELECT * FROM presupuestos ORDER BY fecha_creacion DESC LIMIT $presupuestos_por_pagina OFFSET $offset_presupuestos";
 $result_presupuestos = mysqli_query($conexion, $query_presupuestos);
 mysqli_close($conexion);
 ?>
@@ -100,14 +109,40 @@ mysqli_close($conexion);
             opacity: 1;
         }
 
-   
+        .pagination {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .pagination a {
+            display: inline-block;
+            margin: 0 5px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .pagination a:hover {
+            background-color: #0056b3;
+        }
+
+        .pagination a.active {
+            background-color: #0056b3;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
 
 <header>
         <div class="container">
-            <p class="logo">Mat Construcciones</p>
+             <div class="user-badge">
+          <?php if (isset($_SESSION['usuario'])): ?>
+           <p class="logo"> <span class="user-icon">&#128100;</span> <?php echo htmlspecialchars($_SESSION['usuario']); ?></p>
+          <?php endif; ?>
+        </div>
             <nav>
                 <a href="usuario.php"> <button>Volver</button></a>
             </nav>
@@ -160,6 +195,15 @@ mysqli_close($conexion);
                 <?php } ?>
             </tbody>
         </table>
+
+        <!-- Mostrar botones de paginación -->
+        <?php if ($total_paginas_presupuestos > 1) { ?>
+            <div class="pagination">
+                <?php for ($i = 1; $i <= $total_paginas_presupuestos; $i++) { ?>
+                    <a href="?pagina_presupuestos=<?php echo $i; ?>"<?php echo ($i == $pagina_actual_presupuestos ? ' class="active"' : ''); ?>><?php echo $i; ?></a>
+                <?php } ?>
+            </div>
+        <?php } ?>
     <?php } ?>
 </section>
 

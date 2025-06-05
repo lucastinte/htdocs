@@ -51,6 +51,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $puesto = isset($_POST['puesto']) ? mysqli_real_escape_string($conexion, $_POST['puesto']) : '';
     $usuario = isset($_POST['usuario']) ? mysqli_real_escape_string($conexion, $_POST['usuario']) : '';
     $password = isset($_POST['password']) ? $_POST['password'] : '';
+    $localidad = isset($_POST['localidad']) ? mysqli_real_escape_string($conexion, $_POST['localidad']) : '';
+    $provincia = isset($_POST['provincia']) ? mysqli_real_escape_string($conexion, $_POST['provincia']) : '';
 
     // Obtener el permiso original de la base de datos
     $query_permiso_original = "SELECT permisos FROM usuarios WHERE id_usuario = ?";
@@ -77,16 +79,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Unificar permisos de "crear" y "modificar"
     if (($accion == 'modificar' && $permisos_usuario_actual == 'modificar') || ($accion == 'modificar' && $permisos_usuario_actual == 'crear')) {
-        $query = "UPDATE usuarios SET nombre = ?, apellido = ?, dni = ?, email = ?, fecha_nacimiento = ?, telefono = ?, puesto = ?, permisos = ?, usuario = ?";
+        $query = "UPDATE usuarios SET nombre = ?, apellido = ?, dni = ?, email = ?, fecha_nacimiento = ?, telefono = ?, puesto = ?, permisos = ?, usuario = ?, localidad = ?, provincia = ?";
         if (!empty($password)) {
             $query .= ", password = ?";
         }
         $query .= " WHERE id_usuario = ?";
         $stmt_update = $conexion->prepare($query);
         if (!empty($password)) {
-            $stmt_update->bind_param("ssssssssssi", $nombre, $apellido, $dni, $email, $fecha_nacimiento, $telefono, $puesto, $permisos, $usuario, $password, $id_usuario);
+            $stmt_update->bind_param("ssssssssssssi", $nombre, $apellido, $dni, $email, $fecha_nacimiento, $telefono, $puesto, $permisos, $usuario, $localidad, $provincia, $password, $id_usuario);
         } else {
-            $stmt_update->bind_param("sssssssssi", $nombre, $apellido, $dni, $email, $fecha_nacimiento, $telefono, $puesto, $permisos, $usuario, $id_usuario);
+            $stmt_update->bind_param("ssssssssssi", $nombre, $apellido, $dni, $email, $fecha_nacimiento, $telefono, $puesto, $permisos, $usuario, $localidad, $provincia, $id_usuario);
         }
         if ($stmt_update->execute()) {
             $message_usuario = "Usuario modificado con éxito.";
@@ -96,17 +98,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo "<script>\n                showModalQ('$message_usuario', true, null, 'Error');\n            </script>";
         }
     } elseif ($accion == 'eliminar' && ($permisos_usuario_actual == 'modificar' || $permisos_usuario_actual == 'crear')) {
+        // Verificar si el usuario a eliminar es el gerente
+        $query_verificar_gerente = "SELECT email FROM usuarios WHERE id_usuario = ?";
+        $stmt_verificar_gerente = $conexion->prepare($query_verificar_gerente);
+        $stmt_verificar_gerente->bind_param("i", $id_usuario);
+        $stmt_verificar_gerente->execute();
+        $result_verificar_gerente = $stmt_verificar_gerente->get_result();
+
+        if ($result_verificar_gerente && $result_verificar_gerente->num_rows > 0) {
+            $email_usuario = $result_verificar_gerente->fetch_assoc()['email'];
+            if ($email_usuario === 'durandamian523@gmail.com') {
+                $message_usuario = "No se puede eliminar al gerente.";
+                echo "<script>showModalQ('$message_usuario', true, null, 'Acción no permitida');</script>";
+                exit();
+            }
+        }
+
         $query = "DELETE FROM usuarios WHERE id_usuario = ?";
         $stmt_delete = $conexion->prepare($query);
         $stmt_delete->bind_param("i", $id_usuario);
-        
+
         if ($stmt_delete->execute()) {
             $message_usuario = "<span style='color: #2ecc40; font-weight: bold;'>Usuario eliminado con éxito.</span>";
         } else {
             $message_usuario = "Error al eliminar el usuario: " . $stmt_delete->error;
-            echo "<script>
-                showModalQ('$message_usuario', true, null, 'Error', 'error');
-            </script>";
+            echo "<script>showModalQ('$message_usuario', true, null, 'Error', 'error');</script>";
         }
     } else {
         $message_usuario = "No tienes permisos para realizar esta acción.";
@@ -114,8 +130,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
 }
 
-// Obtener todos los usuarios
-$query = "SELECT id_usuario, nombre, apellido, dni, email, fecha_nacimiento, telefono, puesto, permisos, usuario FROM usuarios";
+// Lógica de paginación
+$usuarios_por_pagina = 4;
+$pagina_actual = isset($_GET['pagina']) ? intval($_GET['pagina']) : 1;
+$offset = ($pagina_actual - 1) * $usuarios_por_pagina;
+
+// Obtener el total de usuarios
+$query_total_usuarios = "SELECT COUNT(*) as total FROM usuarios";
+$result_total_usuarios = mysqli_query($conexion, $query_total_usuarios);
+$total_usuarios = mysqli_fetch_assoc($result_total_usuarios)['total'];
+$total_paginas = ceil($total_usuarios / $usuarios_por_pagina);
+
+// Obtener los usuarios para la página actual
+$query = "SELECT id_usuario, nombre, apellido, dni, email, fecha_nacimiento, telefono, puesto, permisos, usuario, localidad, provincia FROM usuarios LIMIT $offset, $usuarios_por_pagina";
 $result = mysqli_query($conexion, $query);
 
 if (!$result) {
@@ -136,7 +163,7 @@ if (!$result) {
         return confirm(message);
     }
 
-    function rellenarFormulario(id, nombre, apellido, dni, email, fecha_nacimiento, telefono, puesto, permisos, usuario) {
+    function rellenarFormulario(id, nombre, apellido, dni, email, fecha_nacimiento, telefono, puesto, permisos, usuario, localidad, provincia) {
         document.getElementById('form-gestionusuario').style.display = 'block';
         document.getElementById('titulo-gestionusuario').style.display = 'block';
         document.getElementById('accion').value = 'modificar';
@@ -150,6 +177,8 @@ if (!$result) {
         document.getElementById('puesto').value = puesto;
         document.getElementById('permisos').value = permisos;
         document.getElementById('usuario').value = usuario;
+        document.getElementById('localidad').value = localidad;
+        document.getElementById('provincia').value = provincia;
         // Bloquear el campo permisos si el usuario edita su propio usuario
         if (id == '<?php echo $id_usuario_logueado; ?>') {
             document.getElementById('permisos').setAttribute('disabled', 'disabled');
@@ -247,7 +276,11 @@ if (!$result) {
 
 <header>
     <div class="container">
-        <p class="logo">Mat Construcciones</p>
+         <div class="user-badge">
+          <?php if (isset($_SESSION['usuario'])): ?>
+           <p class="logo"> <span class="user-icon">&#128100;</span> <?php echo htmlspecialchars($_SESSION['usuario']); ?></p>
+          <?php endif; ?>
+        </div>
         <nav>
             <?php if ($permisos_usuario_actual == 'crear') { ?>
                 <a href="formulario.php">Crear Usuario</a>
@@ -271,6 +304,8 @@ if (!$result) {
                 <th>Puesto</th>
                 <th>Permisos</th>
                 <th>Usuario</th>
+                <th>Localidad</th>
+                <th>Provincia</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -286,18 +321,29 @@ if (!$result) {
                     <td><?php echo htmlspecialchars($usuario['puesto']); ?></td>
                     <td><?php echo htmlspecialchars($usuario['permisos']); ?></td>
                     <td><?php echo htmlspecialchars($usuario['usuario']); ?></td>
+                    <td><?php echo htmlspecialchars($usuario['localidad']); ?></td>
+                    <td><?php echo htmlspecialchars($usuario['provincia']); ?></td>
                     <td>
-                        <button type="button" onclick="rellenarFormulario('<?php echo $usuario['id_usuario']; ?>', '<?php echo $usuario['nombre']; ?>', '<?php echo $usuario['apellido']; ?>', '<?php echo $usuario['dni']; ?>', '<?php echo $usuario['email']; ?>', '<?php echo $usuario['fecha_nacimiento']; ?>', '<?php echo $usuario['telefono']; ?>', '<?php echo $usuario['puesto']; ?>', '<?php echo $usuario['permisos']; ?>', '<?php echo $usuario['usuario']; ?>')">Modificar</button>
-                        <?php if ($usuario['id_usuario'] != $id_usuario_logueado) { ?>
+                        <?php if ($usuario['email'] !== 'durandamian523@gmail.com') { ?>
+                            <button type="button" onclick="rellenarFormulario('<?php echo $usuario['id_usuario']; ?>', '<?php echo $usuario['nombre']; ?>', '<?php echo $usuario['apellido']; ?>', '<?php echo $usuario['dni']; ?>', '<?php echo $usuario['email']; ?>', '<?php echo $usuario['fecha_nacimiento']; ?>', '<?php echo $usuario['telefono']; ?>', '<?php echo $usuario['puesto']; ?>', '<?php echo $usuario['permisos']; ?>', '<?php echo $usuario['usuario']; ?>', '<?php echo $usuario['localidad']; ?>', '<?php echo $usuario['provincia']; ?>')">Modificar</button>
                             <button type="button" onclick="confirmDeleteUsuario('<?php echo $usuario['id_usuario']; ?>')">Eliminar</button>
-                        <?php } else { ?>
-                            <button type="button" onclick="showModalQ('No puedes eliminar tu propia cuenta mientras estás logueado.', true, null, 'Acción no permitida');">Eliminar</button>
                         <?php } ?>
                     </td>
                 </tr>
             <?php } ?>
         </tbody>
     </table>
+
+    <!-- Mostrar botones de paginación -->
+    <?php if ($total_paginas > 1) { ?>
+        <div class="pagination" style="display: flex; justify-content: center; margin-top: 20px;">
+            <?php for ($i = 1; $i <= $total_paginas; $i++) { ?>
+                <a href="gestionusuario.php?pagina=<?php echo $i; ?>" style="margin: 0 5px; padding: 10px 15px; border: 1px solid #ccc; border-radius: 5px; text-decoration: none; color: #333; background-color: <?php echo ($i == $pagina_actual ? '#4CAF50' : '#fff'); ?>;">
+                    <?php echo $i; ?>
+                </a>
+            <?php } ?>
+        </div>
+    <?php } ?>
 
     <h1 id="titulo-gestionusuario" style="display:none;">Gestión de Usuarios</h1>
     <form action="gestionusuario.php" method="post" id="form-gestionusuario" style="display:none;">
@@ -346,6 +392,14 @@ if (!$result) {
         <div class="form-group">
             <label for="password">Contraseña:</label>
             <input type="password" id="password" name="password">
+        </div>
+        <div class="form-group">
+            <label for="localidad">Localidad:</label>
+            <input type="text" id="localidad" name="localidad" required>
+        </div>
+        <div class="form-group">
+            <label for="provincia">Provincia:</label>
+            <input type="text" id="provincia" name="provincia" required>
         </div>
         <button type="submit" onclick="return confirmFormAction(event)">Guardar</button>
         <button type="button" onclick="ocultarFormularioGestionUsuario()">Cancelar</button>

@@ -29,8 +29,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
     exit();
 }
 
-// Consultar talentos
-$query_talentos = "SELECT * FROM talentos";
+// --- Paginación de talentos ---
+$talentos_por_pagina = 5;
+$total_talentos_query = "SELECT COUNT(*) as total FROM talentos";
+$total_talentos_result = mysqli_query($conexion, $total_talentos_query);
+$total_talentos_row = mysqli_fetch_assoc($total_talentos_result);
+$total_talentos = $total_talentos_row['total'];
+$total_paginas_talentos = ceil($total_talentos / $talentos_por_pagina);
+$pagina_actual_talentos = isset($_GET['pagina_talentos']) ? max(1, intval($_GET['pagina_talentos'])) : 1;
+$offset_talentos = ($pagina_actual_talentos - 1) * $talentos_por_pagina;
+
+$query_talentos = "SELECT * FROM talentos ORDER BY fecha_postulacion DESC LIMIT $talentos_por_pagina OFFSET $offset_talentos";
 $result_talentos = mysqli_query($conexion, $query_talentos);
 
 mysqli_close($conexion);
@@ -46,12 +55,91 @@ mysqli_close($conexion);
     <link rel="stylesheet" href="/modal-q.css">
     <link rel="stylesheet" href="/ingreso/usuario/talentos-modal-q.css">
     <script src="/modal-q.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 90%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .pagination {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .pagination a {
+            color: #4CAF50;
+            padding: 8px 16px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            margin: 0 4px;
+            border-radius: 4px;
+        }
+
+        .pagination a.active {
+            background-color: #4CAF50;
+            color: white;
+            border: 1px solid #4CAF50;
+        }
+
+        .pagination a:hover {
+            background-color: #ddd;
+        }
+
+        .btn-delete {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-delete:hover {
+            background-color: #e60000;
+        }
+    </style>
 </head>
 <body>
 
 <header>
         <div class="container">
-            <p class="logo">Mat Construcciones</p>
+             <div class="user-badge">
+          <?php if (isset($_SESSION['usuario'])): ?>
+           <p class="logo"> <span class="user-icon">&#128100;</span> <?php echo htmlspecialchars($_SESSION['usuario']); ?></p>
+          <?php endif; ?>
+        </div>
             <nav>
                 
                 <a href="usuario.php"> <button>Volver</button></a>
@@ -95,6 +183,15 @@ mysqli_close($conexion);
                 <?php } ?>
             </tbody>
         </table>
+    <?php } ?>
+
+    <!-- Mostrar botones de paginación -->
+    <?php if ($total_paginas_talentos > 1) { ?>
+        <div class="pagination">
+            <?php for ($i = 1; $i <= $total_paginas_talentos; $i++) { ?>
+                <a href="talentos.php?pagina_talentos=<?php echo $i; ?>"<?php echo ($i == $pagina_actual_talentos ? ' class="active"' : ''); ?>><?php echo $i; ?></a>
+            <?php } ?>
+        </div>
     <?php } ?>
 </section>
 

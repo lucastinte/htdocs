@@ -160,7 +160,11 @@ mysqli_close($conexion);
 
 <header>
     <div class="container">
-        <p class="logo">Mat Construcciones</p>
+         <div class="user-badge">
+          <?php if (isset($_SESSION['usuario'])): ?>
+           <p class="logo"> <span class="user-icon">&#128100;</span> <?php echo htmlspecialchars($_SESSION['usuario']); ?></p>
+          <?php endif; ?>
+        </div>
         <nav>
             
             <a href="usuario.php"><button>Volver</button></a>

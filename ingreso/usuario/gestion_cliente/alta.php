@@ -99,7 +99,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="gestioncliente.css">
     <style>
         body {
-            background-image: linear-gradient(0deg, rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/imagen/servicios/casas.jpg');
+            background-image: linear-gradient(0deg, rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/imagen/servicios/canchasPortada.png');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;

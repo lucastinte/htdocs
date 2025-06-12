@@ -80,10 +80,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mail->isHTML(true);
 
             // Determinar la URL correcta según el tipo de cuenta
-            $base_url = "http://localhost";
+            $base_url = $config['base_url'];
+            $base_port = isset($config['base_port']) && $config['base_port'] != '80' ? ':' . $config['base_port'] : '';
             $link = $tabla === 'clientes' 
-                ? "$base_url/ingreso/cliente/restablecer_contrasena.php?token=" . $token
-                : "$base_url/ingreso/usuario/gestion_usuario/restablecer_contrasena.php?token=" . $token;
+                ? "http://$base_url$base_port/ingreso/cliente/restablecer_contrasena.php?token=" . $token
+                : "http://$base_url$base_port/ingreso/usuario/gestion_usuario/restablecer_contrasena.php?token=" . $token;
 
             $mail->Body = "Hola,<br><br>
             Recibimos una solicitud para restablecer tu contraseña. Si no hiciste esta solicitud, puedes ignorar este correo.<br><br>

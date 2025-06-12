@@ -5,5 +5,6 @@ return [
     'from_email' => 'lucasrtinte19@gmail.com', 
     'from_name' => 'Mat Construcciones', // Agregado para PHPMailer
     'base_url' => 'localhost',// Cambia esto a tu correo electrónico
+    'base_port' => '80', // Puerto por defecto, cámbialo si usas otro (ej: 8080)
 ];
 ?>

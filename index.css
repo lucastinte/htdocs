@@ -266,16 +266,16 @@ section#Nosotros button a:hover {
 }
 
 .tarjeta {
-    background-position: center center;
-    background-size: cover;
-    padding: 50px 0px;
-    margin: 30px;
-    border-radius: 15px;
-    transition: transform 0.3s ease;
+  background-position: center center;
+  background-size: cover;
+  padding: 50px 0px;
+  margin: 30px;
+  border-radius: 15px;
+  transition: transform 0.3s ease;
 }
 
 .tarjeta:hover {
-    transform: translateY(-10px);
+  transform: translateY(-10px);
 }
 
 #final {
@@ -297,28 +297,6 @@ section#Nosotros button a:hover {
 
 #final h2 {
   font-size: 3em;
-}
-
-footer {
-  background-color: rgb(230, 230, 230);
-  padding: 12px;
-  text-align: center;
-  width: 100%;
-  box-sizing: border-box;
-  margin-top: 20px;
-}
-
-footer p {
-  margin: 0;
-  color: rgb(100, 100, 100);
-  padding: 30px;
-}
-
-footer .container {
-  height: 80px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
 }
 
 form {

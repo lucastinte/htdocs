@@ -12,6 +12,8 @@ include "header.php";
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mat</title>
     <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 </head>
 
 <body>
@@ -124,79 +126,125 @@ include "header.php";
     </section>
     </main>
 
-    <footer>
-    <div class="footer-container">
-        <div class="footer-section">
-            <h3>Sobre Nosotros</h3>
-            <p>Mat Construcciones es una empresa dedicada a hacer realidad tus sueños arquitectónicos con excelencia y compromiso.</p>
-        </div>
-        <div class="footer-section">
-            <h3>Enlaces Rápidos</h3>
-            <ul>
-                <li><a href="index.php">Inicio</a></li>
-                <li><a href="servicios.php">Servicios</a></li>
-                <li><a href="talentos.php">Talentos</a></li>
-                <li><a href="presupuestos.php">Presupuestos</a></li>
-            </ul>
-        </div>
-        <div class="footer-section">
-            <h3>Contacto</h3>
-            <p>Email: contacto@matconstrucciones.com</p>
-            <p>Teléfono: +54 11 1234 5678</p>
-            <p>Dirección: Av. Siempre Viva 123, Buenos Aires</p>
-        </div>
+    <footer class="footer">
+  <div class="footer-content">
+    <div class="footer-info">
+      <p class="slogan">Construimos tus ideas,<br> desarrollamos tus sueños.</p>
+      <div class="social-icons">
+        <a href="https://instagram.com" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="https://facebook.com" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://wa.me/5491112345678" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+      </div>
     </div>
-    <div class="footer-bottom">
-        <p>&copy; 2025 Mat Construcciones. Todos los derechos reservados.</p>
+    <div class="footer-links">
+      <h4>Enlaces</h4>
+      <ul>
+        <li><a href="index.php">Inicio</a></li>
+        <li><a href="servicios.php">Servicios</a></li>
+        <li><a href="talentos.php">Talentos</a></li>
+        <li><a href="presupuestos.php">Presupuestos</a></li>
+      </ul>
     </div>
+    <div class="footer-contact">
+      <h4>Contacto</h4>
+      <p>📍 El Manzano N 689</p>
+      <p>📞 3884800555</p>
+      <p>✉️ matiasgalo22@gmail.com</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    &copy; 2025 Mat Construcciones. Todos los derechos reservados.
+  </div>
 </footer>
-
 <style>
-footer {
-    background-color: #4CAF50; /* Cambiado a morado */
-    color: #fff; /* Texto blanco */
-    padding: 40px 20px;
-    font-size: 14px;
-}
-.footer-container {
+  .footer {
+    background-color: #000;
+    color: #fff;
+    padding: 40px 20px 20px;
+    font-family: 'Segoe UI', sans-serif;
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.4);
+  }
+  .footer-content {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-.footer-section {
+    max-width: 1100px;
+    margin: auto;
+    gap: 40px;
+  }
+  .footer-info {
     flex: 1;
-    margin: 10px;
     min-width: 200px;
-}
-.footer-section h3 {
-    font-size: 18px;
-    margin-bottom: 10px;
-    color: #fff; /* Texto blanco */
-}
-.footer-section p, .footer-section ul {
-    margin: 0;
-    padding: 0;
+  }
+  .slogan {
+    margin-bottom: 15px;
+    font-size: 0.95em;
+    color: #fff;
+  }
+  .social-icons a {
+    font-size: 1.5em;
+    margin-right: 15px;
+    text-decoration: none;
+    color: white;
+    transition: color 0.3s;
+  }
+  .social-icons a:hover {
+    color: #9b59b6;
+  }
+  .footer-links,
+  .footer-contact {
+    flex: 1;
+    min-width: 200px;
+  }
+  .footer-links h4,
+  .footer-contact h4 {
+    margin-bottom: 12px;
+    font-size: 1.1em;
+    border-bottom: 2px solid #fff2;
+    display: inline-block;
+    padding-bottom: 4px;
+    color: white;
+  }
+  .footer-links ul {
     list-style: none;
-}
-.footer-section ul li {
-    margin: 5px 0;
-}
-.footer-section ul li a {
-    color: #fff; /* Texto blanco */
+    padding: 0;
+    margin: 0;
+  }
+  .footer-links ul li {
+    margin-bottom: 10px;
+  }
+  .footer-links ul li a {
+    color: white;
     text-decoration: none;
     transition: color 0.3s;
-}
-.footer-section ul li a:hover {
-    color: #181818; /* Texto negro al pasar el mouse */
-}
-.footer-bottom {
+  }
+  .footer-links ul li a:hover {
+    color: #9b59b6;
+  }
+  .footer-contact p {
+    margin: 6px 0;
+    font-size: 0.95em;
+    color: white;
+  }
+  .footer-bottom {
     text-align: center;
-    margin-top: 20px;
-    border-top: 1px solid #fff; /* Línea blanca */
-    padding-top: 10px;
-}
+    padding-top: 20px;
+    border-top: 1px solid #444;
+    font-size: 0.85em;
+    color: #aaa;
+    margin-top: 30px;
+  }
+  @media (max-width: 768px) {
+    .footer-content {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .social-icons {
+      justify-content: center;
+    }
+  }
 </style>
+
 </body>
 </html>

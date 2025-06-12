@@ -24,14 +24,29 @@ if ($row_cliente = mysqli_fetch_assoc($result_cliente)) {
     die("Error al obtener el ID del cliente.");
 }
 
-// Consultar proyectos asociados al cliente
+// Lógica de paginación
+$proyectos_por_pagina = 5;
+$pagina_actual = isset($_GET['pagina']) ? intval($_GET['pagina']) : 1;
+$offset = ($pagina_actual - 1) * $proyectos_por_pagina;
+
+// Consultar proyectos asociados al cliente con límite de paginación
 $query_proyectos = "SELECT p.id, p.nombre_proyecto AS nombre, p.descripcion, p.fecha_inicio, p.fecha_fin, p.estado
                     FROM proyectos p
-                    WHERE p.id_cliente = ?";
+                    WHERE p.id_cliente = ?
+                    LIMIT $offset, $proyectos_por_pagina";
 $stmt_proyectos = mysqli_prepare($conexion, $query_proyectos);
 mysqli_stmt_bind_param($stmt_proyectos, "i", $id_cliente);
 mysqli_stmt_execute($stmt_proyectos);
 $result_proyectos = mysqli_stmt_get_result($stmt_proyectos);
+
+// Obtener el total de proyectos
+$query_total_proyectos = "SELECT COUNT(*) as total FROM proyectos WHERE id_cliente = ?";
+$stmt_total_proyectos = mysqli_prepare($conexion, $query_total_proyectos);
+mysqli_stmt_bind_param($stmt_total_proyectos, "i", $id_cliente);
+mysqli_stmt_execute($stmt_total_proyectos);
+$result_total_proyectos = mysqli_stmt_get_result($stmt_total_proyectos);
+$total_proyectos = mysqli_fetch_assoc($result_total_proyectos)['total'];
+$total_paginas = ceil($total_proyectos / $proyectos_por_pagina);
 
 // Consultar archivos asociados a cada proyecto
 $proyectos = [];
@@ -76,6 +91,25 @@ mysqli_close($conexion);
             background-color: #4caf50;
             width: 0;
             transition: width 0.4s ease;
+        }
+        /* Estilos para la paginación */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pagination a {
+            margin: 0 5px;
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #333;
+            background-color: #fff;
+        }
+        .pagination a.active {
+            background-color: #4CAF50;
+            color: white;
         }
     </style>
 </head>
@@ -143,6 +177,17 @@ mysqli_close($conexion);
                 <?php } ?>
             </tbody>
         </table>
+    <?php } ?>
+
+    <!-- Mostrar botones de paginación -->
+    <?php if ($total_paginas > 1) { ?>
+        <div class="pagination">
+            <?php for ($i = 1; $i <= $total_paginas; $i++) { ?>
+                <a href="consultar_proyecto.php?pagina=<?php echo $i; ?>" class="<?php echo ($i == $pagina_actual ? 'active' : ''); ?>">
+                    <?php echo $i; ?>
+                </a>
+            <?php } ?>
+        </div>
     <?php } ?>
     <a href="cliente.php" class="back-button">Volver a Gestión de Cliente</a>
 </section>

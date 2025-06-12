@@ -63,6 +63,25 @@ if (isset($_POST['cargar_proyecto'])) {
         $message = "Proyecto y archivos cargados exitosamente.";
     }
 }
+
+// Validar si el parámetro id_cliente está presente en la URL
+if (!isset($_GET['id_cliente']) || empty($_GET['id_cliente'])) {
+    die("Error: El parámetro id_cliente es obligatorio.");
+}
+
+$id_cliente = intval($_GET['id_cliente']);
+
+$query_cliente = "SELECT nombre FROM clientes WHERE id = ?";
+$stmt_cliente = mysqli_prepare($conexion, $query_cliente);
+mysqli_stmt_bind_param($stmt_cliente, "i", $id_cliente);
+mysqli_stmt_execute($stmt_cliente);
+$result_cliente = mysqli_stmt_get_result($stmt_cliente);
+$cliente = mysqli_fetch_assoc($result_cliente);
+mysqli_stmt_close($stmt_cliente);
+
+if (!$cliente) {
+    die("Error: Cliente no encontrado.");
+}
 ?>
 
 <!DOCTYPE html>
@@ -103,8 +122,9 @@ if (isset($_POST['cargar_proyecto'])) {
             margin-top: 20px;
             padding: 10px;
             border-radius: 5px;
-            background-color: rgba(255, 255, 255, 0.9);
+            /* background-color: rgba(255, 255, 255, 0.9); */
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            color: #fff !important;
         }
     </style>
 </head>
@@ -125,18 +145,21 @@ if (isset($_POST['cargar_proyecto'])) {
     </header>
 
     <main>
+             <?php if (isset($message)) { ?>
+            <div class="debug-messages" style="color: #c5ecc6; font-weight: bold; text-align: center; font-size: 1.1em; margin: 18px;">
+                <?php echo htmlspecialchars($message); ?>
+            </div>
+        <?php } ?>
+
+        <?php if (isset($debug_messages)) { ?>
+            <div class="debug-messages" style="color: #ff6b6b; font-weight: bold; text-align: center; font-size: 1em; margin: 18px;">
+                <?php echo htmlspecialchars(implode("<br>", $debug_messages)); ?>
+            </div>
+        <?php } ?>
         <div class="sf">
-            <form action="carga.php" method="post" enctype="multipart/form-data">
-                <?php
-                $id_cliente = intval($_GET['id_cliente']);
-                $query_cliente = "SELECT nombre FROM clientes WHERE id = ?";
-                $stmt_cliente = mysqli_prepare($conexion, $query_cliente);
-                mysqli_stmt_bind_param($stmt_cliente, "i", $id_cliente);
-                mysqli_stmt_execute($stmt_cliente);
-                $result_cliente = mysqli_stmt_get_result($stmt_cliente);
-                $cliente = mysqli_fetch_assoc($result_cliente);
-                mysqli_stmt_close($stmt_cliente);
-                ?>
+    
+        <form action="carga.php?id_cliente=<?php echo $_GET['id_cliente']; ?>" method="post" enctype="multipart/form-data">
+
                 <h3>Cargar Proyecto al Cliente: <?php echo htmlspecialchars($cliente['nombre']); ?></h3>
                 <input type="hidden" name="id_cliente" value="<?php echo htmlspecialchars($id_cliente); ?>">
                 <div class="form-group">
@@ -167,17 +190,7 @@ if (isset($_POST['cargar_proyecto'])) {
             </form>
         </div>
 
-        <?php if (isset($message)) { ?>
-            <div class="debug-messages" style="color: #c5ecc6; font-weight: bold; text-align: center; font-size: 1.1em; margin: 18px;">
-                <?php echo htmlspecialchars($message); ?>
-            </div>
-        <?php } ?>
-
-        <?php if (isset($debug_messages)) { ?>
-            <div class="debug-messages" style="color: #ff6b6b; font-weight: bold; text-align: center; font-size: 1em; margin: 18px;">
-                <?php echo htmlspecialchars(implode("<br>", $debug_messages)); ?>
-            </div>
-        <?php } ?>
+   
     </main>
 </body>
 

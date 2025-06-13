@@ -180,14 +180,15 @@ section#Nosotros button a:hover {
 }
 
 .card__service {
+  flex: 0 0 33.33%; /* Cada tarjeta ocupa 1/3 del contenedor */
+  margin: 0 10px;
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 15px;
   box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
   text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  overflow: hidden;
   padding: 20px;
   border: 1px solid rgba(255, 255, 255, 0.3); /* Borde blanco con transparencia */
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
 .card__service img {
@@ -227,8 +228,9 @@ section#Nosotros button a:hover {
 }
 
 .card__service:hover {
-  transform: translateY(-10px);
+  /* Se elimina el transform para que no se mueva */
   box-shadow: 0 8px 16px rgba(255, 255, 255, 0.3);
+  border-color: #9b59b6;
 }
 
 .card__service:hover img {
@@ -339,4 +341,157 @@ form button {
 
 form button:hover {
   background-color: rgb(101, 33, 165);
+}
+
+.slider {
+  position: relative;
+  overflow: hidden;
+  margin: 20px auto;
+  width: 100%;
+}
+
+.slider-track {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+.slider-prev,
+.slider-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  color: #fff;
+  padding: 10px;
+  cursor: pointer;
+  z-index: 100;
+}
+
+.slider-prev {
+  left: 10px;
+}
+
+.slider-next {
+  right: 10px;
+}
+
+.slider-prev:hover,
+.slider-next:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* Footer styles updated for a more homogeneous and aesthetic look */
+.footer {
+  background-color: #000;
+  color: #fff;
+  padding: 40px 20px;
+  font-family: "Roboto", sans-serif;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.4);
+}
+
+.footer-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  max-width: 1100px;
+  margin: 0 auto 20px;
+  gap: 40px;
+}
+
+.footer-info,
+.footer-links,
+.footer-contact {
+  flex: 1;
+  min-width: 200px;
+}
+
+.footer-info .slogan {
+  margin-bottom: 15px;
+  font-size: 1em;
+  color: #fff;
+}
+
+.footer-links h4,
+.footer-contact h4 {
+  margin-bottom: 12px;
+  font-size: 1.1em;
+  border-bottom: 2px solid #fff2;
+  padding-bottom: 4px;
+  color: #fff;
+}
+
+.footer-links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links ul li {
+  margin-bottom: 10px;
+}
+
+.footer-links a {
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+  color: #9b59b6;
+}
+
+.footer-contact p {
+  margin: 6px 0;
+  font-size: 1em;
+  color: #fff;
+}
+
+.footer-bottom {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid #444;
+  font-size: 0.85em;
+  color: #aaa;
+}
+
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .social-icons {
+    justify-content: center;
+  }
+}
+
+/* Quitamos definitivamente el subrayado en "COMIENZA" */
+#final button a {
+  text-decoration: none !important;
+  color: inherit;
+}
+
+/* Aseguramos que los iconos sean blancos y se mantenga una tipografía homogénea */
+.social-icons a {
+  font-size: 1.5em;
+  margin-right: 15px;
+  text-decoration: none;
+  color: #fff !important;
+  transition: color 0.3s ease;
+}
+
+.social-icons a:hover {
+  color: #fff;
+}
+
+/* Forzamos el uso de la fuente Roboto y colores consistentes para textos y enlaces */
+body,
+p,
+h1,
+h2,
+h3,
+a {
+  font-family: "Roboto", sans-serif;
+  color: inherit;
 }

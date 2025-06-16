@@ -42,7 +42,11 @@ $pagina_actual = isset($_GET['pagina']) ? intval($_GET['pagina']) : 1;
 $offset = ($pagina_actual - 1) * $proyectos_por_pagina;
 
 // Obtener el total de proyectos
-$query_total_proyectos = "SELECT COUNT(*) as total FROM proyectos";
+if ($id_cliente > 0) {
+    $query_total_proyectos = "SELECT COUNT(*) as total FROM proyectos WHERE id_cliente = $id_cliente";
+} else {
+    $query_total_proyectos = "SELECT COUNT(*) as total FROM proyectos";
+}
 $result_total_proyectos = mysqli_query($conexion, $query_total_proyectos);
 $total_proyectos = mysqli_fetch_assoc($result_total_proyectos)['total'];
 $total_paginas = ceil($total_proyectos / $proyectos_por_pagina);

@@ -197,5 +197,5 @@ CREATE TABLE `servicios` (
 -- Insertar datos iniciales
 INSERT INTO `servicios` (titulo, descripcion, imagen, orden) VALUES 
 ('CANCHAS', 'Canchas de todo tipo, de cesped sintetico o natural. Para uso familiar o de alquiler.', 'canchas.png', 1),
-('HOGARES', 'Casas modernas, amplias, iluminadas, un hogar para vos y tu familia.', 'casas.jpg', 2),
+('HOGARES', 'Casas modernas, amplias, iluminadas, un hogar para vos y tu familia.', 'casa.png', 2),
 ('PISCINAS', 'Todo tipo de piscinas, piletas, a medida. Con diseño unico y sorprendente.', 'piscinas.png', 3);

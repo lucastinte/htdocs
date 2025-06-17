@@ -13,10 +13,11 @@ if (!isset($_SESSION['usuario'])) {
 if (isset($_POST['actualizar_usuario'])) {
     $id_usuario = intval($_POST['id_usuario']);
     $usuario = $_POST['usuario'];
+    $nombre = $_POST['nombre'];
 
-    $update_query = "UPDATE usuarios SET usuario = ? WHERE id_usuario = ?";
+    $update_query = "UPDATE usuarios SET usuario = ?, nombre = ? WHERE id_usuario = ?";
     $stmt = mysqli_prepare($conexion, $update_query);
-    mysqli_stmt_bind_param($stmt, "si", $usuario, $id_usuario);
+    mysqli_stmt_bind_param($stmt, "ssi", $usuario, $nombre, $id_usuario);
     mysqli_stmt_execute($stmt);
 
     if (mysqli_stmt_affected_rows($stmt) > 0) {
@@ -149,7 +150,7 @@ if (!$result) {
                 <label for="usuario_usuario">Usuario:</label>
                 <input type="text" id="usuario_usuario" name="usuario" required>
             </div>
-            <button type="submit">Guardar Cambios</button>
+            <button type="submit" name="actualizar_usuario">Guardar Cambios</button>
             <button type="button" onclick="ocultarFormularioModificarUsuario()"
                 style="margin-left:12px;background:#888;color:#fff;border:none;padding:8px 18px;border-radius:6px;cursor:pointer;">Cancelar</button>
         </form>

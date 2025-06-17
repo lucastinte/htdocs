@@ -10,6 +10,12 @@ if (!isset($_SESSION['usuario'])) {
 
 $message_usuario = "";
 $usuario_actual = $_SESSION['usuario'];
+
+// Debug: Imprimir valores POST
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    error_log("POST recibido: " . print_r($_POST, true));
+}
+
 // Obtener el ID del usuario actual logueado
 $query_usuario_logueado = "SELECT id_usuario FROM usuarios WHERE usuario = ?";
 $stmt_usuario_logueado = $conexion->prepare($query_usuario_logueado);
@@ -52,7 +58,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $usuario = isset($_POST['usuario']) ? mysqli_real_escape_string($conexion, $_POST['usuario']) : '';
     $password = isset($_POST['password']) ? $_POST['password'] : '';
     $localidad = isset($_POST['localidad']) ? mysqli_real_escape_string($conexion, $_POST['localidad']) : '';
-    $provincia = isset($_POST['provincia']) ? mysqli_real_escape_string($conexion, $_POST['provincia']) : '';
+    $provincia = isset($_POST['provincia']) ? mysqli_real_escape_string($conexion, trim($_POST['provincia'])) : '';
+    
+    // Si provincia es '0' o está vacía, la establecemos como NULL
+    if ($provincia === '0' || $provincia === '' || $provincia === 0) {
+        $provincia = null;
+    }
+
+    // Debug: Imprimir valor de provincia
+    error_log("Valor de provincia antes de UPDATE: " . ($provincia === null ? 'NULL' : $provincia));
 
     // Obtener el permiso original de la base de datos
     $query_permiso_original = "SELECT permisos FROM usuarios WHERE id_usuario = ?";
@@ -84,18 +98,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $query .= ", password = ?";
         }
         $query .= " WHERE id_usuario = ?";
+
         $stmt_update = $conexion->prepare($query);
+        
         if (!empty($password)) {
-            $stmt_update->bind_param("ssssssssssssi", $nombre, $apellido, $dni, $email, $fecha_nacimiento, $telefono, $puesto, $permisos, $usuario, $localidad, $provincia, $password, $id_usuario);
+            $tipos = "ssssssssssssi";
+            $params = array($nombre, $apellido, $dni, $email, $fecha_nacimiento, $telefono, $puesto, $permisos, $usuario, $localidad, $provincia, $password, $id_usuario);
         } else {
-            $stmt_update->bind_param("ssssssssssi", $nombre, $apellido, $dni, $email, $fecha_nacimiento, $telefono, $puesto, $permisos, $usuario, $localidad, $provincia, $id_usuario);
+            $tipos = "sssssssssssi";
+            $params = array($nombre, $apellido, $dni, $email, $fecha_nacimiento, $telefono, $puesto, $permisos, $usuario, $localidad, $provincia, $id_usuario);
         }
+        
+        $stmt_update->bind_param($tipos, ...$params);
+        
         if ($stmt_update->execute()) {
             $message_usuario = "Usuario modificado con éxito.";
-            echo "<script>\n                showModalQ('$message_usuario', false, null, 'Éxito');\n            </script>";
+            error_log("UPDATE exitoso. Provincia guardada como: " . ($provincia === null ? 'NULL' : $provincia));
         } else {
             $message_usuario = "Error al modificar el usuario: " . $stmt_update->error;
-            echo "<script>\n                showModalQ('$message_usuario', true, null, 'Error');\n            </script>";
+            error_log("Error en UPDATE: " . $stmt_update->error);
         }
     } elseif ($accion == 'eliminar' && ($permisos_usuario_actual == 'modificar' || $permisos_usuario_actual == 'crear')) {
         // Verificar si el usuario a eliminar es el gerente
@@ -158,29 +179,34 @@ if (!$result) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Usuarios</title>
     <link rel="stylesheet" href="gestioncliente.css">
+    <link rel="stylesheet" href="/modal-q.css">
+    <script src="/modal-q.js"></script>
     <script>
     function confirmAction(message) {
         return confirm(message);
     }
 
-    function rellenarFormulario(id, nombre, apellido, dni, email, fecha_nacimiento, telefono, puesto, permisos, usuario, localidad, provincia) {
+    function rellenarFormularioDesdeJson(usuario) {
+        console.log('Datos del usuario:', usuario); // Para debug
         document.getElementById('form-gestionusuario').style.display = 'block';
         document.getElementById('titulo-gestionusuario').style.display = 'block';
         document.getElementById('accion').value = 'modificar';
-        document.getElementById('id_usuario').value = id;
-        document.getElementById('nombre').value = nombre;
-        document.getElementById('apellido').value = apellido;
-        document.getElementById('dni').value = dni;
-        document.getElementById('email').value = email;
-        document.getElementById('fecha_nacimiento').value = fecha_nacimiento;
-        document.getElementById('telefono').value = telefono;
-        document.getElementById('puesto').value = puesto;
-        document.getElementById('permisos').value = permisos;
-        document.getElementById('usuario').value = usuario;
-        document.getElementById('localidad').value = localidad;
-        document.getElementById('provincia').value = provincia;
+        document.getElementById('id_usuario').value = usuario.id_usuario;
+        document.getElementById('nombre').value = usuario.nombre || '';
+        document.getElementById('apellido').value = usuario.apellido || '';
+        document.getElementById('dni').value = usuario.dni || '';
+        document.getElementById('email').value = usuario.email || '';
+        document.getElementById('fecha_nacimiento').value = usuario.fecha_nacimiento || '';
+        document.getElementById('telefono').value = usuario.telefono || '';
+        document.getElementById('puesto').value = usuario.puesto || '';
+        document.getElementById('permisos').value = usuario.permisos || '';
+        document.getElementById('usuario').value = usuario.usuario || '';
+        document.getElementById('localidad').value = usuario.localidad || '';
+        // Aseguramos que provincia no sea 0
+        document.getElementById('provincia').value = usuario.provincia === '0' ? '' : (usuario.provincia || '');
+        
         // Bloquear el campo permisos si el usuario edita su propio usuario
-        if (id == '<?php echo $id_usuario_logueado; ?>') {
+        if (usuario.id_usuario == '<?php echo $id_usuario_logueado; ?>') {
             document.getElementById('permisos').setAttribute('disabled', 'disabled');
         } else {
             document.getElementById('permisos').removeAttribute('disabled');
@@ -236,6 +262,12 @@ if (!$result) {
 
     function confirmFormAction(event) {
         event.preventDefault();
+        // Validar que provincia no sea '0'
+        let provinciaValue = document.getElementById('provincia').value.trim();
+        if (provinciaValue === '0') {
+            provinciaValue = '';
+            document.getElementById('provincia').value = '';
+        }
         showModalQ(
             '¿Estás seguro de que deseas realizar esta acción?',
             false,
@@ -324,8 +356,11 @@ if (!$result) {
                     <td><?php echo htmlspecialchars($usuario['localidad']); ?></td>
                     <td><?php echo htmlspecialchars($usuario['provincia']); ?></td>
                     <td>
-                        <?php if ($usuario['email'] !== 'durandamian523@gmail.com') { ?>
-                            <button type="button" onclick="rellenarFormulario('<?php echo $usuario['id_usuario']; ?>', '<?php echo $usuario['nombre']; ?>', '<?php echo $usuario['apellido']; ?>', '<?php echo $usuario['dni']; ?>', '<?php echo $usuario['email']; ?>', '<?php echo $usuario['fecha_nacimiento']; ?>', '<?php echo $usuario['telefono']; ?>', '<?php echo $usuario['puesto']; ?>', '<?php echo $usuario['permisos']; ?>', '<?php echo $usuario['usuario']; ?>', '<?php echo $usuario['localidad']; ?>', '<?php echo $usuario['provincia']; ?>')">Modificar</button>
+                        <?php if ($usuario['email'] !== 'durandamian523@gmail.com') { 
+                            $usuario_data = array_map('htmlspecialchars', $usuario);
+                            $usuario_json = json_encode($usuario_data);
+                        ?>
+                            <button type="button" onclick='rellenarFormularioDesdeJson(<?php echo $usuario_json; ?>)'>Modificar</button>
                             <button type="button" onclick="confirmDeleteUsuario('<?php echo $usuario['id_usuario']; ?>')">Eliminar</button>
                         <?php } ?>
                     </td>
@@ -414,8 +449,3 @@ if (!$result) {
     <button onclick="closeModalQ()">OK</button>
   </div>
 </div>
-<link rel="stylesheet" href="/modal-q.css">
-<script src="/modal-q.js"></script>
-
-</body>
-</html>

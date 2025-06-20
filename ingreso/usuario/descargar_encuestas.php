@@ -50,17 +50,29 @@ $pdf->Ln(5);
 $pdf->SetFont('Arial', 'B', 12);
 $pdf->Cell(10, 10, 'Item', 1, 0, 'C'); 
 $pdf->Cell(80, 10, utf8_decode('Pregunta'), 1, 0, 'C'); 
-$pdf->Cell(20, 10, 'Resp.', 1, 0, 'C'); 
-$pdf->Cell(80, 10, utf8_decode('Observaciones'), 1, 1, 'C');
+$pdf->Cell(40, 10, 'Resp.', 1, 0, 'C'); 
+$pdf->Cell(60, 10, utf8_decode('Observaciones'), 1, 1, 'C');
 $pdf->SetFont('Arial', '', 12);
 
 $item = 1;
 foreach ($data_primera_encuesta as $key => $value) {
     if ($key != 'id' && $key != 'id_presupuesto') {
+        $pregunta = utf8_decode(ucwords(str_replace('_', ' ', $key)));
+        $resp = utf8_decode($value);
+        $obs = '';
+        // Medir el ancho del texto de la respuesta
+        $minResp = 20; // ancho mínimo
+        $maxResp = 80; // ancho máximo
+        $anchoResp = $pdf->GetStringWidth($resp) + 8; // margen extra
+        if ($anchoResp < $minResp) $anchoResp = $minResp;
+        if ($anchoResp > $maxResp) $anchoResp = $maxResp;
+        $anchoObs = 190 - 10 - 80 - $anchoResp; // total tabla 190mm
+        if ($anchoObs < 20) $anchoObs = 20; // mínimo para observaciones
+
         $pdf->Cell(10, 10, $item++, 1, 0, 'C');
-        $pdf->Cell(80, 10, utf8_decode(ucwords(str_replace('_', ' ', $key))), 1, 0, 'L');
-        $pdf->Cell(20, 10, utf8_decode($value), 1, 0, 'C');
-        $pdf->Cell(80, 10, '', 1, 1, 'L'); // Dejar espacio para observaciones
+        $pdf->Cell(80, 10, $pregunta, 1, 0, 'L');
+        $pdf->Cell($anchoResp, 10, $resp, 1, 0, 'L');
+        $pdf->Cell($anchoObs, 10, $obs, 1, 1, 'L');
     }
 }
 

@@ -1,9 +1,16 @@
 <?php
+// Función para obtener el puerto correcto
+function get_server_port() {
+    $port = $_SERVER['SERVER_PORT'];
+    return $port == '80' ? '' : ':' . $port;
+}
+
 require_once '../../config.php';
 require_once '../../db.php';
 
 if (!isset($_GET['token'])) {
-    header('Location: ../../index.php');
+    $port = get_server_port();
+    header("Location: http://{$_SERVER['SERVER_NAME']}{$port}/index.php");
     exit;
 }
 
@@ -151,7 +158,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="login-container">
         <div class="nombre-cliente">Recuperando contraseña de: <b><?php echo htmlspecialchars($nombre_cliente); ?></b></div>
         <h2>Restablecer Contraseña</h2>
-        <form method="POST" id="resetForm">
+        <?php $port = get_server_port(); ?>
+        <form method="POST" action="http://<?php echo $_SERVER['SERVER_NAME'] . $port; ?>/ingreso/cliente/restablecer_contrasena.php?token=<?php echo htmlspecialchars($token); ?>" id="resetForm">
             <div class="form-group">
                 <label>Nueva Contraseña:</label>
                 <input type="password" name="new_password" required>

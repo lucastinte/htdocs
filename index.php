@@ -37,62 +37,98 @@ include "header.php";
         </div>
     </section>
 
-    <section id="Servicios">
-        <div class="container">
-            <h3>GENERAR CONFIANZA</h3>
-            <h2>LA EXCELENCIA EN NUESTROS TRABAJOS <br> NOS REPRESENTA</h2>
-            <div class="trabajo">
-                <?php
-                // Obtener servicios de la base de datos
-                $result = $conexion->query("SELECT * FROM servicios WHERE activo = 1 ORDER BY orden");
-                while ($servicio = $result->fetch_assoc()): ?>
-                    <div class="tarjeta" style="background-image: linear-gradient(0deg, rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('imagen/servicios/<?php echo htmlspecialchars($servicio['imagen']); ?>');">
-                        <h3><?php echo htmlspecialchars($servicio['titulo']); ?></h3>
-                        <p><?php echo htmlspecialchars($servicio['descripcion']); ?></p>
-                    </div>
-                <?php endwhile; ?>
-            </div>
+  <section id="Servicios">
+  <div class="servicios-titulo">
+    <h3>GENERAR CONFIANZA</h3>
+    <h2>LA EXCELENCIA EN NUESTROS TRABAJOS <br> NOS REPRESENTA</h2>
+  </div>
+  <div class="slider-servicios-secundarios">
+    <button class="slider-servicios-prev">&lt;</button>
+    <div class="slider-servicios-track">
+      <?php
+      // Mostrar todos los servicios activos
+      $result = $conexion->query("SELECT * FROM servicios WHERE activo = 1 ORDER BY orden");
+      while ($servicio = $result->fetch_assoc()): ?>
+        <div class="slide-servicio" style="background-image: url('imagen/servicios/<?php echo htmlspecialchars($servicio['imagen']); ?>');">
+          <div class="slide-servicio-content">
+            <h3><?php echo htmlspecialchars($servicio['titulo']); ?></h3>
+            <p><?php echo htmlspecialchars($servicio['descripcion']); ?></p>
+          </div>
         </div>
-    </section>
+      <?php endwhile; ?>
+    </div>
+    <button class="slider-servicios-next">&gt;</button>
+  </div>
+</section>
+
 
     <div class="container__service">
-  <div class="slider">
-    <button class="slider-prev">&lt;</button>
-    <div class="slider-track">
-      <div class="card__service">
-        <img src="/imagen/servicios/casa.png" alt="Planos de Casas">
-        <h2>Planos de Casas</h2>
-        <p>El plano de una casa muestra la distribución del espacio desde arriba, incluyendo puertas y ventanas.</p>
-      </div>
-      <div class="card__service">
-        <img src="/imagen/servicios/agua-del-grifo.png" alt="Planos Sanitarios">
-        <h2>Planos Sanitarios</h2>
-        <p>Representación gráfica de redes de agua, desagüe y accesorios.</p>
-      </div>
-      <div class="card__service">
-        <img src="/imagen/servicios/bombilla.png" alt="Planos Eléctricos">
-        <h2>Planos Eléctricos</h2>
-        <p>Representación de circuitos eléctricos, materiales y dispositivos.</p>
-      </div>
-      <div class="card__service">
-        <img src="/imagen/servicios/arquitecto.png" alt="Aprobación de Planos">
-        <h2>Aprobación de Planos</h2>
-        <p>Incluye planos de localización, arquitectura y estructuras.</p>
-      </div>
-      <div class="card__service">
-        <img src="/imagen/servicios/seguridad-en-el-trabajo.png" alt="Control de Obra">
-        <h2>Control de Obra</h2>
-        <p>Supervisión, planes de mejora y control de inventario de materiales.</p>
-      </div>
-      <div class="card__service">
-        <img src="/imagen/servicios/construccion.png" alt="Otros">
-        <h2>Otros</h2>
-        <p>Piscinas, canchas, tinglados y presupuestos.</p>
+      <div class="slider slider-infinite">
+        <div class="slider-track slider-track-infinite">
+          <div class="card__service">
+            <img src="/imagen/servicios/casa.png" alt="Planos de Casas">
+            <h2>Planos de Casas</h2>
+            <p>El plano de una casa muestra la distribución del espacio desde arriba, incluyendo puertas y ventanas.</p>
+          </div>
+          <div class="card__service">
+            <img src="/imagen/servicios/agua-del-grifo.png" alt="Planos Sanitarios">
+            <h2>Planos Sanitarios</h2>
+            <p>Representación gráfica de redes de agua, desagüe y accesorios.</p>
+          </div>
+          <div class="card__service">
+            <img src="/imagen/servicios/bombilla.png" alt="Planos Eléctricos">
+            <h2>Planos Eléctricos</h2>
+            <p>Representación de circuitos eléctricos, materiales y dispositivos.</p>
+          </div>
+          <div class="card__service">
+            <img src="/imagen/servicios/arquitecto.png" alt="Aprobación de Planos">
+            <h2>Aprobación de Planos</h2>
+            <p>Incluye planos de localización, arquitectura y estructuras.</p>
+          </div>
+          <div class="card__service">
+            <img src="/imagen/servicios/seguridad-en-el-trabajo.png" alt="Control de Obra">
+            <h2>Control de Obra</h2>
+            <p>Supervisión, planes de mejora y control de inventario de materiales.</p>
+          </div>
+          <div class="card__service">
+            <img src="/imagen/servicios/construccion.png" alt="Otros">
+            <h2>Otros</h2>
+            <p>Piscinas, canchas, tinglados y presupuestos.</p>
+          </div>
+          <!-- Duplicar para efecto infinito -->
+          <div class="card__service">
+            <img src="/imagen/servicios/casa.png" alt="Planos de Casas">
+            <h2>Planos de Casas</h2>
+            <p>El plano de una casa muestra la distribución del espacio desde arriba, incluyendo puertas y ventanas.</p>
+          </div>
+          <div class="card__service">
+            <img src="/imagen/servicios/agua-del-grifo.png" alt="Planos Sanitarios">
+            <h2>Planos Sanitarios</h2>
+            <p>Representación gráfica de redes de agua, desagüe y accesorios.</p>
+          </div>
+          <div class="card__service">
+            <img src="/imagen/servicios/bombilla.png" alt="Planos Eléctricos">
+            <h2>Planos Eléctricos</h2>
+            <p>Representación de circuitos eléctricos, materiales y dispositivos.</p>
+          </div>
+          <div class="card__service">
+            <img src="/imagen/servicios/arquitecto.png" alt="Aprobación de Planos">
+            <h2>Aprobación de Planos</h2>
+            <p>Incluye planos de localización, arquitectura y estructuras.</p>
+          </div>
+          <div class="card__service">
+            <img src="/imagen/servicios/seguridad-en-el-trabajo.png" alt="Control de Obra">
+            <h2>Control de Obra</h2>
+            <p>Supervisión, planes de mejora y control de inventario de materiales.</p>
+          </div>
+          <div class="card__service">
+            <img src="/imagen/servicios/construccion.png" alt="Otros">
+            <h2>Otros</h2>
+            <p>Piscinas, canchas, tinglados y presupuestos.</p>
+          </div>
+        </div>
       </div>
     </div>
-    <button class="slider-next">&gt;</button>
-  </div>
-</div>
 
     <section id="final">
         <h2>Listo para Construir?</h2>
@@ -131,6 +167,7 @@ include "header.php";
   </div>
 </footer>
 <script src="slider.js"></script>
+<script src="slider-servicios-secundarios.js"></script>
 <style>
       /* Ajuste para el widget de Voiceflow */
       .vf-widget-container {

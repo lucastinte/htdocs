@@ -184,6 +184,9 @@ if (!$cliente) {
                 </div>
                 <div class="form-group">
                     <label for="archivos">Archivos:</label>
+                    <div style="color:#4CAF50; font-size:0.98em; margin-bottom:6px; font-weight:500;">
+                        Puedes subir imágenes, videos o archivos PDF (formatos recomendados: JPG, PNG, MP4, PDF).
+                    </div>
                     <input type="file" id="archivos" name="archivos[]" multiple>
                 </div>
                 <button type="submit" name="cargar_proyecto">Cargar Proyecto</button>

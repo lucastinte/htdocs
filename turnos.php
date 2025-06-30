@@ -236,8 +236,8 @@ $success = isset($_GET['success']) && $_GET['success'] == '1';
                         <?php } ?>
                     </select>
 
-                    <label for="comentario">Comentario:</label>
-                    <textarea id="comentario" name="comentario"></textarea>
+                    <label for="comentario">Motivo de consulta:</label>
+                    <textarea id="comentario" name="comentario" placeholder="Ejemplo: presupuestar casa, consultar costos, etc."></textarea>
 
                     <div class="checkbox-group">
                         <div class="checkbox-item">

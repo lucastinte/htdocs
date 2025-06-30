@@ -23,7 +23,7 @@ $mostrar_talentos = $row['mostrar_talentos'];
             <?php endif; ?>
             <a href="<?php echo PROJECT_ROOT; ?>ingreso/ingreso.php">Ingresar</a>
             <a href="<?php echo PROJECT_ROOT; ?>turnos.php">Turnos</a>
-            <a href="<?php echo PROJECT_ROOT; ?>enviar_presupuesto.php">Presupuestos</a>
+            <a href="<?php echo PROJECT_ROOT; ?>enviar_presupuesto.php">Empezá tu proyecto</a>
         </nav>
     </div>
 </header>

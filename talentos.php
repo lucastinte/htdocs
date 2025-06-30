@@ -2,6 +2,13 @@
 session_start();
 include 'db.php';
 
+// Obtener puestos activos desde la tabla puestos_talento
+$puestos = [];
+$res_puestos = mysqli_query($conexion, "SELECT puesto FROM puestos_talento ORDER BY puesto ASC");
+while ($row = mysqli_fetch_assoc($res_puestos)) {
+    $puestos[] = $row['puesto'];
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $nombre = $_POST['nombre'];
     $apellido = $_POST['apellido'];
@@ -74,16 +81,29 @@ mysqli_close($conexion);
     <main>
         <section id="talentos-form">
             <h1 class="color-acento">Postula tu Talento</h1>
+            <p style="text-align:center; max-width:600px; margin:0 auto 18px auto; color:#444; font-size:1.1em;">
+              Solo se aceptan archivos PDF o imágenes (JPG, PNG) como CV.<br>
+              En <b>Comentarios</b> puedes destacar logros, habilidades o motivaciones que te hacen ideal para el puesto, más allá de lo que figura en tu CV.
+            </p>
+            <?php if (count($puestos) > 0): ?>
             <form id="talentosForm" action="talentos.php" method="post" enctype="multipart/form-data">
                 <input type="text" name="nombre" placeholder="Nombre" required>
                 <input type="text" name="apellido" placeholder="Apellido" required>
                 <input type="email" name="email" placeholder="Email" required>
-                <input type="text" name="puesto" placeholder="Puesto al que aspiras" required>
+                <select name="puesto" required>
+                  <option value="">Selecciona el puesto al que aspiras</option>
+                  <?php foreach($puestos as $p): ?>
+                    <option value="<?php echo htmlspecialchars($p); ?>"><?php echo htmlspecialchars($p); ?></option>
+                  <?php endforeach; ?>
+                </select>
                 <input type="text" name="telefono" placeholder="Teléfono" required>
-                <textarea name="comentarios" placeholder="Comentarios adicionales" rows="3"></textarea>
-                <input type="file" name="cv" accept=".pdf,.doc,.docx" required>
+                <textarea name="comentarios" placeholder="Ej: Soy proactivo, tengo experiencia en obras y me apasiona el trabajo en equipo..." rows="3"></textarea>
+                <input type="file" name="cv" accept=".pdf,.jpg,.jpeg,.png" required>
                 <button type="submit">Enviar</button>
             </form>
+            <?php else: ?>
+            <div style="text-align:center; color:#b00; font-weight:bold; margin:30px 0;">Actualmente no hay búsquedas activas de puestos.</div>
+            <?php endif; ?>
         </section>
     </main>
 

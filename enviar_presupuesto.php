@@ -199,8 +199,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
     <main>
         <section id="presupuesto-form">
-            <h1 class="color-acento">Cuestionario</h1>
-
+            <h1 class="color-acento">Conocerte es el primer paso</h1>
+            <h3 style="text-align:center; color:#333; margin: 20px;">Completá este cuestionario para ayudarte a construir tu espacio ideal.</h3>
             <form action="enviar_presupuesto.php" method="post">
                 <label for="nombre">Apellido y Nombre:</label>
                 <input type="text" id="nombre" name="nombre" required>

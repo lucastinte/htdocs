@@ -199,3 +199,12 @@ INSERT INTO `servicios` (titulo, descripcion, imagen, orden) VALUES
 ('CANCHAS', 'Canchas de todo tipo, de cesped sintetico o natural. Para uso familiar o de alquiler.', 'canchas.png', 1),
 ('HOGARES', 'Casas modernas, amplias, iluminadas, un hogar para vos y tu familia.', 'infantil002.png', 2),
 ('PISCINAS', 'Todo tipo de piscinas, piletas, a medida. Con diseño unico y sorprendente.', 'piscinas.png', 3);
+
+-- Creación de la tabla `puestos_talento`
+CREATE TABLE `puestos_talento` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `puesto` VARCHAR(255) NOT NULL,
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Ejemplo de inserción:
+-- INSERT INTO `puestos_talento` (`puesto`, `cantidad`) VALUES ('Secretaria', 2);

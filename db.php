@@ -1,7 +1,7 @@
 <?php
 $host = 'srv1999.hstgr.io';
 $user = 'u917025056_mat';
-$password = 'PonerContraseña';
+$password = '';
 $dbname = 'u917025056_mat';
 $conexion = new mysqli($host, $user, $password, $dbname);
 

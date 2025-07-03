@@ -2,7 +2,7 @@
 // filepath: /Applications/XAMPP/xamppfiles/htdocs/ingreso/recuperar_contrasena.php
 include('../db.php');
 include("../header.php");
-require 'usuario/gestion_cliente/PHPmailer/Exception.php';
+require 'usuario/gestion_cliente/PHPMailer/Exception.php';
 require 'usuario/gestion_cliente/PHPMailer/PHPMailer.php';
 require 'usuario/gestion_cliente/PHPMailer/SMTP.php';
 

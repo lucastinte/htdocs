@@ -1,6 +1,6 @@
 <?php
 include('../../../db.php');
-require '../gestion_cliente/PHPmailer/Exception.php';
+require '../gestion_cliente/PHPMailer/Exception.php';
 require '../gestion_cliente/PHPMailer/PHPMailer.php';
 require '../gestion_cliente/PHPMailer/SMTP.php';
 

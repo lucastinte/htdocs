@@ -6,7 +6,7 @@ error_reporting(E_ALL);
 session_start();
 include('db.php');
 include "header.php";
-require 'ingreso/usuario/gestion_cliente/PHPmailer/Exception.php';
+require 'ingreso/usuario/gestion_cliente/PHPMailer/Exception.php';
 require 'ingreso/usuario/gestion_cliente/PHPMailer/PHPMailer.php';
 require 'ingreso/usuario/gestion_cliente/PHPMailer/SMTP.php';
 require('fpdf186/fpdf.php');

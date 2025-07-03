@@ -356,12 +356,17 @@ if (!$result) {
                     <td><?php echo htmlspecialchars($usuario['localidad']); ?></td>
                     <td><?php echo htmlspecialchars($usuario['provincia']); ?></td>
                     <td>
-                        <?php if ($usuario['email'] !== 'durandamian523@gmail.com') { 
+                        <?php 
+                        if ($usuario['email'] !== 'durandamian523@gmail.com') { 
                             $usuario_data = array_map('htmlspecialchars', $usuario);
                             $usuario_json = json_encode($usuario_data);
+                            // Ocultar botón eliminar si es el usuario logueado
+                            $es_usuario_logueado = ($usuario['id_usuario'] == $id_usuario_logueado);
                         ?>
                             <button type="button" onclick='rellenarFormularioDesdeJson(<?php echo $usuario_json; ?>)'>Modificar</button>
-                            <button type="button" onclick="confirmDeleteUsuario('<?php echo $usuario['id_usuario']; ?>')">Eliminar</button>
+                            <?php if (!$es_usuario_logueado) { ?>
+                                <button type="button" onclick="confirmDeleteUsuario('<?php echo $usuario['id_usuario']; ?>')">Eliminar</button>
+                            <?php } ?>
                         <?php } ?>
                     </td>
                 </tr>

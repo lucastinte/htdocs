@@ -203,7 +203,7 @@ INSERT INTO `servicios` (titulo, descripcion, imagen, orden) VALUES
 -- Creación de la tabla `puestos_talento`
 CREATE TABLE `puestos_talento` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `puesto` VARCHAR(255) NOT NULL,
+  `puesto` VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Ejemplo de inserción:

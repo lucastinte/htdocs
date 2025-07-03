@@ -1,8 +1,8 @@
 <?php
-$host = 'localhost';
-$user = 'root';
-$password = '';
-$dbname = 'ingreso';
+$host = 'srv1999.hstgr.io';
+$user = 'u917025056_mat';
+$password = 'PonerContraseña';
+$dbname = 'u917025056_mat';
 $conexion = new mysqli($host, $user, $password, $dbname);
 
 if ($conexion->connect_error) {

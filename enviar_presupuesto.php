@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $mail = new PHPMailer(true);
         try {
             $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
+            $mail->Host = 'smtp.hostinger.com';
             $mail->SMTPAuth = true;
             $mail->Username = $config['smtp_username']; // Cambia esto por tu correo
             $mail->Password = $config['smtp_password'];// Tu contraseña de Gmail o contraseña de aplicación
@@ -193,6 +193,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             background-color: rgba(255, 255, 255, 0.7); /* Ajusta la opacidad según lo necesites */
             z-index: -1; /* Asegura que esté detrás del contenido */
         }
+
+        .info-box {
+            background: rgba(120,120,120,0.18);
+            color: #222;
+            border-radius: 12px;
+            padding: 18px 22px;
+            margin: 0 auto 28px auto;
+            max-width: 700px;
+            font-size: 1.13em;
+            box-shadow: 0 2px 12px rgba(80,80,80,0.07);
+            text-align: center;
+            border: 1px solid rgba(120,120,120,0.13);
+        }
     </style>
     
 </head>
@@ -200,7 +213,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <main>
         <section id="presupuesto-form">
             <h1 class="color-acento">Conocerte es el primer paso</h1>
-            <h3 style="text-align:center; color:#333; margin: 20px;">Completá este cuestionario para ayudarte a construir tu espacio ideal.</h3>
+            <div class="info-box">
+              Completá este cuestionario para ayudarte a construir tu espacio ideal.<br>
+              <b>Recordá que también debés agendar un turno para la cita.</b>
+            </div>
             <form action="enviar_presupuesto.php" method="post">
                 <label for="nombre">Apellido y Nombre:</label>
                 <input type="text" id="nombre" name="nombre" required>

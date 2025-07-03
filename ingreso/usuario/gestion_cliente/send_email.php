@@ -14,7 +14,7 @@ function sendConfirmationEmail($email, $nombre, $token) {
     try {
         // Configuración del servidor SMTP
         $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com'; // Usa el servidor SMTP de Gmail
+        $mail->Host = 'smtp.hostinger.com'; // Usa el servidor SMTP de Gmail
         $mail->SMTPAuth = true;
         $mail->Username = $config['smtp_username']; // Tu dirección de correo de Gmail
         $mail->Password = $config['smtp_password']; // Tu contraseña de Gmail o contraseña de aplicación

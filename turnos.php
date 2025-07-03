@@ -1,4 +1,8 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
 include('db.php');
 include "header.php";
@@ -34,8 +38,8 @@ function generarPDF($nombre, $apellido, $email, $telefono, $fecha_hora, $comenta
     $pdf->Ln();
     $pdf->Cell(40, 10, "Comentario: $comentario");
 
-    // Guardar el PDF en una ruta temporal
-    $rutaPDF = "confirmacion_turno_" . time() . ".pdf";
+    // Guardar el PDF en una ruta temporal segura
+    $rutaPDF = __DIR__ . "/tmp/confirmacion_turno_" . time() . ".pdf";
     $pdf->Output('F', $rutaPDF);
 
     return $rutaPDF;
@@ -76,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $mail = new PHPMailer(true);
         try {
             $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
+            $mail->Host = 'smtp.hostinger.com';
             $mail->SMTPAuth = true;
             $mail->Username = $config['smtp_username']; // Cambia esto por tu correo
             $mail->Password = $config['smtp_password']; // Cambia esto por tu contraseña de Gmail
@@ -256,9 +260,9 @@ $success = isset($_GET['success']) && $_GET['success'] == '1';
         </section>
     </main>
     <footer>
-      `  <div class="container">
-            <p>&copy;Mat Construcciones</p>
-        </div>`
+    <div class="container">
+        <p>&copy;Mat Construcciones</p>
+    </div>
     </footer>
 </body>
 </html>

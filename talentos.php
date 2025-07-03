@@ -86,26 +86,24 @@ mysqli_close($conexion);
     <main>
         <section id="talentos-form">
             <h1 class="color-acento">Postula tu Talento</h1>
-            <p style="text-align:center; max-width:600px; margin:0 auto 18px auto; color:#444; font-size:1.1em;">
-              Solo se aceptan archivos PDF, imágenes (JPG, PNG) o Word (.doc, .docx) como CV.<br>
-              En <b>Comentarios</b> puedes destacar logros, habilidades o motivaciones que te hacen ideal para el puesto, más allá de lo que figura en tu CV.
-            </p>
-            <?php if (count($puestos) > 0): ?>
             <form id="talentosForm" action="talentos.php" method="post" enctype="multipart/form-data" onsubmit="return validarCV(event)">
                 <input type="text" name="nombre" placeholder="Nombre" required>
                 <input type="text" name="apellido" placeholder="Apellido" required>
                 <input type="email" name="email" placeholder="Email" required>
-                <select name="puesto" required>
+                <select name="puesto" id="puestoSelect" required>
                   <option value="">Selecciona el puesto al que aspiras</option>
                   <?php foreach($puestos as $p): ?>
                     <option value="<?php echo htmlspecialchars($p); ?>"><?php echo htmlspecialchars($p); ?></option>
                   <?php endforeach; ?>
                 </select>
                 <input type="text" name="telefono" placeholder="Teléfono" required>
-                <textarea name="comentarios" placeholder="Ej: Soy proactivo, tengo experiencia en obras y me apasiona el trabajo en equipo..." rows="3"></textarea>
-                <input type="file" name="cv" id="cvInput" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
+<textarea id="comentarios" name="comentarios" placeholder="Comentarios Ej: Soy proactivo, tengo experiencia en obras..." rows="3"></textarea>
+                <div style="margin-bottom:18px;">
+                    <label for="cvInput" style="color:#666; font-size:1em; background:rgba(255,255,255,0.7); border-radius:8px; padding:6px 0;"> Sube tu CV en PDF, JPG, PNG, DOC, DOCX</label>
+                  <input type="file" name="cv" id="cvInput" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required style="width:100%; padding:1em; border-radius:10px; border:1px solid #ccc; background:rgba(255,255,255,0.85); font-size:1.08em;">
+                </div>
                 <div id="cv-error" style="color:#b00; font-size:0.98em; margin-bottom:8px;"></div>
-                <button type="submit">Enviar</button>
+                <button type="submit" id="enviarBtn">Enviar</button>
             </form>
             <script>
             function validarCV(e) {
@@ -126,14 +124,18 @@ mysqli_close($conexion);
             document.getElementById('cvInput').addEventListener('change', function() {
                 validarCV({preventDefault:function(){}});
             });
+            // Si no hay puestos, deshabilitar el botón de enviar
+            <?php if (count($puestos) == 0): ?>
+              document.addEventListener('DOMContentLoaded', function() {
+                document.getElementById('enviarBtn').disabled = true;
+                document.getElementById('puestoSelect').disabled = true;
+              });
+            <?php endif; ?>
             </script>
             <?php if (isset($message) && $message): ?>
             <script>
                 document.getElementById('cv-error').textContent = <?php echo json_encode($message); ?>;
             </script>
-            <?php endif; ?>
-            <?php else: ?>
-            <div style="text-align:center; color:#b00; font-weight:bold; margin:30px 0;">Actualmente no hay búsquedas activas de puestos.</div>
             <?php endif; ?>
         </section>
     </main>

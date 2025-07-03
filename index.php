@@ -131,7 +131,7 @@ include "header.php";
     </div>
 
     <section id="final">
-        <h2>Listo para Construir?</h2>
+        <h2>¿Listo para Construir?</h2>
         <button><a href="enviar_presupuesto.php">COMIENZA</button>
     </section>
     </main>

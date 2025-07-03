@@ -206,5 +206,4 @@ CREATE TABLE `puestos_talento` (
   `puesto` VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Ejemplo de inserción:
--- INSERT INTO `puestos_talento` (`puesto`, `cantidad`) VALUES ('Secretaria', 2);
+

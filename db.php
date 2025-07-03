@@ -1,7 +1,12 @@
 <?php
+$password = '';
+
+if (file_exists(__DIR__ . '/.env')) {
+    $env = parse_ini_file(__DIR__ . '/.env');
+    $password = $env['DB_PASS'];
+}
 $host = 'srv1999.hstgr.io';
 $user = 'u917025056_mat';
-$password = '';
 $dbname = 'u917025056_mat';
 $conexion = new mysqli($host, $user, $password, $dbname);
 

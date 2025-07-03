@@ -1,10 +1,16 @@
 <?php
+$smtp_password = '';
+
+if (file_exists(__DIR__ . '/.env')) {
+    $env = parse_ini_file(__DIR__ . '/.env');
+    $smtp_password = $env['SMTP_PASSWORD'];
+}
+
 return [
-    'smtp_username' => 'damian@matconstrucciones.store', // Cambia esto a tu correo electrónico
-    'smtp_password' => '',  // Cambia esto a tu contraseña o contraseña de aplicación
-    'from_email' => 'damian@matconstrucciones.store', 
-    'from_name' => 'Mat Construcciones', // Agregado para PHPMailer
-    'base_url' => 'localhost',// Cambia esto a tu correo electrónico
-    'base_port' => '8080', // Puerto por defecto, cámbialo si usas otro (ej: 8080)
+    'smtp_username' => 'damian@matconstrucciones.store',
+    'smtp_password' => $smtp_password,
+    'from_email'    => 'damian@matconstrucciones.store',
+    'from_name'     => 'Mat Construcciones',
+    'base_url'      => 'localhost',
+    'base_port'     => '8080',
 ];
-?>

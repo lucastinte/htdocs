@@ -200,7 +200,7 @@ INSERT INTO `servicios` (titulo, descripcion, imagen, orden) VALUES
 ('HOGARES', 'Casas modernas, amplias, iluminadas, un hogar para vos y tu familia.', 'infantil002.png', 2),
 ('PISCINAS', 'Todo tipo de piscinas, piletas, a medida. Con diseño unico y sorprendente.', 'piscinas.png', 3);
 
--- Creación de la tabla `puestos_talento`
+-- Creación de la tabla `puestos_talen`
 CREATE TABLE `puestos_talento` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `puesto` VARCHAR(255) NOT NULL

@@ -5,15 +5,15 @@ if (file_exists(__DIR__ . '/.env')) {
     $env = parse_ini_file(__DIR__ . '/.env');
     $password = $env['DB_PASS'];
 }
-$host = 'srv1999.hstgr.io';
-$user = 'u917025056_mat';
-$dbname = 'u917025056_mat';
+$host = 'localhost';
+$user = 'root';
+$dbname = 'ingreso';
 $conexion = new mysqli($host, $user, $password, $dbname);
 
 if ($conexion->connect_error) {
     die('Error de conexión: ' . $conexion->connect_error);
 }
-function getUserData($email) {
+function getUserData($email) {  
     global $conexion;
     $stmt = $conexion->prepare("SELECT * FROM clientes WHERE email = ?");
     $stmt->bind_param("s", $email);

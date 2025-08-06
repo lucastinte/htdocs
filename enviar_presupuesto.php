@@ -206,18 +206,301 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             text-align: center;
             border: 1px solid rgba(120,120,120,0.13);
         }
+        
+        .tabla-referencia {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            margin: 20px auto;
+            max-width: 900px;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .titulo-carpeta {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #8a2be2, #9370db);
+            border-radius: 8px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.2);
+        }
+
+        .titulo-carpeta h2 {
+            margin: 0;
+            font-size: 2em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .titulo-carpeta p {
+            margin: 0;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .tabla-referencia table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .tabla-referencia th {
+            background: linear-gradient(135deg, #9370db, #8a2be2);
+            color: white;
+            font-weight: bold;
+            padding: 15px;
+            text-align: left;
+            border: none;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 0.5px;
+        }
+
+        .tabla-referencia td {
+            padding: 15px;
+            border: none;
+            border-bottom: 1px solid rgba(138, 43, 226, 0.1);
+        }
+
+        .tabla-referencia tbody tr:nth-child(even) {
+            background-color: rgba(147, 112, 219, 0.05);
+        }
+
+        .tabla-referencia tbody tr:hover {
+            background-color: rgba(138, 43, 226, 0.1);
+            transition: background-color 0.3s ease;
+        }
+
+        .tabla-referencia tfoot {
+            font-weight: bold;
+            background: rgba(138, 43, 226, 0.1);
+        }
+
+        .tabla-referencia tfoot td {
+            border-top: 2px solid rgba(138, 43, 226, 0.2);
+            color: #8a2be2;
+            font-size: 1.1em;
+        }
+
+        .observaciones {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .observaciones h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .observaciones p {
+            margin-bottom: 10px;
+            line-height: 1.5;
+            color: #666;
+        }
+
+        .boton-inicio {
+            text-align: center;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .btn-comenzar {
+            background: linear-gradient(135deg, #8a2be2, #9370db);
+            border: none;
+            border-radius: 15px;
+            padding: 20px 40px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
+            width: auto;
+            min-width: 300px;
+        }
+
+        .btn-comenzar:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(138, 43, 226, 0.4);
+        }
+
+        .btn-comenzar h1 {
+            font-size: 2.5em;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .leyenda {
+            background: rgba(138, 43, 226, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .leyenda p {
+            margin: 10px 0;
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        .leyenda .slogan {
+            font-size: 1.4em;
+            color: #8a2be2;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        #formulario-container {
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: opacity 0.5s ease, max-height 0.5s ease;
+            scroll-margin-top: 100px;
+        }
+
+        #formulario-container.visible {
+            opacity: 1;
+            max-height: 5000px; /* Valor alto para asegurar que todo el contenido sea visible */
+        }
+
+        .info-box {
+            margin-top: 120px !important;
+            margin-bottom: 40px !important;
+        }
+
+        .btn-volver-container {
+            text-align: center;
+            padding: 40px 20px;
+            margin: 20px auto;
+            max-width: 600px;
+            border-top: 1px solid rgba(138, 43, 226, 0.2);
+        }
+
+        .btn-volver {
+            background: linear-gradient(135deg, #8a2be2, #9370db);
+            border: none;
+            border-radius: 30px;
+            padding: 15px 40px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2em;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.2);
+        }
+
+        .btn-volver:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(138, 43, 226, 0.4);
+            background: linear-gradient(135deg, #9370db, #8a2be2);
+        }
+
+        .btn-volver .flecha {
+            font-size: 1.4em;
+            line-height: 1;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-volver:hover .flecha {
+            transform: translateX(-5px);
+        }
+
+        .tabla-referencia {
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .tabla-referencia.oculto {
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+            position: absolute;
+        }
+
+        #presupuesto-form {
+            transition: transform 0.5s ease;
+        }
+
+        #presupuesto-form.arriba {
+            transform: translateY(-100vh);
+        }
     </style>
     
 </head>
 <body>
     <main>
-        <section id="presupuesto-form">
-            <h1 class="color-acento">Conocerte es el primer paso</h1>
-            <div class="info-box">
-              Completá este cuestionario para ayudarte a construir tu espacio ideal.<br>
-              <b>Recordá que también debés agendar un turno para la cita.</b>
+        <section id="presupuesto-referencia" class="tabla-referencia">
+            <div class="titulo-carpeta">
+                <h2>CARPETA TÉCNICA PLANO DE CONSTRUCCIÓN</h2>
+                <p>Estructura, Eléctrico, Sanitario y Gas</p>
             </div>
-            <form action="enviar_presupuesto.php" method="post">
+
+            <table border="1" cellpadding="5" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>ITEM</th>
+                        <th>DESCRIPCIÓN</th>
+                        <th>Unid.</th>
+                        <th>Cant.</th>
+                        <th>Unitario</th>
+                        <th>Total M.O.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td>DISEÑO DE PLANOS</td><td>Global</td><td>1</td><td>$1.000.000</td><td>$1.000.000</td></tr>
+                    <tr><td>2</td><td>PLOTEO DE PLANOS</td><td>Global</td><td>1</td><td>$60.000</td><td>$60.000</td></tr>
+                    <tr><td>3</td><td>FICHA PARCELAREA</td><td>Un</td><td>1</td><td>$5.000</td><td>$5.000</td></tr>
+                    <tr><td>4</td><td>CERTIFICADO ÚNICO</td><td>Un</td><td>1</td><td>$15.000</td><td>$15.000</td></tr>
+                    <tr><td>5</td><td>SELLADO COL. TÉCNICOS</td><td>Un</td><td>1</td><td>$150.000</td><td>$150.000</td></tr>
+                    <tr><td>7</td><td>DERECHO DE CONSTRUCCIÓN</td><td>m²</td><td>1</td><td>$300.000</td><td>$300.000</td></tr>
+                    <tr><td>8</td><td>PAGO DE SELLADO, NOTA DE INGRESO</td><td>Un</td><td>1</td><td>$5.000</td><td>$5.000</td></tr>
+                    <tr><td>9</td><td>PAGO DE SELLADO, PLANOS MUN.</td><td>Un</td><td>1</td><td>$10.000</td><td>$10.000</td></tr>
+                    <tr><td>10</td><td>PLOTEO CARTEL DE OBRA</td><td>Un</td><td>1</td><td>$40.000</td><td>$40.000</td></tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="5"><strong>Total M.O.</strong></td>
+                        <td><strong>$1.585.000</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <div class="observaciones">
+                <h3>OBSERVACIONES</h3>
+                <p>Para empezar el trabajo se pide abonar el 50% del ITEM DISEÑO DE PLANOS, luego el 30% una vez presentado todos los planos para la firma del comitente, y la cancelación del mismo una vez se entrega la carpeta aprobada por la municipalidad.</p>
+                <p>Los precios de item 2 a 10 son variables, se rendirán con boleta, los precios son estimativos.</p>
+                <p>El presupuesto no incluye la <strong>DIRECCIÓN TÉCNICA</strong>, pero sí visitas periódicas mensuales.</p>
+            </div>
+        </section>
+
+        <section id="presupuesto-form">
+            <div class="boton-inicio">
+                <button id="mostrarFormulario" class="btn-comenzar">
+                    <h1>¡COMIENZA YA!</h1>
+                </button>
+                <div class="leyenda">
+                    <p>Llena un pre-formulario y agenda un turno</p>
+                    <p class="slogan">Tu casa, tu hogar te espera. ¡No lo dudes!</p>
+                </div>
+            </div>
+            <div id="formulario-container" style="display: none;">
+                <div class="info-box">
+                    Completá este cuestionario para ayudarte a construir tu espacio ideal.<br>
+                    <b>Recordá que también debés agendar un turno para la cita.</b>
+                </div>
+                <form action="enviar_presupuesto.php" method="post">
                 <label for="nombre">Apellido y Nombre:</label>
                 <input type="text" id="nombre" name="nombre" required>
 
@@ -306,6 +589,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 
                 <button type="submit">Enviar</button>
             </form>
+            <div class="btn-volver-container" style="display: none;">
+                <button id="btnVolver" class="btn-volver">
+                    <span class="flecha">←</span> Volver a la tabla de presupuesto
+                </button>
+            </div>
         </section>
     </main>
 
@@ -320,6 +608,48 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="stylesheet" href="modal-q.css">
     <script src="modal-q.js"></script>
     <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const boton = document.getElementById('mostrarFormulario');
+        const formulario = document.getElementById('formulario-container');
+        const btnVolver = document.getElementById('btnVolver');
+        const tablaReferencia = document.querySelector('.tabla-referencia');
+        const presupuestoForm = document.getElementById('presupuesto-form');
+        const btnVolverContainer = document.querySelector('.btn-volver-container');
+        
+        function scrollToForm() {
+            formulario.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
+        boton.addEventListener('click', function() {
+            // Ocultar tabla con animación
+            tablaReferencia.classList.add('oculto');
+            
+            // Ocultar botón de comenzar y mostrar formulario
+            boton.parentElement.style.display = 'none';
+            btnVolverContainer.style.display = 'block';
+            formulario.style.display = 'block';
+            
+            setTimeout(() => {
+                formulario.classList.add('visible');
+                scrollToForm(); // Scroll al formulario después de que sea visible
+            }, 50);
+        });
+
+        btnVolver.addEventListener('click', function() {
+            // Mostrar tabla nuevamente
+            tablaReferencia.classList.remove('oculto');
+            
+            // Ocultar formulario y mostrar botón de comenzar
+            formulario.classList.remove('visible');
+            btnVolverContainer.style.display = 'none';
+            
+            setTimeout(() => {
+                formulario.style.display = 'none';
+                boton.parentElement.style.display = 'flex';
+            }, 500);
+        });
+    });
+
     <?php if (isset($_GET['success']) && $_GET['success'] == '1') { ?>
       showModalQ('¡El presupuesto ha sido enviado y el correo de confirmación ha sido enviado exitosamente!', false, null, '¡Presupuesto Enviado!');
     <?php } elseif (isset($message)) { ?>

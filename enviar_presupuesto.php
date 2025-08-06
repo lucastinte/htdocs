@@ -1,14 +1,14 @@
 <?php
-include('db.php');
-include "header.php";
+session_start();
 require 'ingreso/usuario/gestion_cliente/PHPMailer/Exception.php';
 require 'ingreso/usuario/gestion_cliente/PHPMailer/PHPMailer.php';
 require 'ingreso/usuario/gestion_cliente/PHPMailer/SMTP.php';
-require('fpdf186/fpdf.php');
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-$config = include('./config.php'); 
+
+include('db.php');
+include "header.php";
 $query = "SELECT fecha_hora FROM horarios_disponibles WHERE disponible = TRUE AND fecha_hora > NOW()";$result = mysqli_query($conexion, $query);
 $turnosDisponibles = [];
 while ($row = mysqli_fetch_assoc($result)) {
@@ -57,84 +57,79 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     mysqli_stmt_execute($stmt);
 
     if (mysqli_stmt_affected_rows($stmt) > 0) {
-        $message = "Presupuesto enviado exitosamente.";
-
-        // Crear el PDF
-        $pdf = new FPDF();
-        $pdf->AddPage();
+        $config = require('./config.php');
         
-        // Agregar logo (asegúrate de tener un archivo logo.png en la misma carpeta)
-        $pdf->Image('logo.png',10,10,30);
-        $pdf->Ln(20); // Salto de línea
+        // Formatear la fecha del turno para mostrarla más amigable
+        $fecha_turno = new DateTime($turnoSeleccionado);
+        $fecha_formateada = $fecha_turno->format('d/m/Y H:i');
         
-        // Título del documento
-        $pdf->SetFont('Arial', 'B', 16);
-        $pdf->Cell(0, 10, 'Cuestionario', 0, 1, 'C');
-        $pdf->Ln(10); // Salto de línea
-        
-        // Datos del presupuesto
-        $pdf->SetFont('Arial', '', 12);
-        $pdf->Cell(0, 10, 'Apellido y Nombre: ' . $nombre, 0, 1);
-        $pdf->Cell(0, 10, 'Ocupacion: ' . $ocupacion, 0, 1);
-        $pdf->Cell(0, 10, 'Cantidad de Habitantes: ' . $habitantes, 0, 1);
-        $pdf->Cell(0, 10, 'Seguridad: ' . $seguridad, 0, 1);
-        $pdf->Cell(0, 10, 'Trabajo en Casa: ' . $trabajo_en_casa, 0, 1);
-        $pdf->Cell(0, 10, 'Salud: ' . $salud, 0, 1);
-        $pdf->Cell(0, 10, 'Telefono: ' . $telefono, 0, 1);
-        $pdf->Cell(0, 10, 'Email: ' . $email, 0, 1);
-        $pdf->Cell(0, 10, 'Direccion: ' . $direccion, 0, 1);
- // Agregar los nuevos campos al PDF
- $pdf->Cell(0, 10, 'Fobias: ' . $fobias, 0, 1);
- $pdf->Cell(0, 10, 'Intereses: ' . $intereses, 0, 1);
- $pdf->Cell(0, 10, 'Rutinas: ' . $rutinas, 0, 1);
- $pdf->Cell(0, 10, 'Pasatiempos: ' . $pasatiempos, 0, 1);
- $pdf->Cell(0, 10, 'Visitas: ' . $visitas, 0, 1);
- $pdf->Cell(0, 10, 'Detalles de Visitas: ' . $detalles_visitas, 0, 1);
- $pdf->Cell(0, 10, 'Vehiculos: ' . $vehiculos, 0, 1);
- $pdf->Cell(0, 10, 'Mascotas: ' . $mascotas, 0, 1);
- $pdf->Cell(0, 10, 'Aprendizaje: ' . $aprendizaje, 0, 1);
- $pdf->Cell(0, 10, 'Negocio: ' . $negocio, 0, 1);
- $pdf->Cell(0, 10, 'Muebles: ' . $muebles, 0, 1);
- $pdf->Cell(0, 10, 'Detalles de la Casa: ' . $detalles_casa, 0, 1);
- $pdf->Cell(0, 10, 'Turno: ' . $turnoSeleccionado, 0, 1);
-        // Guardar el PDF de manera temporal
-        $filePath = 'Presupuesto_' . time() . '.pdf';
-        $pdf->Output('F', $filePath); // Guardar el archivo en el servidor de manera temporal
-
-        // Enviar email de confirmación con el PDF adjunto
         $mail = new PHPMailer(true);
+
         try {
+            // Configuración del servidor SMTP
             $mail->isSMTP();
-            $mail->Host = 'smtp.hostinger.com';
+            $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            $mail->Username = $config['smtp_username']; // Cambia esto por tu correo
-            $mail->Password = $config['smtp_password'];// Tu contraseña de Gmail o contraseña de aplicación
+            $mail->Username = $config['smtp_username'];
+            $mail->Password = $config['smtp_password'];
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;
+            $mail->CharSet = 'UTF-8';
 
+            // Remitente y destinatario
             $mail->setFrom($config['from_email'], 'Mat Construcciones');
-            $mail->addAddress($email);
-            $mail->addAttachment($filePath); // Adjuntar el archivo PDF
+            $mail->addAddress($email, $nombre);
+
+            // Contenido del correo
             $mail->isHTML(true);
-            $mail->Subject = 'Confirmación de presupuesto';
-            $mail->Body    = "Hola,<br><br>Gracias por enviar tu presupuesto. Hemos recibido tu información exitosamente.<br><br>Saludos,<br>Mat Construcciones.";
+            $mail->Subject = 'Confirmación de presupuesto - Mat Construcciones';
+            $mail->Body = "
+            <html>
+            <head>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background-color: #8a2be2; color: white; padding: 20px; text-align: center; }
+                .content { padding: 20px; background-color: #f9f9f9; }
+                .footer { text-align: center; padding: 20px; color: #666; }
+            </style>
+            </head>
+            <body>
+            <div class='container'>
+                <div class='header'>
+                    <h2>¡Gracias por contactarnos!</h2>
+                </div>
+                <div class='content'>
+                    <p>Estimado/a <strong>$nombre</strong>,</p>
+                    <p>Hemos recibido tu solicitud de presupuesto exitosamente.</p>
+                    <p><strong>Fecha y hora de tu cita:</strong> $fecha_formateada</p>
+                    <p>Por favor, asegúrate de estar disponible en la fecha y hora programada.</p>
+                    <p>Nos pondremos en contacto contigo pronto para discutir los detalles de tu proyecto.</p>
+                </div>
+                <div class='footer'>
+                    <p>Saludos cordiales,<br>Equipo de Mat Construcciones</p>
+                </div>
+            </div>
+            </body>
+            </html>";
 
             $mail->send();
 
-            // Eliminar el archivo temporal
-            if (file_exists($filePath)) {
-                unlink($filePath);
-            }
-
-            // Redirigir a la misma página con success=1 para mostrar mensaje de éxito
             header('Location: enviar_presupuesto.php?success=1');
             exit();
         } catch (Exception $e) {
-            echo "Error al enviar el mensaje. Mailer Error: {$mail->ErrorInfo}";
+            $_SESSION['error_message'] = "Error al enviar el correo: " . $mail->ErrorInfo;
+            header('Location: enviar_presupuesto.php?error=1');
+            exit();
         }
-
+        
+        // Redirigir con mensaje de éxito
+        header('Location: enviar_presupuesto.php?success=1');
+        exit();
     } else {
-        $message = "Error al enviar el presupuesto.";
+        $_SESSION['error_message'] = "Error al guardar el presupuesto";
+        header('Location: enviar_presupuesto.php?error=1');
+        exit();
     }
 
     mysqli_stmt_close($stmt);
@@ -651,7 +646,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     });
 
     <?php if (isset($_GET['success']) && $_GET['success'] == '1') { ?>
-      showModalQ('¡El presupuesto ha sido enviado y el correo de confirmación ha sido enviado exitosamente!', false, null, '¡Presupuesto Enviado!');
+        showModalQ('¡El presupuesto ha sido enviado exitosamente!', false, function() {
+            // Después de mostrar el modal, esperar 2 segundos y redirigir
+            setTimeout(function() {
+                window.location.href = 'index.php';
+            }, 2000);
+        }, '¡Éxito!');
+    <?php } elseif (isset($_GET['error']) && $_GET['error'] == '1') { ?>
+        showModalQ('<?php echo isset($_SESSION['error_message']) ? $_SESSION['error_message'] : "Ha ocurrido un error al procesar su solicitud"; ?>', true, null, 'Error');
+        <?php unset($_SESSION['error_message']); // Limpiar el mensaje de error ?>
+        // Después de cerrar el modal, volver a mostrar la tabla
+        const formulario = document.getElementById('formulario-container');
+        const btnVolverContainer = document.querySelector('.btn-volver-container');
+        const tablaReferencia = document.querySelector('.tabla-referencia');
+        const boton = document.getElementById('mostrarFormulario');
+        
+        // Mostrar tabla nuevamente
+        tablaReferencia.classList.remove('oculto');
+        
+        // Ocultar formulario y mostrar botón de comenzar
+        formulario.classList.remove('visible');
+        btnVolverContainer.style.display = 'none';
+        
+        setTimeout(() => {
+            formulario.style.display = 'none';
+            boton.parentElement.style.display = 'flex';
+            // Scroll al inicio de la página
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 500);
+      }, '¡Presupuesto Enviado!');
     <?php } elseif (isset($message)) { ?>
       showModalQ('<?php echo htmlspecialchars($message); ?>', <?php echo (strpos($message, 'Error') !== false ? 'true' : 'false'); ?>, null, <?php echo (strpos($message, 'Error') !== false ? "'Error al Enviar Presupuesto'" : "'¡Presupuesto Enviado!'"); ?>);
     <?php } ?>

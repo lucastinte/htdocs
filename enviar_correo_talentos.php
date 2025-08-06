@@ -14,7 +14,7 @@ if (isset($_GET['email'])) {
     try {
         // Configuración del servidor SMTP
         $mail->isSMTP();
-        $mail->Host = 'smtp.hostinger.com'; 
+        $mail->Host = 'smtp.gmail.com'; 
         $mail->SMTPAuth = true;
         $mail->Username = $config['smtp_username']; // Cambia esto por tu correo
         $mail->Password = $config['smtp_password'];// Tu contraseña de Gmail o contraseña de aplicación

@@ -61,7 +61,7 @@ $mostrar_talentos = $row['mostrar_talentos'];
     transform: translateX(-50%) translateY(-10px);
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(8px);
-    min-width: 180px;
+    min-width: 200px; /* Aumentado el ancho mínimo */
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     border-radius: 12px;
     overflow: hidden;
@@ -70,16 +70,29 @@ $mostrar_talentos = $row['mostrar_talentos'];
     transition: all 0.3s ease;
     border: 1px solid rgba(0, 0, 0, 0.08);
     margin-top: 5px;
+    padding: 8px 0; /* Añadido padding vertical */
+}
+
+/* Agregamos un área invisible para evitar que el menú se cierre */
+.dropdown:before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 20px; /* Área de buffer para el movimiento del mouse */
 }
 
 .dropdown-content a {
     color: #333;
-    padding: 12px 20px;
+    padding: 12px 24px; /* Aumentado el padding horizontal */
     text-decoration: none;
     display: block;
     transition: all 0.2s ease;
     font-size: 0.95em;
     position: relative;
+    white-space: nowrap; /* Evita que el texto se rompa en múltiples líneas */
+    margin: 2px 0; /* Añade espacio entre elementos */
 }
 
 .dropdown-content a:after {
@@ -106,6 +119,19 @@ $mostrar_talentos = $row['mostrar_talentos'];
     display: block;
     opacity: 1;
     transform: translateX(-50%) translateY(0);
+    pointer-events: auto; /* Asegura que el menú sea interactivo */
+}
+
+/* Añadimos un retraso en el cierre del menú */
+.dropdown-content {
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s linear 0.3s;
+    visibility: hidden;
+}
+
+.dropdown:hover .dropdown-content {
+    visibility: visible;
+    transition-delay: 0s;
 }
 
 .dropdown-trigger:after {

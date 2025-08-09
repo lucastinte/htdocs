@@ -1,18 +1,15 @@
 <?php
-$password = '';
-
-if (file_exists(__DIR__ . '/.env')) {
-    $env = parse_ini_file(__DIR__ . '/.env');
-    $password = $env['DB_PASS'];
-}
 $host = 'localhost';
 $user = 'root';
+$password = ''; // vacío si no tiene contraseña
 $dbname = 'ingreso';
+
 $conexion = new mysqli($host, $user, $password, $dbname);
 
 if ($conexion->connect_error) {
     die('Error de conexión: ' . $conexion->connect_error);
 }
+
 function getUserData($email) {  
     global $conexion;
     $stmt = $conexion->prepare("SELECT * FROM clientes WHERE email = ?");

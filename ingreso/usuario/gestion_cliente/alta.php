@@ -187,21 +187,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <input type="text" id="nombre" name="nombre" required value="<?= isset($data['nombre']) ? htmlspecialchars($data['nombre']) : '' ?>">
                     <div class="error-message" id="error-nombre"><?= isset($errores['nombre']) ? $errores['nombre'] : '' ?></div>
                 </div>
-                <div class="form-group">
-                    <label for="dni">DNI:</label>
-                    <input type="text" id="dni" name="dni" required value="<?= isset($data['dni']) ? htmlspecialchars($data['dni']) : '' ?>">
-                    <div class="error-message" id="error-dni"><?= isset($errores['dni']) ? $errores['dni'] : '' ?></div>
-                </div>
-                <div class="form-group">
-                    <label for="caracteristica_tel">Código de Área (Argentina):</label>
-                    <input type="text" id="caracteristica_tel" name="caracteristica_tel" required value="<?= isset($data['caracteristica_tel']) ? htmlspecialchars($data['caracteristica_tel']) : '' ?>">
-                    <div class="error-message" id="error-caracteristica_tel"><?= isset($errores['caracteristica_tel']) ? $errores['caracteristica_tel'] : '' ?></div>
-                </div>
-                <div class="form-group">
-                    <label for="numero_tel">Número de Teléfono:</label>
-                    <input type="text" id="numero_tel" name="numero_tel" required value="<?= isset($data['numero_tel']) ? htmlspecialchars($data['numero_tel']) : '' ?>">
-                    <div class="error-message" id="error-numero_tel"><?= isset($errores['numero_tel']) ? $errores['numero_tel'] : '' ?></div>
-                </div>
+                <!-- DNI -->
+<div class="form-group">
+  <label for="dni">DNI:</label>
+  <input type="text" id="dni" name="dni" required
+         inputmode="numeric" autocomplete="off"
+         maxlength="12" pattern="[0-9]{7,12}"
+         title="Solo números (7 a 12 dígitos)"
+         oninput="this.value=this.value.replace(/\D/g,'').slice(0,12)"
+         value="<?= isset($data['dni']) ? htmlspecialchars($data['dni']) : '' ?>">
+  <div class="error-message" id="error-dni"><?= isset($errores['dni']) ? $errores['dni'] : '' ?></div>
+</div>
+
+<!-- Código de área -->
+<div class="form-group">
+  <label for="caracteristica_tel">Código de Área (Argentina):</label>
+  <input type="text" id="caracteristica_tel" name="caracteristica_tel" required
+         inputmode="numeric" autocomplete="off"
+         maxlength="5" pattern="0?\d{2,5}"
+         title="2 a 5 dígitos (puede empezar con 0)"
+         oninput="this.value=this.value.replace(/\D/g,'').slice(0,5)"
+         value="<?= isset($data['caracteristica_tel']) ? htmlspecialchars($data['caracteristica_tel']) : '' ?>">
+  <div class="error-message" id="error-caracteristica_tel"><?= isset($errores['caracteristica_tel']) ? $errores['caracteristica_tel'] : '' ?></div>
+</div>
+
+<!-- Número de teléfono -->
+<div class="form-group">
+  <label for="numero_tel">Número de Teléfono:</label>
+  <input type="text" id="numero_tel" name="numero_tel" required
+         inputmode="numeric" autocomplete="off"
+         maxlength="10" pattern="(^15\d{8}$)|(^\d{6,8}$)"
+         title="Celular: 15 + 8 dígitos. Fijo: 6–8 dígitos."
+         oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)"
+         value="<?= isset($data['numero_tel']) ? htmlspecialchars($data['numero_tel']) : '' ?>">
+  <div class="error-message" id="error-numero_tel"><?= isset($errores['numero_tel']) ? $errores['numero_tel'] : '' ?></div>
+</div>
+
                 <div class="form-group">
                     <label for="email">Email:</label>
                     <input type="email" id="email" name="email" required value="<?= isset($data['email']) ? htmlspecialchars($data['email']) : '' ?>">

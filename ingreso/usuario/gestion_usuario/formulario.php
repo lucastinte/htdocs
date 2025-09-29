@@ -197,7 +197,10 @@ function enviarCorreo($email, $nombre, $token) {
             </div>
             <div class="form-group">
                 <label for="dni">DNI:</label>
-                <input type="text" id="dni" name="dni" required>
+                <input id="dni" name="dni" type="text" required
+       inputmode="numeric" maxlength="12" pattern="[0-9]{7,12}"
+       title="Solo números (7 a 12 dígitos)"
+       oninput="this.value=this.value.replace(/\D/g,'').slice(0,12)">
             </div>
             <div class="form-group">
                 <label for="email">Email:</label>
@@ -208,8 +211,11 @@ function enviarCorreo($email, $nombre, $token) {
                 <input type="date" id="fecha_nacimiento" name="fecha_nacimiento">
             </div>
             <div class="form-group">
-                <label for="telefono">Teléfono:</label>
-                <input type="text" id="telefono" name="telefono">
+                <label for="telefono">Teléfono (Nacional):</label>
+            <input id="telefono" name="telefono" type="text"
+       inputmode="numeric" maxlength="12" pattern="[0-9]{6,12}"
+       title="Solo números (6 a 12 dígitos)"
+       oninput="this.value=this.value.replace(/\D/g,'').slice(0,12)">
             </div>
             <div class="form-group">
                 <label for="puesto">Puesto:</label>

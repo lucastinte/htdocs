@@ -1,8 +1,9 @@
 <?php
-$host = 'localhost';
-$user = 'root';
-$password = ''; // vacío si no tiene contraseña
-$dbname = 'ingreso';
+// Cargar variables de entorno para Vercel o local
+$host = getenv('DB_HOST') ?: 'localhost';
+$user = getenv('DB_USER') ?: 'root';
+$password = getenv('DB_PASSWORD') ?: '';
+$dbname = getenv('DB_NAME') ?: 'ingreso';
 
 $conexion = new mysqli($host, $user, $password, $dbname);
 

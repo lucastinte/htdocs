@@ -13,17 +13,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
     $id = intval($_POST['id']);
 
     // Eliminar las encuestas asociadas
-    $query_primera_encuesta = "DELETE FROM primera_encuesta WHERE id_presupuesto = ?";
+    $query_primera_encuesta = "DELETE FROM primera_encuesta_new WHERE id_presupuesto = ?";
     $stmt1 = mysqli_prepare($conexion, $query_primera_encuesta);
     mysqli_stmt_bind_param($stmt1, 'i', $id);
     mysqli_stmt_execute($stmt1);
     mysqli_stmt_close($stmt1);
 
-    $query_segunda_encuesta = "DELETE FROM segunda_encuesta WHERE id_presupuesto = ?";
+    $query_segunda_encuesta = "DELETE FROM segunda_encuesta_new WHERE id_presupuesto = ?";
     $stmt2 = mysqli_prepare($conexion, $query_segunda_encuesta);
     mysqli_stmt_bind_param($stmt2, 'i', $id);
     mysqli_stmt_execute($stmt2);
     mysqli_stmt_close($stmt2);
+
+    $query_tercera_encuesta = "DELETE FROM tercera_encuesta WHERE id_presupuesto = ?";
+    $stmt3 = mysqli_prepare($conexion, $query_tercera_encuesta);
+    mysqli_stmt_bind_param($stmt3, 'i', $id);
+    mysqli_stmt_execute($stmt3);
+    mysqli_stmt_close($stmt3);
 
     // Ahora eliminar el presupuesto
     $query = "DELETE FROM presupuestos WHERE id = ?";

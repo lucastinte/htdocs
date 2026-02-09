@@ -1,0 +1,149 @@
+/* Estilos generales limpios y consistentes con el panel de administración */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f6f9;
+    /* Gris muy suave de fondo */
+    color: #333;
+    margin: 0;
+    min-height: 100vh;
+}
+
+/* Header oscuro como en el panel */
+header {
+    background-color: #343a40;
+    /* Gris oscuro / Negro suave */
+    color: #fff;
+    padding: 15px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+header .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header nav button {
+    background-color: #dc3545;
+    /* Rojo para volver/salir */
+    border: none;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+header nav button:hover {
+    background-color: #c82333;
+}
+
+/* Contenedor principal estilo tarjeta blanca */
+#presupuestos {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 40px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+    /* Sombra sutil */
+    border-top: 4px solid #343a40;
+    /* Detalle superior oscuro */
+}
+
+h2 {
+    color: #212529;
+    font-size: 1.8em;
+    font-weight: 700;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #dee2e6;
+    text-align: left;
+}
+
+/* Grilla del formulario */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.95em;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 1em;
+    color: #495057;
+    background-color: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: #80bdff;
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+    /* Foco azul estándar suave */
+}
+
+/* Botón principal de acción */
+.btn-primary {
+    background-color: #343a40;
+    /* Oscuro */
+    color: #fff;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 6px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    display: block;
+    width: 100%;
+    margin-top: 30px;
+}
+
+.btn-primary:hover {
+    background-color: #23272b;
+}
+
+.btn-primary:active {
+    transform: translateY(1px);
+}
+
+/* Ajustes para selects */
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3e%3cpath fill='%23343a40' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right .75rem center;
+    background-size: 8px 10px;
+}

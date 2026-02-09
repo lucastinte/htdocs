@@ -18,9 +18,9 @@ function getUserData($email) {
     return $stmt->get_result()->fetch_assoc();
 }
 
-function updateUserData($email, $apellido, $nombre, $dni, $caracteristica_tel, $numero_tel, $direccion, $fecha_nacimiento, $localidad, $provincia) {
+function updateUserData($email, $apellido, $nombre, $dni, $caracteristica_tel, $numero_tel, $direccion, $fecha_nacimiento) {
     global $conexion;
-    $stmt = $conexion->prepare("UPDATE clientes SET apellido = ?, nombre = ?, dni = ?, caracteristica_tel = ?, numero_tel = ?, direccion = ?, fecha_nacimiento = ?, localidad = ?, provincia = ? WHERE email = ?");
-    $stmt->bind_param("ssssssssss", $apellido, $nombre, $dni, $caracteristica_tel, $numero_tel, $direccion, $fecha_nacimiento, $localidad, $provincia, $email);
+    $stmt = $conexion->prepare("UPDATE clientes SET apellido = ?, nombre = ?, dni = ?, caracteristica_tel = ?, numero_tel = ?, direccion = ?, fecha_nacimiento = ? WHERE email = ?");
+    $stmt->bind_param("ssssssss", $apellido, $nombre, $dni, $caracteristica_tel, $numero_tel, $direccion, $fecha_nacimiento, $email);
     return $stmt->execute();
 }

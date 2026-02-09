@@ -55,18 +55,50 @@ header nav button:hover {
 
 /* Estilos de la sección de presupuestos */
 #presupuestos {
-  max-width: 1200px;
-  margin: 20px auto;
-  padding: 20px;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  max-width: 1080px;
+  margin: 30px auto;
+  padding: 30px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
 }
 
 #presupuestos h1 {
   margin-bottom: 20px;
   font-size: 1.8em;
   color: #333;
+}
+#presupuestos h2 {
+  margin: 0 0 5px;
+  font-size: 1.6em;
+  color: #2d2d2d;
+}
+.section-subtitle {
+  margin: 6px 0 0;
+  color: #666;
+  font-size: 0.95em;
+}
+.entrevista-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: stretch;
+}
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.pill {
+  display: inline-block;
+  background: #eef2f5;
+  color: #333;
+  border: 1px solid #d6d8db;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
 }
 
 /* Estilos de la tabla */
@@ -157,6 +189,16 @@ form {
   flex-direction: column;
 }
 
+.form-card {
+  background: #fff;
+  border: 1px solid #e1e1e1;
+  border-radius: 12px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.05);
+  padding: 26px;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
 .form-group {
   margin-bottom: 15px;
 }
@@ -171,12 +213,95 @@ form {
 .form-group input[type="text"],
 .form-group input[type="password"],
 .form-group input[type="date"],
-.form-group input[type="datetime-local"] {
+.form-group input[type="datetime-local"],
+.form-card input[type="number"],
+.form-card select,
+.form-card textarea {
   width: 100%;
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1em;
+  background: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-card textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.form-card select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, #666 50%), linear-gradient(135deg, #666 50%, transparent 50%);
+  background-position: calc(100% - 16px) calc(50% - 2px), calc(100% - 11px) calc(50% - 2px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+.form-card input:focus,
+.form-card select:focus,
+.form-card textarea:focus {
+  border-color: #1f6f8b;
+  box-shadow: 0 0 0 3px rgba(31, 111, 139, 0.12);
+  outline: none;
+}
+
+.form-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.form-title {
+  margin: 0 0 4px;
+  font-weight: 700;
+  color: #333;
+}
+
+.form-hint {
+  margin: 0;
+  color: #666;
+  font-size: 0.95em;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px 20px;
+}
+
+.form-group--full {
+  grid-column: 1 / -1;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.btn-primary {
+  background: #1f6f8b;
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: 600;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: #184f67;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+  box-shadow: none;
 }
 
 
@@ -316,5 +441,12 @@ button[type="submit"].icon-delete:hover {
   td {
     font-size: 0.9em;
     padding: 5px;
+  }
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .form-grid {
+    grid-template-columns: 1fr;
   }
 }

@@ -85,7 +85,7 @@ if (!$result) {
         <?php } ?>
         // Confirmación con modal para eliminar
         function confirmDelete() {
-            showModalQ('¿Estás seguro de que deseas eliminar este cliente?', false, null, 'Confirmar Eliminación');
+            showModalQ('¿Estás seguro de que deseas eliminar este cliente? Se eliminarán también sus proyectos y archivos adjuntos.', true, null, 'Confirmar Eliminación', 'error');
             setTimeout(() => {
                 const modal = document.getElementById('modal-q');
                 const content = modal.querySelector('.modal-content');
@@ -94,6 +94,7 @@ if (!$result) {
                 // Botón Sí
                 const btnSi = document.createElement('button');
                 btnSi.textContent = 'Sí';
+                btnSi.className = 'modal-btn--danger';
                 btnSi.onclick = function() {
                     closeModalQ();
                     event.target.form.submit();
@@ -101,6 +102,7 @@ if (!$result) {
                 // Botón No
                 const btnNo = document.createElement('button');
                 btnNo.textContent = 'No';
+                btnNo.className = 'modal-btn--ghost';
                 btnNo.onclick = function() {
                     closeModalQ();
                 };

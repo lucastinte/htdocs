@@ -14,8 +14,6 @@ CREATE TABLE `clientes` (
   `token` varchar(100) DEFAULT NULL,
   `activo` BOOLEAN DEFAULT 1,
   `reg_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `localidad` varchar(100) DEFAULT NULL,
-  `provincia` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `dni_unique` (`dni`),
   UNIQUE KEY `email_unique` (`email`)
@@ -36,8 +34,6 @@ CREATE TABLE `usuarios` (
   `usuario` varchar(50) NOT NULL,
   `password` varchar(255) DEFAULT NULL,
   `token` varchar(64) DEFAULT NULL,
-  `localidad` varchar(100) DEFAULT NULL,
-  `provincia` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `dni` (`dni`),
@@ -47,9 +43,9 @@ CREATE TABLE `usuarios` (
 -- Insertar datos de prueba en la tabla `usuarios`
 
 INSERT INTO `usuarios` 
-(`nombre`, `apellido`, `dni`, `email`, `fecha_nacimiento`, `telefono`, `puesto`, `permisos`, `usuario`, `password`, `localidad`, `provincia`) 
+(`nombre`, `apellido`, `dni`, `email`, `fecha_nacimiento`, `telefono`, `puesto`, `permisos`, `usuario`, `password`) 
 VALUES 
-('Damian', 'Durand', '52345678', 'durandamian523@gmail.com', '1985-03-10', '12345', 'Gerente', 'crear', 'gerente', '12345', 'Jujuy', 'Jujuy');
+('Damian', 'Durand', '52345678', 'durandamian523@gmail.com', '1985-03-10', '12345', 'Gerente', 'crear', 'gerente', '12345');
 
 -- Creación de la tabla `turnos`
 CREATE TABLE `turnos` (

@@ -18,10 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $numero_tel = $_POST['numero_tel']; // Obtén el número de teléfono
     $direccion = $_POST['direccion'];
     $fecha_nacimiento = $_POST['fecha_nacimiento'];
-    $localidad = $_POST['localidad'];
-    $provincia = $_POST['provincia'];
 
-    if (updateUserData($_SESSION['usuario'], $apellido, $nombre, $dni, $caracteristica_tel, $numero_tel, $direccion, $fecha_nacimiento, $localidad, $provincia)) {
+    if (updateUserData($_SESSION['usuario'], $apellido, $nombre, $dni, $caracteristica_tel, $numero_tel, $direccion, $fecha_nacimiento)) {
         // Redirigir a la misma página para mostrar los datos actualizados
         header("Location: modificar_datos.php");
         exit();
@@ -88,14 +86,6 @@ $cliente = getUserData($_SESSION['usuario']);
         <div class="form-group">
             <label for="fecha_nacimiento">Fecha de Nacimiento:</label>
             <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="<?php echo htmlspecialchars($cliente['fecha_nacimiento']); ?>" required>
-        </div>
-        <div class="form-group">
-            <label for="localidad">Localidad:</label>
-            <input type="text" id="localidad" name="localidad" value="<?php echo htmlspecialchars($cliente['localidad']); ?>" required>
-        </div>
-        <div class="form-group">
-            <label for="provincia">Provincia:</label>
-            <input type="text" id="provincia" name="provincia" value="<?php echo htmlspecialchars($cliente['provincia']); ?>" required>
         </div>
         <button type="submit">Actualizar Datos</button>
     </form>

@@ -5,8 +5,11 @@ include('./db.php');
 if (isset($_GET['id'])) {
     $id = intval($_GET['id']);
 
-    // Consulta para obtener los detalles del presupuesto
-    $query_presupuesto = "SELECT * FROM presupuestos WHERE id = ?";
+    // Consulta para obtener los detalles del presupuesto y la entrevista personal
+    $query_presupuesto = "SELECT p.*, e.ocupacion, e.habitantes, e.seguridad, e.trabajo_en_casa, e.salud, e.fobias, e.intereses, e.rutinas, e.pasatiempos, e.visitas, e.detalles_visitas, e.vehiculos, e.mascotas, e.aprendizaje, e.negocio, e.muebles, e.detalles_casa 
+                          FROM presupuestos p 
+                          LEFT JOIN primera_encuesta_new e ON p.id = e.id_presupuesto 
+                          WHERE p.id = ?";
     $stmt = mysqli_prepare($conexion, $query_presupuesto);
     mysqli_stmt_bind_param($stmt, "i", $id);
     mysqli_stmt_execute($stmt);
@@ -20,61 +23,38 @@ if (isset($_GET['id'])) {
     if ($presupuesto) {
         $pdf = new FPDF();
         $pdf->AddPage();
-        $pdf->SetMargins(10, 10, 10); // Márgenes más pequeños
+        $pdf->SetMargins(10, 10, 10);
 
         // Agregar logo
         $pdf->Image('logo.png', 10, 10, 30);
-        $pdf->Ln(20); // Espacio debajo del logo
+        $pdf->Ln(20);
 
         // Título del documento con ID del cuestionario
         $pdf->SetFont('Arial', 'B', 20);
-        $pdf->Cell(0, 10, 'Cuestionario: ' . $presupuesto['id'], 0, 1, 'C'); 
-        $pdf->Ln(10); // Espacio debajo del título
+        $pdf->Cell(0, 10, utf8_decode('Cuestionario de Entrevista: ' . $presupuesto['id']), 0, 1, 'C'); 
+        $pdf->Ln(10);
 
-
-          // Configuración de la tabla
-          $pdf->SetFont('Arial', 'B', 10); // Tamaño de fuente más pequeño
-          $header = ['Campo', 'Respuesta'];
-          $widths = [40, 140]; // Ajustar ancho de columnas
-  
-        $pdf->SetFont('Arial', '', 8); // Tamaño de fuente aún más pequeño
+        $pdf->SetFont('Arial', '', 10);
+        
+        // Definir anchos de columna
+        $widths = [60, 130];
+        
+        // Solo datos básicos del formulario inicial
         $fields = [
-            'Nombre' => $presupuesto['nombre'],
-            'Ocupacion' => $presupuesto['ocupacion'],
-            'Habitantes' => $presupuesto['habitantes'],
-            'Seguridad' => $presupuesto['seguridad'],
-            'Trabajo en Casa' => $presupuesto['trabajo_en_casa'],
-            'Salud' => $presupuesto['salud'],
-            'Telefono' => $presupuesto['telefono'],
-            'Email' => $presupuesto['email'],
-            'Direccion' => $presupuesto['direccion'],
-            'Fobias' => $presupuesto['fobias'],
-            'Intereses' => $presupuesto['intereses'],
-            'Rutinas' => $presupuesto['rutinas'],
-            'Pasatiempos' => $presupuesto['pasatiempos'],
-            'Visitas' => $presupuesto['visitas'],
-            'Detalles de Visitas' => $presupuesto['detalles_visitas'],
-            'Vehiculos' => $presupuesto['vehiculos'],
-            'Mascotas' => $presupuesto['mascotas'],
-            'Aprendizaje' => $presupuesto['aprendizaje'],
-            'Negocio' => $presupuesto['negocio'],
-            'Muebles' => $presupuesto['muebles'],
-            'Detalles de la Casa' => $presupuesto['detalles_casa'],
-            // 'Turno' => $presupuesto['turno'], // Quitar "Turno" de aquí
+            'Nombre' => $presupuesto['nombre'] ?? '',
+            'Teléfono' => $presupuesto['telefono'] ?? '',
+            'Email' => $presupuesto['email'] ?? '',
+            'Dirección' => $presupuesto['direccion'] ?? '',
+            'Metros Cuadrados (m²)' => $presupuesto['m2_cantidad'] ?? '',
+            'Tipo de Vivienda' => ucfirst($presupuesto['tipo_proyecto'] ?? ''),
+            'Turno Programado' => $presupuesto['turno'] ?? '',
         ];
 
         // Mostrar los datos en la tabla
         foreach ($fields as $label => $value) {
-            $pdf->Cell($widths[0], 8, utf8_decode($label), 1, 0, 'L'); // Alineación a la izquierda
-            $pdf->MultiCell($widths[1], 8, utf8_decode($value), 1, 'L'); // MultiCell para el valor
+            $pdf->Cell($widths[0], 8, utf8_decode($label), 1, 0, 'L');
+            $pdf->Cell($widths[1], 8, utf8_decode($value), 1, 1, 'L');
         }
-
-        // Agregar "Turno" al final
-        $pdf->Ln(5); // Espacio antes de "Turno"
-        $pdf->SetFont('Arial', 'B', 10); 
-        $pdf->Cell($widths[0], 10, utf8_decode('Turno'), 1, 0, 'L');
-        $pdf->SetFont('Arial', '', 10); 
-        $pdf->Cell($widths[1], 10, utf8_decode($presupuesto['turno']), 1, 1, 'L');
 
         // Salida del PDF
         $pdf->Output('D', 'Presupuesto_' . $presupuesto['id'] . '.pdf');

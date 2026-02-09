@@ -28,18 +28,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $usuario = mysqli_real_escape_string($conexion, $_POST['usuario']);
         $direccion = mysqli_real_escape_string($conexion, $_POST['direccion']);
         $fecha_nacimiento = mysqli_real_escape_string($conexion, $_POST['fecha_nacimiento']);
-        $localidad = mysqli_real_escape_string($conexion, $_POST['localidad']);
-        $provincia = mysqli_real_escape_string($conexion, $_POST['provincia']);
+        $direccion = mysqli_real_escape_string($conexion, $_POST['direccion']);
         $password = $_POST['password'];
 
         // Actualizar los datos del cliente
         if (!empty($password)) {
             // Si se proporciona una nueva contraseña, se actualiza
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            $query = "UPDATE clientes SET apellido='$apellido', nombre='$nombre', dni='$dni', caracteristica_tel='$caracteristica_tel', numero_tel='$numero_tel', email='$email', usuario='$usuario', direccion='$direccion', fecha_nacimiento='$fecha_nacimiento', localidad='$localidad', provincia='$provincia', password='$hashed_password' WHERE id=$id_cliente";
+            $query = "UPDATE clientes SET apellido='$apellido', nombre='$nombre', dni='$dni', caracteristica_tel='$caracteristica_tel', numero_tel='$numero_tel', email='$email', usuario='$usuario', direccion='$direccion', fecha_nacimiento='$fecha_nacimiento', password='$hashed_password' WHERE id=$id_cliente";
         } else {
             // Solo actualizar los datos sin cambiar la contraseña
-            $query = "UPDATE clientes SET apellido='$apellido', nombre='$nombre', dni='$dni', caracteristica_tel='$caracteristica_tel', numero_tel='$numero_tel', email='$email', usuario='$usuario', direccion='$direccion', fecha_nacimiento='$fecha_nacimiento', localidad='$localidad', provincia='$provincia' WHERE id=$id_cliente";
+            $query = "UPDATE clientes SET apellido='$apellido', nombre='$nombre', dni='$dni', caracteristica_tel='$caracteristica_tel', numero_tel='$numero_tel', email='$email', usuario='$usuario', direccion='$direccion', fecha_nacimiento='$fecha_nacimiento' WHERE id=$id_cliente";
         }
 
         if (mysqli_query($conexion, $query)) {
@@ -82,7 +81,7 @@ $total_clientes = mysqli_fetch_assoc($result_total_clientes)['total'];
 $total_paginas = ceil($total_clientes / $clientes_por_pagina);
 
 // Obtener los clientes para la página actual
-$query = "SELECT id, apellido, nombre, dni, caracteristica_tel, numero_tel, email, usuario, direccion, fecha_nacimiento, localidad, provincia, activo FROM clientes LIMIT $offset, $clientes_por_pagina";
+$query = "SELECT id, apellido, nombre, dni, caracteristica_tel, numero_tel, email, usuario, direccion, fecha_nacimiento, activo FROM clientes LIMIT $offset, $clientes_por_pagina";
 $result = mysqli_query($conexion, $query);
 
 if (!$result) {
@@ -192,7 +191,7 @@ if (!$result) {
         }
 
         function confirmActionModal(message, callback) {
-            showModalQ(message, false, null, 'Confirmar Acción');
+            showModalQ(message, true, null, 'Confirmar Acción', 'error');
             setTimeout(() => {
                 const modal = document.getElementById('modal-q');
                 const content = modal.querySelector('.modal-content');
@@ -201,6 +200,7 @@ if (!$result) {
                 // Botón Sí
                 const btnSi = document.createElement('button');
                 btnSi.textContent = 'Sí';
+                btnSi.className = 'modal-btn--danger';
                 btnSi.onclick = function() {
                     closeModalQ();
                     callback(true);
@@ -208,6 +208,7 @@ if (!$result) {
                 // Botón No
                 const btnNo = document.createElement('button');
                 btnNo.textContent = 'No';
+                btnNo.className = 'modal-btn--ghost';
                 btnNo.onclick = function() {
                     closeModalQ();
                     callback(false);
@@ -228,7 +229,7 @@ if (!$result) {
             return false;
         }
 
-        function rellenarFormulario(id, apellido, nombre, dni, caracteristica_tel, numero_tel, email, usuario, direccion, fecha_nacimiento, localidad, provincia) {
+        function rellenarFormulario(id, apellido, nombre, dni, caracteristica_tel, numero_tel, email, usuario, direccion, fecha_nacimiento) {
             document.getElementById('accion').value = 'modificar';
             document.getElementById('id_cliente').value = id;
             document.getElementById('apellido').value = apellido;
@@ -240,8 +241,6 @@ if (!$result) {
             document.getElementById('usuario').value = usuario;
             document.getElementById('direccion').value = direccion;
             document.getElementById('fecha_nacimiento').value = fecha_nacimiento;
-            document.getElementById('localidad').value = localidad;
-            document.getElementById('provincia').value = provincia;
             document.getElementById('form-modificar-cliente').style.display = 'block';
             document.getElementById('titulo-modificar-cliente').style.display = 'block';
             window.scrollTo({top: document.getElementById('form-modificar-cliente').offsetTop - 40, behavior: 'smooth'});
@@ -321,9 +320,7 @@ if (!$result) {
                                             '<?php echo htmlspecialchars($row['email']); ?>',
                                             '<?php echo htmlspecialchars($row['usuario']); ?>',
                                             '<?php echo htmlspecialchars($row['direccion']); ?>',
-                                            '<?php echo htmlspecialchars($row['fecha_nacimiento']); ?>',
-                                            '<?php echo htmlspecialchars($row['localidad']); ?>',
-                                            '<?php echo htmlspecialchars($row['provincia']); ?>'
+                                            '<?php echo htmlspecialchars($row['fecha_nacimiento']); ?>'
                                         );">Modificar</button></li>
                                         <li><form action="proyectos.php" method="get">
                                             <input type="hidden" name="id_cliente" value="<?php echo htmlspecialchars($row['id']); ?>">
@@ -333,7 +330,7 @@ if (!$result) {
                                             <input type="hidden" name="id_cliente" value="<?php echo htmlspecialchars($row['id']); ?>">
                                             <button type="submit">Cargar Proyecto</button>
                                         </form></li>
-                                        <li><form action="gestioncliente.php" method="post" onsubmit="return handleFormSubmitWithModal(event, '¿Estás seguro de que deseas eliminar este cliente?');">
+                                        <li><form action="gestioncliente.php" method="post" onsubmit="return handleFormSubmitWithModal(event, '¿Estás seguro de que deseas eliminar este cliente? Se eliminarán también sus proyectos y archivos adjuntos.');">
                                             <input type="hidden" name="accion" value="eliminar">
                                             <input type="hidden" name="id_cliente" value="<?php echo htmlspecialchars($row['id']); ?>">
                                             <button type="submit">Eliminar</button>
@@ -404,13 +401,6 @@ if (!$result) {
                         <label for="fecha_nacimiento">Fecha de Nacimiento:</label>
                         <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" required>
                     </div>
-                    <div class="form-group">
-                        <label for="localidad">Localidad:</label>
-                        <input type="text" name="localidad" id="localidad" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="provincia">Provincia:</label>
-                        <input type="text" name="provincia" id="provincia" required>
                     </div>
                     <div class="form-group">
                         <label for="password">Contraseña:</label>
@@ -437,7 +427,7 @@ function confirmModificarCliente(e) {
 
     <!-- Modal Q para mensajes -->
 <div id="modal-q" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;">
-  <div class="modal-content" style="background:#fff;color:#181828;border-radius:24px;padding:40px 30px 30px 30px;text-align:center;min-width:320px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,0.25);transition:border 0.2s, color 0.2s;">
+  <div class="modal-content" style="background:#fff;color:#181828;border-radius:16px;padding:24px 22px 20px 22px;text-align:center;min-width:260px;max-width:480px;box-shadow:0 8px 24px rgba(0,0,0,0.25);transition:border 0.2s, color 0.2s;">
     <h2 id="modal-q-title"></h2>
     <p id="modal-q-msg"></p>
     <button onclick="closeModalQ()">OK</button>

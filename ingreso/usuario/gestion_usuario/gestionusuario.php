@@ -57,16 +57,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $puesto = isset($_POST['puesto']) ? mysqli_real_escape_string($conexion, $_POST['puesto']) : '';
     $usuario = isset($_POST['usuario']) ? mysqli_real_escape_string($conexion, $_POST['usuario']) : '';
     $password = isset($_POST['password']) ? $_POST['password'] : '';
-    $localidad = isset($_POST['localidad']) ? mysqli_real_escape_string($conexion, $_POST['localidad']) : '';
-    $provincia = isset($_POST['provincia']) ? mysqli_real_escape_string($conexion, trim($_POST['provincia'])) : '';
-    
-    // Si provincia es '0' o está vacía, la establecemos como NULL
-    if ($provincia === '0' || $provincia === '' || $provincia === 0) {
-        $provincia = null;
-    }
-
-    // Debug: Imprimir valor de provincia
-    error_log("Valor de provincia antes de UPDATE: " . ($provincia === null ? 'NULL' : $provincia));
+    $usuario = isset($_POST['usuario']) ? mysqli_real_escape_string($conexion, $_POST['usuario']) : '';
+    $password = isset($_POST['password']) ? $_POST['password'] : '';
 
     // Obtener el permiso original de la base de datos
     $query_permiso_original = "SELECT permisos FROM usuarios WHERE id_usuario = ?";
@@ -93,7 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Unificar permisos de "crear" y "modificar"
     if (($accion == 'modificar' && $permisos_usuario_actual == 'modificar') || ($accion == 'modificar' && $permisos_usuario_actual == 'crear')) {
-        $query = "UPDATE usuarios SET nombre = ?, apellido = ?, dni = ?, email = ?, fecha_nacimiento = ?, telefono = ?, puesto = ?, permisos = ?, usuario = ?, localidad = ?, provincia = ?";
+        $query = "UPDATE usuarios SET nombre = ?, apellido = ?, dni = ?, email = ?, fecha_nacimiento = ?, telefono = ?, puesto = ?, permisos = ?, usuario = ?";
         if (!empty($password)) {
             $query .= ", password = ?";
         }
@@ -102,11 +94,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt_update = $conexion->prepare($query);
         
         if (!empty($password)) {
-            $tipos = "ssssssssssssi";
-            $params = array($nombre, $apellido, $dni, $email, $fecha_nacimiento, $telefono, $puesto, $permisos, $usuario, $localidad, $provincia, $password, $id_usuario);
+            $tipos = "ssssssssssi";
+            $params = array($nombre, $apellido, $dni, $email, $fecha_nacimiento, $telefono, $puesto, $permisos, $usuario, $password, $id_usuario);
         } else {
-            $tipos = "sssssssssssi";
-            $params = array($nombre, $apellido, $dni, $email, $fecha_nacimiento, $telefono, $puesto, $permisos, $usuario, $localidad, $provincia, $id_usuario);
+            $tipos = "sssssssssi";
+            $params = array($nombre, $apellido, $dni, $email, $fecha_nacimiento, $telefono, $puesto, $permisos, $usuario, $id_usuario);
         }
         
         $stmt_update->bind_param($tipos, ...$params);
@@ -163,7 +155,7 @@ $total_usuarios = mysqli_fetch_assoc($result_total_usuarios)['total'];
 $total_paginas = ceil($total_usuarios / $usuarios_por_pagina);
 
 // Obtener los usuarios para la página actual
-$query = "SELECT id_usuario, nombre, apellido, dni, email, fecha_nacimiento, telefono, puesto, permisos, usuario, localidad, provincia FROM usuarios LIMIT $offset, $usuarios_por_pagina";
+$query = "SELECT id_usuario, nombre, apellido, dni, email, fecha_nacimiento, telefono, puesto, permisos, usuario FROM usuarios LIMIT $offset, $usuarios_por_pagina";
 $result = mysqli_query($conexion, $query);
 
 if (!$result) {
@@ -201,9 +193,6 @@ if (!$result) {
         document.getElementById('puesto').value = usuario.puesto || '';
         document.getElementById('permisos').value = usuario.permisos || '';
         document.getElementById('usuario').value = usuario.usuario || '';
-        document.getElementById('localidad').value = usuario.localidad || '';
-        // Aseguramos que provincia no sea 0
-        document.getElementById('provincia').value = usuario.provincia === '0' ? '' : (usuario.provincia || '');
         
         // Bloquear el campo permisos si el usuario edita su propio usuario
         if (usuario.id_usuario == '<?php echo $id_usuario_logueado; ?>') {
@@ -336,8 +325,6 @@ if (!$result) {
                 <th>Puesto</th>
                 <th>Permisos</th>
                 <th>Usuario</th>
-                <th>Localidad</th>
-                <th>Provincia</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -353,8 +340,6 @@ if (!$result) {
                     <td><?php echo htmlspecialchars($usuario['puesto']); ?></td>
                     <td><?php echo htmlspecialchars($usuario['permisos']); ?></td>
                     <td><?php echo htmlspecialchars($usuario['usuario']); ?></td>
-                    <td><?php echo htmlspecialchars($usuario['localidad']); ?></td>
-                    <td><?php echo htmlspecialchars($usuario['provincia']); ?></td>
                     <td>
                         <?php 
                         if ($usuario['email'] !== 'durandamian523@gmail.com') { 
@@ -432,14 +417,6 @@ if (!$result) {
         <div class="form-group">
             <label for="password">Contraseña:</label>
             <input type="password" id="password" name="password">
-        </div>
-        <div class="form-group">
-            <label for="localidad">Localidad:</label>
-            <input type="text" id="localidad" name="localidad" required>
-        </div>
-        <div class="form-group">
-            <label for="provincia">Provincia:</label>
-            <input type="text" id="provincia" name="provincia" required>
         </div>
         <button type="submit" onclick="return confirmFormAction(event)">Guardar</button>
         <button type="button" onclick="ocultarFormularioGestionUsuario()">Cancelar</button>

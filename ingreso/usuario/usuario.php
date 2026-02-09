@@ -64,7 +64,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <a href="gestion_usuario/gestionusuario.php"> Usuarios</a>
                     </div>
                 </li>
+                <li><a href="gestion_cotizaciones.php">Editar Cotizaciones</a></li>
                 <li><a href="../../index.php">Volver a Inicio</a></li>
+                <li><a href="../cliente/logout.php" style="color: #dc3545;">Salir</a></li>
             </ul>
         </nav>
     </div>

@@ -19,8 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $usuario = $_POST['usuario'];
     $direccion = $_POST['direccion'];
     $fecha_nacimiento = $_POST['fecha_nacimiento'];
-    $localidad = $_POST['localidad'];
-    $provincia = $_POST['provincia'];
+    $direccion = $_POST['direccion'];
     $token = bin2hex(random_bytes(16)); // Generar un token aleatorio
     $errores = [];
     // Validación del DNI
@@ -64,15 +63,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         header('Location: alta.php');
         exit();
     }
-    $stmt = $conexion->prepare("INSERT INTO clientes (apellido, nombre, dni, caracteristica_tel, numero_tel, email, usuario, direccion, fecha_nacimiento, token, localidad, provincia) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $conexion->prepare("INSERT INTO clientes (apellido, nombre, dni, caracteristica_tel, numero_tel, email, usuario, direccion, fecha_nacimiento, token) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     
     if ($stmt === false) {
         die("Error en la preparación de la consulta: " . $conexion->error);
     }
 
     $formatted_fecha_nacimiento = $fecha_nacimiento_dt->format('Y-m-d');
-    $stmt->bind_param("ssssssssssss", $apellido, $nombre, $dni, $caracteristica_tel, $numero_tel, $email, $usuario, $direccion, $formatted_fecha_nacimiento, $token, $localidad, $provincia);
+    $stmt->bind_param("ssssssssss", $apellido, $nombre, $dni, $caracteristica_tel, $numero_tel, $email, $usuario, $direccion, $formatted_fecha_nacimiento, $token);
     if ($stmt->execute()) {
         // Enviar correo electrónico de confirmación
         sendConfirmationEmail($email, $nombre, $token);
@@ -243,16 +242,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" required value="<?= isset($data['fecha_nacimiento']) ? htmlspecialchars($data['fecha_nacimiento']) : '' ?>">
                     <div class="error-message" id="error-fecha_nacimiento"><?= isset($errores['fecha_nacimiento']) ? $errores['fecha_nacimiento'] : '' ?></div>
                 </div>
-                <div class="form-group">
-                    <label for="localidad">Localidad:</label>
-                    <input type="text" name="localidad" id="localidad" required value="<?= isset($data['localidad']) ? htmlspecialchars($data['localidad']) : '' ?>">
-                    <div class="error-message" id="error-localidad"><?= isset($errores['localidad']) ? $errores['localidad'] : '' ?></div>
-                </div>
-                <div class="form-group">
-                    <label for="provincia">Provincia:</label>
-                    <input type="text" name="provincia" id="provincia" required value="<?= isset($data['provincia']) ? htmlspecialchars($data['provincia']) : '' ?>">
-                    <div class="error-message" id="error-provincia"><?= isset($errores['provincia']) ? $errores['provincia'] : '' ?></div>
-                </div>
                 <button type="submit">Registrar</button>
             </form>
         </div>
@@ -325,16 +314,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 if (edad < 18) return 'Debes tener al menos 18 años para registrarte.';
                 return '';
             }
-        },
-        localidad: {
-            input: document.getElementById('localidad'),
-            error: document.getElementById('error-localidad'),
-            validate: v => v.trim() !== '' ? '' : 'La localidad es obligatoria.'
-        },
-        provincia: {
-            input: document.getElementById('provincia'),
-            error: document.getElementById('error-provincia'),
-            validate: v => v.trim() !== '' ? '' : 'La provincia es obligatoria.'
         }
     };
     Object.values(fields).forEach(f => {

@@ -28,8 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $puesto = $_POST['puesto'];
     $permisos = $_POST['permisos'];
     $usuario = $_POST['usuario'];
-    $localidad = $_POST['localidad'];
-    $provincia = $_POST['provincia'];
+    $usuario = $_POST['usuario'];
 
     // Validaciones
     $errores = [];
@@ -83,10 +82,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $token = bin2hex(random_bytes(16)); 
 
     // Insertar el usuario en la base de datos (incluyendo el token)
-    $query_insertar = "INSERT INTO usuarios (nombre, apellido, dni, email, fecha_nacimiento, telefono, puesto, permisos, usuario, token, localidad, provincia) 
-                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $query_insertar = "INSERT INTO usuarios (nombre, apellido, dni, email, fecha_nacimiento, telefono, puesto, permisos, usuario, token) 
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt_insertar = $conexion->prepare($query_insertar);
-    $stmt_insertar->bind_param("ssssssssssss", $nombre, $apellido, $dni, $email, $fecha_nacimiento, $telefono, $puesto, $permisos, $usuario, $token, $localidad, $provincia);
+    $stmt_insertar->bind_param("ssssssssss", $nombre, $apellido, $dni, $email, $fecha_nacimiento, $telefono, $puesto, $permisos, $usuario, $token);
 
     if ($stmt_insertar->execute()) {
         // Enviar correo electrónico de confirmación
@@ -232,14 +231,6 @@ function enviarCorreo($email, $nombre, $token) {
             <div class="form-group">
                 <label for="usuario">Usuario:</label>
                 <input type="text" id="usuario" name="usuario" required>
-            </div>
-            <div class="form-group">
-                <label for="localidad">Localidad:</label>
-                <input type="text" id="localidad" name="localidad" required>
-            </div>
-            <div class="form-group">
-                <label for="provincia">Provincia:</label>
-                <input type="text" id="provincia" name="provincia" required>
             </div>
             <!-- Se elimina el campo de contraseña -->
             <button type="submit">REGISTRAR</button>

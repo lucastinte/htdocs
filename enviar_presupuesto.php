@@ -16,28 +16,28 @@ while ($row = mysqli_fetch_assoc($result)) {
 }
 // Verifica si se ha enviado el formulario
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $nombre = $_POST['nombre'];
-    $ocupacion = $_POST['ocupacion'];
-    $habitantes = $_POST['habitantes'];
-    $seguridad = $_POST['seguridad'];
-    $trabajo_en_casa = $_POST['trabajo_en_casa'];
-    $salud = $_POST['salud'];
-    $telefono = $_POST['telefono'];
-    $email = $_POST['email'];
-    $direccion = $_POST['direccion'];
-    $fobias = $_POST['fobias'];
-    $intereses = $_POST['intereses'];
-    $rutinas = $_POST['rutinas'];
-    $pasatiempos = $_POST['pasatiempos'];
-    $visitas = $_POST['visitas'];
-    $detalles_visitas = $_POST['detalles_visitas'];
-    $vehiculos = $_POST['vehiculos'];
-    $mascotas = $_POST['mascotas'];
-    $aprendizaje = $_POST['aprendizaje'];
-    $negocio = $_POST['negocio'];
-    $muebles = $_POST['muebles'];
-    $detalles_casa = $_POST['detalles_casa'];
-    $turnoSeleccionado = $_POST['turno'];
+    $nombre = $_POST['nombre'] ?? '';
+    $ocupacion = $_POST['ocupacion'] ?? '';
+    $habitantes = $_POST['habitantes'] ?? '';
+    $seguridad = $_POST['seguridad'] ?? '';
+    $trabajo_en_casa = $_POST['trabajo_en_casa'] ?? '';
+    $salud = $_POST['salud'] ?? '';
+    $telefono = $_POST['telefono'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $direccion = $_POST['direccion'] ?? '';
+    $fobias = $_POST['fobias'] ?? '';
+    $intereses = $_POST['intereses'] ?? '';
+    $rutinas = $_POST['rutinas'] ?? '';
+    $pasatiempos = $_POST['pasatiempos'] ?? '';
+    $visitas = $_POST['visitas'] ?? '';
+    $detalles_visitas = $_POST['detalles_visitas'] ?? '';
+    $vehiculos = $_POST['vehiculos'] ?? '';
+    $mascotas = $_POST['mascotas'] ?? '';
+    $aprendizaje = $_POST['aprendizaje'] ?? '';
+    $negocio = $_POST['negocio'] ?? '';
+    $muebles = $_POST['muebles'] ?? '';
+    $detalles_casa = $_POST['detalles_casa'] ?? '';
+    $turnoSeleccionado = $_POST['turno'] ?? '';
    // ... (resto del código para guardar la información en la base de datos)
 
    // Actualizar la disponibilidad del turno en la base de datos
@@ -46,27 +46,145 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
    mysqli_stmt_bind_param($stmt, "s", $turnoSeleccionado);
    mysqli_stmt_execute($stmt);
 
-    // Consulta para insertar en la base de datos
-    $insert_query = "INSERT INTO presupuestos (nombre, ocupacion, habitantes, seguridad, trabajo_en_casa, salud, telefono, email, direccion, fobias, intereses, rutinas, pasatiempos, visitas, detalles_visitas, vehiculos, mascotas, aprendizaje, negocio, muebles, detalles_casa, turno) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"; 
+    // Consulta para insertar en la base de datos (TODOS los campos)
+    $insert_query = "INSERT INTO presupuestos (
+        nombre, ocupacion, habitantes, seguridad, trabajo_en_casa, salud, telefono, email, direccion, 
+        fobias, intereses, rutinas, pasatiempos, visitas, detalles_visitas, vehiculos, mascotas, 
+        aprendizaje, negocio, muebles, detalles_casa, turno, m2_cantidad, tipo_proyecto
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"; 
+    
     $stmt = mysqli_prepare($conexion, $insert_query);
 
-    // Vincular los parámetros (incluyendo todos los campos)
-    mysqli_stmt_bind_param($stmt, "ssssssssssssssssssssss", $nombre, $ocupacion, $habitantes, $seguridad, $trabajo_en_casa, $salud, $telefono, $email, $direccion, $_POST['fobias'], $_POST['intereses'], $_POST['rutinas'], $_POST['pasatiempos'], $_POST['visitas'], $_POST['detalles_visitas'], $_POST['vehiculos'], $_POST['mascotas'], $_POST['aprendizaje'], $_POST['negocio'], $_POST['muebles'], $_POST['detalles_casa'], $turnoSeleccionado);
+    $m2_cant = floatval($_POST['m2_cantidad'] ?? 0);
+    $tipo_proj = $_POST['tipo_proyecto'] ?? 'unifamiliar';
+
+    // Vincular parámetros (24 en total)
+    // Tipos: s (string), i (int), d (double), b (blob)
+    // m2_cantidad es double 'd', habitantes puede ser int pero 's' es seguro.
+    // Asumiremos 's' para todo salvo m2.
+    mysqli_stmt_bind_param($stmt, "ssssssssssssssssssssssds", 
+        $nombre, $ocupacion, $habitantes, $seguridad, $trabajo_en_casa, $salud, $telefono, $email, $direccion, 
+        $fobias, $intereses, $rutinas, $pasatiempos, $visitas, $detalles_visitas, $vehiculos, $mascotas, 
+        $aprendizaje, $negocio, $muebles, $detalles_casa, $turnoSeleccionado, $m2_cant, $tipo_proj
+    );
 
     mysqli_stmt_execute($stmt);
 
     if (mysqli_stmt_affected_rows($stmt) > 0) {
         $config = require('./config.php');
+        $presupuestoId = mysqli_insert_id($conexion);
         
-        // Formatear la fecha del turno para mostrarla más amigable
+        // Formatear la fecha del turno
         $fecha_turno = new DateTime($turnoSeleccionado);
         $fecha_formateada = $fecha_turno->format('d/m/Y H:i');
+
+        // Generar PDF con datos básicos y cotización
+        $pdfPath = __DIR__ . "/tmp/Presupuesto_" . $presupuestoId . ".pdf";
+        require_once('./fpdf186/fpdf.php');
+        if (!is_dir(__DIR__ . '/tmp')) {
+            mkdir(__DIR__ . '/tmp', 0775, true);
+        }
+        $pdf = new FPDF();
+        $pdf->AddPage();
+        $pdf->SetMargins(10, 10, 10);
+        $pdf->Image('logo.png', 10, 10, 30);
+        $pdf->Ln(20);
+        $pdf->SetFont('Arial', 'B', 20);
+        $pdf->Cell(0, 10, utf8_decode('Presupuesto de Referencia: ' . $presupuestoId), 0, 1, 'C');
+        $pdf->Ln(10);
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(0, 10, utf8_decode('Datos del Cliente'), 0, 1, 'L');
+        $pdf->SetFont('Arial', '', 9);
+        $fields = [
+            'Nombre' => $nombre,
+            'Telefono' => $telefono,
+            'Email' => $email,
+            'Direccion' => $direccion,
+            'Metros Cuadrados' => $m2_cant,
+            'Tipo de Proyecto' => $tipo_proj,
+            'Fecha Turno' => $fecha_formateada
+        ];
+        foreach ($fields as $label => $value) {
+            $pdf->Cell(50, 8, utf8_decode($label), 1, 0, 'L');
+            $pdf->Cell(100, 8, utf8_decode($value), 1, 1, 'L');
+        }
+        $pdf->Ln(10);
+        $pdf->Output('F', $pdfPath);
+
+        // Fetch dynamic items for email (as calculated in the form)
+        $sql_items_db = "SELECT * FROM cotizacion_items ORDER BY orden ASC";
+        $res_items_db = mysqli_query($conexion, $sql_items_db);
+        
+        $sql_conf_db = "SELECT * FROM cotizacion_config WHERE clave = 'm2_base'";
+        $res_conf_db = mysqli_query($conexion, $sql_conf_db);
+        $conf_db = mysqli_fetch_assoc($res_conf_db);
+        
+        // Calcular precio base del m2 inflado con MO base
+        $mo_base_percent = $conf_db['porcentaje_mo'] ?? 0;
+        $raw_price = $conf_db['valor_' . $tipo_proj] ?? $conf_db['valor_unifamiliar'];
+        $price_m2_type = $raw_price * (1 + $mo_base_percent/100);
+
+        $grandTotal = 0;
+        $html_table_rows = "";
+        
+        // Agregar filas informativas de precios base (Items 1-3)
+        // No suman al total, solo informativo
+        $prices_base = [
+            '1' => ['desc' => 'Precio Base: Vivienda Unifamiliar', 'price' => $conf_db['valor_unifamiliar'] * (1 + $mo_base_percent/100)],
+            '2' => ['desc' => 'Precio Base: Vivienda Colectiva', 'price' => $conf_db['valor_colectiva'] * (1 + $mo_base_percent/100)],
+            '3' => ['desc' => 'Precio Base: Quincho', 'price' => $conf_db['valor_quincho'] * (1 + $mo_base_percent/100)]
+        ];
+        
+        foreach($prices_base as $idx => $pb) {
+             $html_table_rows .= "<tr>
+                <td>$idx</td>
+                <td>{$pb['desc']}</td>
+                <td style='text-align:center'>m²</td>
+                <td style='text-align:center'>1</td>
+                <td style='text-align:right'>$" . number_format($pb['price'], 0, ',', '.') . "</td>
+                <td style='text-align:right'>$" . number_format($pb['price'], 0, ',', '.') . "</td>
+            </tr>";
+        }
+        
+        // Items dinámicos (4 en adelante)
+        $i = 4;
+        while($item = mysqli_fetch_assoc($res_items_db)) {
+            $desc = $item['descripcion'];
+            $unid = $item['unidad'];
+            $price = floatval($item['precio_unitario']);
+            $cant = floatval($item['cantidad']);
+            $mo_item_percent = floatval($item['porcentaje_mo'] ?? 0);
+
+            if (strtolower($unid) === 'm2' || strtolower($unid) === 'm²') {
+                $cant = $m2_cant;
+                $price = $price_m2_type;
+            }
+
+            // Calculo: (Precio * Cantidad) * (1 + %Item)
+            $subtotal = $price * $cant;
+            $total = $subtotal * (1 + $mo_item_percent/100);
+            
+            $grandTotal += $total;
+
+            $html_table_rows .= "<tr>
+                <td>$i</td>
+                <td>$desc</td>
+                <td style='text-align:center'>$unid</td>
+                <td style='text-align:center'>$cant</td>
+                <td style='text-align:right'>$" . number_format($price, 0, ',', '.') . "</td>
+                <td style='text-align:right'>$" . number_format($total, 0, ',', '.') . "</td>
+            </tr>";
+            $i++;
+        }
+        
+        $obs1 = "Para empezar el trabajo se pide abonar el 50% del ITEM DISEÑO DE PLANOS, luego el 30% una vez presentado todos los planos para la firma del comitente, y la cancelación del mismo una vez se entrega la carpeta aprobada por la municipalidad.";
+        $obs2 = "Los precios son variables, se rendirán con boleta, los precios son estimativos.";
+        $obs3 = "El presupuesto no incluye la DIRECCIÓN TÉCNICA, pero sí visitas periódicas mensuales.";
         
         $mail = new PHPMailer(true);
 
         try {
-            // Configuración del servidor SMTP
+            // Configuración del servidor SMTP (usando config.php)
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
@@ -79,41 +197,69 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Remitente y destinatario
             $mail->setFrom($config['from_email'], 'Mat Construcciones');
             $mail->addAddress($email, $nombre);
+            
+            if (file_exists($pdfPath)) {
+                $mail->addAttachment($pdfPath, 'Presupuesto_MatConstrucciones.pdf');
+            }
 
-            // Contenido del correo
             $mail->isHTML(true);
-            $mail->Subject = 'Confirmación de presupuesto - Mat Construcciones';
+            $mail->Subject = 'Tu Cotización - Mat Construcciones';
             $mail->Body = "
             <html>
             <head>
             <style>
                 body { font-family: Arial, sans-serif; line-height: 1.6; }
-                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                .header { background-color: #8a2be2; color: white; padding: 20px; text-align: center; }
-                .content { padding: 20px; background-color: #f9f9f9; }
+                .container { max-width: 700px; margin: 0 auto; padding: 20px; }
+                .header { background-color: #8a2be2; color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+                .content { padding: 20px; background-color: #f9f9f9; border: 1px solid #eee; border-radius: 0 0 10px 10px; }
                 .footer { text-align: center; padding: 20px; color: #666; }
+                table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+                th, td { border: 1px solid #ececec; padding: 8px; font-size: 13px; text-align: left; }
+                th { background: #8a2be2; color: #fff; text-transform: uppercase; font-size: 12px; }
             </style>
             </head>
             <body>
             <div class='container'>
                 <div class='header'>
-                    <h2>¡Gracias por contactarnos!</h2>
+                    <h2>Presupuesto de Referencia</h2>
                 </div>
                 <div class='content'>
-                    <p>Estimado/a <strong>$nombre</strong>,</p>
-                    <p>Hemos recibido tu solicitud de presupuesto exitosamente.</p>
-                    <p><strong>Fecha y hora de tu cita:</strong> $fecha_formateada</p>
-                    <p>Por favor, asegúrate de estar disponible en la fecha y hora programada.</p>
-                    <p>Nos pondremos en contacto contigo pronto para discutir los detalles de tu proyecto.</p>
+                    <p>Hola <strong>$nombre</strong>,</p>
+                    <p>Adjuntamos la cotización de referencia para tu proyecto <strong>" . ucfirst($tipo_proj) . "</strong> de aproximadamente <strong>$m2_cant m²</strong>.</p>
+                    <p><strong>Cita Programada:</strong> $fecha_formateada</p>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ITEM</th><th>DESCRIPCIÓN</th><th>UNID.</th><th>CANT.</th><th>UNITARIO</th><th>TOTAL M.O.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            $html_table_rows
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan='5' style='text-align:right'><strong>Total M.O.</strong></td>
+                                <td style='text-align:right'><strong>$" . number_format($grandTotal, 0, ',', '.') . "</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <p style='font-size: 12px; color: #555;'>$obs1</p>
+                    <p style='font-size: 12px; font-weight: bold;'>$obs2</p>
+                    <p style='font-size: 12px; color: #555;'>$obs3</p>
                 </div>
                 <div class='footer'>
-                    <p>Saludos cordiales,<br>Equipo de Mat Construcciones</p>
+                    <p>Atentamente,<br>Mat Construcciones</p>
                 </div>
             </div>
             </body>
             </html>";
 
             $mail->send();
+            if (file_exists($pdfPath)) {
+                @unlink($pdfPath);
+            }
 
             header('Location: enviar_presupuesto.php?success=1');
             exit();
@@ -288,17 +434,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             padding: 20px;
             background: #f8f9fa;
             border-radius: 6px;
+            border: 1px solid #e6e6e6;
         }
 
         .observaciones h3 {
             color: #333;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
+            letter-spacing: 0.3px;
         }
 
         .observaciones p {
-            margin-bottom: 10px;
-            line-height: 1.5;
+            margin-bottom: 8px;
+            line-height: 1.45;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .observaciones .nota-variable {
+            color: #333;
+            font-weight: 700;
+            font-size: 0.97em;
+        }
+
+        .observaciones .nota-legal {
             color: #666;
+            font-size: 0.9em;
         }
 
         .boton-inicio {
@@ -442,7 +602,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <p>Estructura, Eléctrico, Sanitario y Gas</p>
             </div>
 
-            <table border="1" cellpadding="5" cellspacing="0">
+            <?php
+            // Obtener configuración de m2
+            $sql_conf = "SELECT * FROM cotizacion_config WHERE clave = 'm2_base'";
+            $res_conf = mysqli_query($conexion, $sql_conf);
+            $conf_m2 = mysqli_fetch_assoc($res_conf);
+
+            // Obtener ítems
+            $sql_items = "SELECT * FROM cotizacion_items ORDER BY orden ASC";
+            $res_items = mysqli_query($conexion, $sql_items);
+            $items = [];
+            $total_mo = 0;
+            while($row = mysqli_fetch_assoc($res_items)) {
+                $items[] = $row;
+            }
+            ?>
+
+            <?php
+            // Capturar valores iniciales si vienen de una pantalla anterior
+            $m2_inicial = isset($_REQUEST['m2']) ? floatval($_REQUEST['m2']) : 1;
+            // El tipo de vivienda puede venir como texto o value
+            $tipo_inicial = isset($_REQUEST['tipo']) ? $_REQUEST['tipo'] : 'unifamiliar'; 
+            ?>
+
+            <!-- SECCIÓN OCULTA ELIMINADA: Los inputs ahora están en el formulario de abajo y son visibles/editables -->
+
+            <table border="1" cellpadding="5" cellspacing="0" id="tabla_cotizacion">
                 <thead>
                     <tr>
                         <th>ITEM</th>
@@ -454,30 +639,128 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td>1</td><td>DISEÑO DE PLANOS</td><td>Global</td><td>1</td><td>$1.000.000</td><td>$1.000.000</td></tr>
-                    <tr><td>2</td><td>PLOTEO DE PLANOS</td><td>Global</td><td>1</td><td>$60.000</td><td>$60.000</td></tr>
-                    <tr><td>3</td><td>FICHA PARCELAREA</td><td>Un</td><td>1</td><td>$5.000</td><td>$5.000</td></tr>
-                    <tr><td>4</td><td>CERTIFICADO ÚNICO</td><td>Un</td><td>1</td><td>$15.000</td><td>$15.000</td></tr>
-                    <tr><td>5</td><td>SELLADO COL. TÉCNICOS</td><td>Un</td><td>1</td><td>$150.000</td><td>$150.000</td></tr>
-                    <tr><td>7</td><td>DERECHO DE CONSTRUCCIÓN</td><td>m²</td><td>1</td><td>$300.000</td><td>$300.000</td></tr>
-                    <tr><td>8</td><td>PAGO DE SELLADO, NOTA DE INGRESO</td><td>Un</td><td>1</td><td>$5.000</td><td>$5.000</td></tr>
-                    <tr><td>9</td><td>PAGO DE SELLADO, PLANOS MUN.</td><td>Un</td><td>1</td><td>$10.000</td><td>$10.000</td></tr>
-                    <tr><td>10</td><td>PLOTEO CARTEL DE OBRA</td><td>Un</td><td>1</td><td>$40.000</td><td>$40.000</td></tr>
+                    <?php
+                    // Recalcular precios con MO base para mostrar en tabla
+                    $mo_base = $conf_m2['porcentaje_mo'] ?? 0;
+                    $precio_unif_show = $conf_m2['valor_unifamiliar'] * (1 + $mo_base/100);
+                    $precio_cole_show = $conf_m2['valor_colectiva'] * (1 + $mo_base/100);
+                    $precio_quin_show = $conf_m2['valor_quincho'] * (1 + $mo_base/100);
+                    ?>
+                    <!-- Filas informativas de precios base por m² (Items 1-3) -->
+                    <tr style="background-color: #f9f9f9;">
+                        <td>1</td>
+                        <td>Precio Base: Vivienda Unifamiliar</td>
+                        <td>m²</td>
+                        <td>1</td>
+                        <td>$<?php echo number_format($precio_unif_show, 0, ',', '.'); ?></td>
+                        <td>$<?php echo number_format($precio_unif_show, 0, ',', '.'); ?></td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td>2</td>
+                        <td>Precio Base: Vivienda Colectiva</td>
+                        <td>m²</td>
+                        <td>1</td>
+                        <td>$<?php echo number_format($precio_cole_show, 0, ',', '.'); ?></td>
+                        <td>$<?php echo number_format($precio_cole_show, 0, ',', '.'); ?></td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td>3</td>
+                        <td>Precio Base: Quincho</td>
+                        <td>m²</td>
+                        <td>1</td>
+                        <td>$<?php echo number_format($precio_quin_show, 0, ',', '.'); ?></td>
+                        <td>$<?php echo number_format($precio_quin_show, 0, ',', '.'); ?></td>
+                    </tr>
+
+                    <?php 
+                    $i = 4; // Comenzamos enumeración desde 4
+                    foreach ($items as $item): 
+                    ?>
+                    <tr data-item-num="<?php echo $i; ?>" 
+                        data-base-price="<?php echo $item['precio_unitario']; ?>" 
+                        data-unit="<?php echo $item['unidad']; ?>"
+                        data-base-cant="<?php echo $item['cantidad']; ?>"
+                        data-mo-percent="<?php echo $item['porcentaje_mo'] ?? 0; ?>">
+                        <td><?php echo $i; ?></td>
+                        <td><?php echo $item['descripcion']; ?></td>
+                        <td><?php echo $item['unidad']; ?></td>
+                        <td class="cant-cell"><?php echo $item['cantidad']; ?></td>
+                        <td class="unit-cell">$<?php echo number_format($item['precio_unitario'], 0, ',', '.'); ?></td>
+                        <td class="total-cell">$<?php echo number_format(($item['precio_unitario'] * $item['cantidad']) * (1 + ($item['porcentaje_mo'] ?? 0)/100), 0, ',', '.'); ?></td>
+                    </tr>
+                    <?php 
+                    $i++;
+                    endforeach; 
+                    ?>
                 </tbody>
                 <tfoot>
-                    <tr>
-                        <td colspan="5"><strong>Total M.O.</strong></td>
-                        <td><strong>$1.585.000</strong></td>
+                    <tr style="background-color: #f3e5f5;">
+                        <td colspan="5" style="text-align: right; font-size: 1.1em;"><strong>TOTAL M.O.</strong>:</td>
+                        <td id="total_mo_display" style="font-size: 1.2em; color: #8a2be2;"><strong>$0</strong></td>
                     </tr>
                 </tfoot>
             </table>
 
             <div class="observaciones">
                 <h3>OBSERVACIONES</h3>
-                <p>Para empezar el trabajo se pide abonar el 50% del ITEM DISEÑO DE PLANOS, luego el 30% una vez presentado todos los planos para la firma del comitente, y la cancelación del mismo una vez se entrega la carpeta aprobada por la municipalidad.</p>
-                <p>Los precios de item 2 a 10 son variables, se rendirán con boleta, los precios son estimativos.</p>
-                <p>El presupuesto no incluye la <strong>DIRECCIÓN TÉCNICA</strong>, pero sí visitas periódicas mensuales.</p>
+                <p class="nota-legal">Para empezar el trabajo se pide abonar el 50% del ITEM DISEÑO DE PLANOS, luego el 30% una vez presentado todos los planos para la firma del comitente, y la cancelación del mismo una vez se entrega la carpeta aprobada por la municipalidad.</p>
+                <p class="nota-variable">Los precios de item 2 a 10 son variables, se rendirán con boleta, los precios son estimativos.</p>
+                <p class="nota-legal">El presupuesto no incluye la <strong>DIRECCIÓN TÉCNICA</strong>, pero sí visitas periódicas mensuales.</p>
             </div>
+
+            <script>
+            function updateTable() {
+                const m2Input = document.getElementById('m2_input');
+                const typeSelect = document.getElementById('tipo_vivienda');
+                
+                const m2 = parseFloat(m2Input.value) || 0;
+                const typeText = typeSelect.options[typeSelect.selectedIndex].text;
+                const typeValue = typeSelect.value;
+                const m2Price = parseFloat(typeSelect.options[typeSelect.selectedIndex].getAttribute('data-price'));
+                
+                let sumTotal = 0;
+
+                // Solo sumamos las filas dinámicas (Items 4 en adelante)
+                document.querySelectorAll('#tabla_cotizacion tbody tr[data-base-price]').forEach(row => {
+                    const unit = row.getAttribute('data-unit').toLowerCase();
+                    let price = parseFloat(row.getAttribute('data-base-price'));
+                    let cant = parseFloat(row.getAttribute('data-base-cant'));
+                    let moPercent = parseFloat(row.getAttribute('data-mo-percent')) || 0;
+
+                    // Si la unidad es m2 o el item depende de m2
+                    if (unit === 'm2' || unit === 'm²') {
+                        cant = m2;
+                        price = m2Price; 
+                    }
+
+                    // Calculo: (Precio * Cantidad) + Porcentaje MO
+                    // Interpretación: El porcentaje es sobre el subtotal del ítem
+                    let subtotal = price * cant;
+                    let total = subtotal * (1 + (moPercent / 100));
+                    
+                    sumTotal += total;
+
+                    row.querySelector('.cant-cell').innerText = cant;
+                    row.querySelector('.unit-cell').innerText = '$' + price.toLocaleString('es-AR');
+                    row.querySelector('.total-cell').innerText = '$' + total.toLocaleString('es-AR', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+                });
+
+                document.getElementById('total_mo_display').innerHTML = '<strong>$' + sumTotal.toLocaleString('es-AR', {minimumFractionDigits: 0, maximumFractionDigits: 0}) + '</strong>';
+                
+                // --- SINCRONIZACIÓN CON EL FORMULARIO ---
+                // Campos ocultos para el POST
+                if(document.getElementById('hidden_m2')) document.getElementById('hidden_m2').value = m2;
+                if(document.getElementById('hidden_tipo')) document.getElementById('hidden_tipo').value = typeValue;
+                
+                // Campos visibles de solo lectura para confirmación del usuario
+                /* if(document.getElementById('display_m2')) document.getElementById('display_m2').value = m2;
+                if(document.getElementById('display_tipo')) document.getElementById('display_tipo').value = typeText; */
+            }
+
+            document.getElementById('m2_input').addEventListener('input', updateTable);
+            document.getElementById('tipo_vivienda').addEventListener('change', updateTable);
+            window.addEventListener('load', updateTable);
+            </script>
         </section>
 
         <section id="presupuesto-form">
@@ -496,25 +779,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <b>Recordá que también debés agendar un turno para la cita.</b>
                 </div>
                 <form action="enviar_presupuesto.php" method="post">
+                <input type="hidden" name="m2_cantidad" id="hidden_m2">
+                <input type="hidden" name="tipo_proyecto" id="hidden_tipo">
+                <div class="form-row-summary" style="display: flex; gap: 20px; margin-bottom: 20px; background: #f0f0f0; padding: 15px; border-radius: 8px;">
+                    <div style="flex: 1;">
+                        <label for="m2_input" style="font-weight: bold; color: #555;">Metros Cuadrados (m²):</label>
+                        <input type="number" id="m2_input" name="m2_cantidad" value="<?php echo $m2_inicial; ?>" min="1" style="border: 1px solid #ced4da; font-weight: bold; width: 100%; padding: 8px; border-radius: 4px;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="tipo_vivienda" style="font-weight: bold; color: #555;">Tipo de Vivienda Cotizada:</label>
+                        <select id="tipo_vivienda" name="tipo_proyecto" style="border: 1px solid #ced4da; font-weight: bold; width: 100%; padding: 8px; border-radius: 4px;">
+                            <?php
+                            $mo_base = $conf_m2['porcentaje_mo'] ?? 0;
+                            $precio_unif = $conf_m2['valor_unifamiliar'] * (1 + $mo_base/100);
+                            $precio_cole = $conf_m2['valor_colectiva'] * (1 + $mo_base/100);
+                            $precio_quin = $conf_m2['valor_quincho'] * (1 + $mo_base/100);
+
+                            $tipos = [
+                                'unifamiliar' => ['label' => 'Unifamiliar', 'price' => $precio_unif],
+                                'colectiva' => ['label' => 'Vivienda Colectiva', 'price' => $precio_cole],
+                                'quincho' => ['label' => 'Quincho', 'price' => $precio_quin]
+                            ];
+                            foreach ($tipos as $val => $data) {
+                                $selected = ($val == $tipo_inicial) ? 'selected' : '';
+                                echo '<option value="' . $val . '" data-price="' . $data['price'] . '" ' . $selected . '>' . $data['label'] . '</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
+                </div>
+
                 <label for="nombre">Apellido y Nombre:</label>
                 <input type="text" id="nombre" name="nombre" required>
 
-                <label for="ocupacion">¿Cuál es su ocupación?</label>
-                <textarea id="ocupacion" name="ocupacion" rows="2" required></textarea>
-
-                <label for="habitantes">¿Cuántas personas ocupan la casa?</label>
-                <textarea id="habitantes" name="habitantes" rows="2" required></textarea>
-
-                <label for="seguridad">¿Cuál es el tiempo habitual de permanencia en su casa? (Seguridad)</label>
-                <textarea id="seguridad" name="seguridad" rows="2" required></textarea>
-
-                <label for="trabajo_en_casa">¿En qué espacio prefiere trabajar cuando está en su casa y cuánto tiempo lo hace en promedio al día? ¿Cómo sería su espacio de trabajo ideal?</label>
-                <textarea id="trabajo_en_casa" name="trabajo_en_casa" rows="4" required></textarea>
-
-                <label for="salud">¿Algún miembro o allegado tiene alguna discapacidad?</label>
-                <textarea id="salud" name="salud" rows="2" required></textarea>
-                
-                <!-- Nuevos campos -->
                 <label for="telefono">Teléfono:</label>
                 <input type="text" id="telefono" name="telefono" required>
 
@@ -524,53 +821,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <label for="direccion">Dirección:</label>
                 <input type="text" id="direccion" name="direccion" required>
 
-                <label for="fobias">¿Tiene alguna fobia?</label>
-                <input type="text" id="fobias" name="fobias">
-
-                <label for="intereses">En base a su experiencia o instancia en otras casas. ¿Qué cosas le molestan? ¿Hay cosas que le sean de mucho interés en su casa? (me molesta: Espacios muy chicos, pasillos largos, techos bajos etc. Me interesa: ventanas grandes, espacio para mis plantas, etc)</label>
-                <textarea id="intereses" name="intereses" rows="4"></textarea>
-
-
-                <label for="rutinas">¿Qué actividad realiza desde que se levanta a la mañana hasta que se acuesta por la noche? (ej. Desayunar. Trabajar en casa. Hacer ejercicios en casa. Salir siempre por las tardes. etc)</label>
-                <textarea id="rutinas" name="rutinas" rows="4"></textarea>
-
-                <label for="pasatiempos">¿Tiene pasatiempos? ¿Cuáles?</label>
-                <input type="text" id="pasatiempos" name="pasatiempos">
-
-
-                <label for="visitas">¿Recibe con frecuencia visitas? (diarias/eventuales)</label>
-                <select id="visitas" name="visitas">
-                    <option value="Diarias">Diarias</option>
-                    <option value="Eventuales">Eventuales</option>
-                    <option value="No">No</option>
-                </select>
-
-                <label for="detalles_visitas">Detalles (Terminaciones y pedidos especiales) Ej. Espacio para que duerman mis 5 perros.</label>
-                <textarea id="detalles_visitas" name="detalles_visitas" rows="4"></textarea>
-
-
-                <label for="vehiculos">¿Cuántos vehículos posee? ¿Planea adquirir otro? ¿Cuáles?</label>
-                <textarea id="vehiculos" name="vehiculos" rows="2"></textarea>
-
-
-                <label for="mascotas">¿Tiene o planea tener mascotas? ¿De qué tipo?</label>
-                <input type="text" id="mascotas" name="mascotas">
-
-
-                <label for="aprendizaje">¿Qué le gustaría aprender? (ej, me gustaría aprender a reparar mi auto)</label>
-                <input type="text" id="aprendizaje" name="aprendizaje">
-
-
-                <label for="negocio">¿Le gustaría anexar algún negocio a su vivienda? Ej. Haré dptos. para alquilar. Pondré una despensa. etc</label>
-                <textarea id="negocio" name="negocio" rows="2"></textarea>
-
-
-                <label for="muebles">¿Tiene algún mueble o algo que tenga pensado implementar en la casa? (ej, tengo un mueble de roble original que heredé de mi abuela de medida 1m x 0.60m que quiero que entre en mi living.)</label>
-                <textarea id="muebles" name="muebles" rows="4"></textarea>
-
-
-                <label for="detalles_casa">¿Qué clase de detalles le gustan? Ejemplo: Jacuzzi, Luces dicroicas, molduras en las puertas. etc</label>
-                <input type="text" id="detalles_casa" name="detalles_casa">
                 <label for="turno">Seleccione un turno para la cita:</label>
                 <select id="turno" name="turno">
                     <?php if (!empty($turnosDisponibles)) : ?>

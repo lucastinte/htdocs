@@ -11,46 +11,39 @@ if (!isset($_SESSION['usuario'])) {
 // Verifica si se ha enviado el formulario
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $id_presupuesto = $_POST['id_presupuesto'];
-    $tipo_cocina = $_POST['tipo_cocina'];
-    $tipo_bano = $_POST['tipo_bano'];
-    $tipo_dormitorio_principal = $_POST['tipo_dormitorio_principal'];
-    $tipo_dormitorio_secundario = $_POST['tipo_dormitorio_secundario'];
-    $tipo_comedor = $_POST['tipo_comedor'];
-    $tipo_estar = $_POST['tipo_estar'];
-    $tipo_patio_servicio = $_POST['tipo_patio_servicio'];
-    $tipo_plantas = $_POST['tipo_plantas'];
-    $tipo_escalera = $_POST['tipo_escalera'];
-    $cantidad_habitantes = $_POST['cantidad_habitantes'];
-    $capacidad_quincho = $_POST['capacidad_quincho'];
-    $otros_ambientes = $_POST['otros_ambientes'];
-    $tipo_cochera = $_POST['tipo_cochera'];
+    $ocupacion = $_POST['ocupacion'];
+    $habitantes = $_POST['habitantes'];
+    $seguridad = $_POST['seguridad'];
+    $trabajo_en_casa = $_POST['trabajo_en_casa'];
+    $salud = $_POST['salud'];
+    $fobias = $_POST['fobias'];
+    $intereses = $_POST['intereses'];
+    $rutinas = $_POST['rutinas'];
+    $pasatiempos = $_POST['pasatiempos'];
+    $visitas = $_POST['visitas'];
+    $detalles_visitas = $_POST['detalles_visitas'];
+    $vehiculos = $_POST['vehiculos'];
+    $mascotas = $_POST['mascotas'];
+    $aprendizaje = $_POST['aprendizaje'];
+    $negocio = $_POST['negocio'];
+    $muebles = $_POST['muebles'];
+    $detalles_casa = $_POST['detalles_casa'];
 
-    // Consulta para insertar en la base de datos
-    $insert_query = "INSERT INTO primera_encuesta (id_presupuesto, tipo_cocina, tipo_bano, tipo_dormitorio_principal, tipo_dormitorio_secundario, tipo_comedor, tipo_estar, tipo_patio_servicio, tipo_plantas, tipo_escalera, cantidad_habitantes, capacidad_quincho, otros_ambientes, tipo_cochera) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    // Consulta para insertar en la nueva tabla primera_encuesta_new
+    $insert_query = "INSERT INTO primera_encuesta_new (id_presupuesto, ocupacion, habitantes, seguridad, trabajo_en_casa, salud, fobias, intereses, rutinas, pasatiempos, visitas, detalles_visitas, vehiculos, mascotas, aprendizaje, negocio, muebles, detalles_casa) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = mysqli_prepare($conexion, $insert_query);
 
-    // Asegurarse de que el número de variables coincida con la cantidad de marcadores de posición
-    mysqli_stmt_bind_param($stmt, "issssssssssiis", $id_presupuesto, $tipo_cocina, $tipo_bano, $tipo_dormitorio_principal, $tipo_dormitorio_secundario, $tipo_comedor, $tipo_estar, $tipo_patio_servicio, $tipo_plantas, $tipo_escalera, $cantidad_habitantes, $capacidad_quincho, $otros_ambientes, $tipo_cochera);
-
+    mysqli_stmt_bind_param($stmt, "isssssssssssssssss", $id_presupuesto, $ocupacion, $habitantes, $seguridad, $trabajo_en_casa, $salud, $fobias, $intereses, $rutinas, $pasatiempos, $visitas, $detalles_visitas, $vehiculos, $mascotas, $aprendizaje, $negocio, $muebles, $detalles_casa);
 
     if (mysqli_stmt_execute($stmt)) {
-        // Actualizar el campo entrevista_completada en la tabla presupuestos
-        $update_query = "UPDATE presupuestos SET entrevista_completada = TRUE WHERE id = ?";
-        $stmt_update = mysqli_prepare($conexion, $update_query);
-        mysqli_stmt_bind_param($stmt_update, "i", $id_presupuesto);
-        mysqli_stmt_execute($stmt_update);
-        mysqli_stmt_close($stmt_update);
-    
-        // Redirigir a la segunda encuesta
+        // Redirigir a la segunda encuesta (ambientes)
         header("Location: segunda_encuesta.php?id=$id_presupuesto");
-        exit(); // Asegurarse de que el script se detenga aquí
+        exit();
     } else {
-        // Mostrar un mensaje de error
         echo "<p>Error al guardar los datos: " . mysqli_error($conexion) . "</p>";
     }
     
-
     mysqli_stmt_close($stmt);
     mysqli_close($conexion);
 }
@@ -69,139 +62,96 @@ if (isset($_GET['id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Segunda Encuesta</title>
-    <link rel="stylesheet" href="usuarioform.css"> 
+    <title>Entrevista - Paso 1</title>
+    <link rel="stylesheet" href="premium_forms.css"> 
 </head>
 <body>
 <header>
     <div class="container">
-         <div class="user-badge">
-          <?php if (isset($_SESSION['usuario'])): ?>
-           <p class="logo"> <span class="user-icon">&#128100;</span> <?php echo htmlspecialchars($_SESSION['usuario']); ?></p>
-          <?php endif; ?>
-        </div>
-        <nav>
-            <a href="presupuestos.php"> <button>Volver a Gestión de Cuestionarios</button></a> 
-        </nav>
+        <nav><a href="presupuestos.php"><button>Volver</button></a></nav>
     </div>
 </header>
 <section id="presupuestos"> 
-
-<h2>Continuación de la Entrevista</h2>
-<p>ID de presupuesto: <?php echo $id_presupuesto; ?></p>
-
-<form action="continuar_entrevista.php" method="post">
-    <input type="hidden" name="id_presupuesto" value="<?php echo $id_presupuesto; ?>">
-
-    <h3>Ambientes</h3>
-    <div class="form-group"> 
-        <label for="tipo_cocina">Tipo de cocina:</label>
-        <select id="tipo_cocina" name="tipo_cocina">
-            <option value="simple">Simple</option>
-            <option value="con_isla">Con isla</option>
-            <option value="con_comedor">Con comedor</option>
-            <option value="con_desayunador">Con desayunador</option>
-        </select>
-    </div>
-
-    <div class="form-group"> 
-        <label for="tipo_bano">Tipo de baño:</label>
-        <select id="tipo_bano" name="tipo_bano">
-            <option value="simple">Simple</option>
-            <option value="con_antebano">Con antebaño</option>
-        </select>
-    </div>
-
-    <div class="form-group"> 
-        <label for="tipo_dormitorio_principal">Tipo de dormitorio principal:</label>
-        <select id="tipo_dormitorio_principal" name="tipo_dormitorio_principal">
-            <option value="simple">Simple</option>
-            <option value="con_bano">Con baño</option>
-            <option value="con_vestidor">Con vestidor</option>
-            <option value="con_bano_y_vestidor">Con baño y vestidor</option>
-        </select>
-    </div>
-
-    <div class="form-group"> 
-        <label for="tipo_dormitorio_secundario">Tipo de dormitorio secundario:</label>
-        <select id="tipo_dormitorio_secundario" name="tipo_dormitorio_secundario">
-            <option value="simple">Simple</option>
-            <option value="con_bano">Con baño</option>
-            <option value="con_placard">Con placard</option>
-        </select>
-    </div>
-
-    <div class="form-group"> 
-        <label for="tipo_comedor">Tipo de comedor:</label>
-        <select id="tipo_comedor" name="tipo_comedor">
-            <option value="simple">Simple</option>
-            <option value="integrado">Integrado</option>
-        </select>
-    </div>
-
-    <div class="form-group"> 
-        <label for="tipo_estar">Tipo de estar:</label>
-        <select id="tipo_estar" name="tipo_estar">
-            <option value="simple">Simple</option>
-            <option value="integrado">Integrado</option>
-            <option value="con_hogar">Con hogar</option>
-        </select>
-    </div>
-
-    <div class="form-group"> 
-        <label for="tipo_patio_servicio">Tipo de patio de servicio:</label>
-        <select id="tipo_patio_servicio" name="tipo_patio_servicio">
-            <option value="simple">Simple</option>
-            <option value="con_lavadero">Con lavadero</option>
-            <option value="con_deposito">Con depósito</option>
-        </select>
-    </div>
-
-    <div class="form-group"> 
-        <label for="tipo_plantas">Tipo de plantas:</label>
-        <select id="tipo_plantas" name="tipo_plantas">
-            <option value="ninguna">Ninguna</option>
-            <option value="interior">Interior</option>
-            <option value="exterior">Exterior</optionz>
-            </select>
-    </div>
-
-    <div class="form-group"> 
-        <label for="tipo_escalera">Tipo de escalera:</label>
-        <select id="tipo_escalera" name="tipo_escalera">
-            <option value="ninguna">Ninguna</option>
-            <option value="interior">Interior</option>
-            <option value="exterior">Exterior</option>
-        </select>
-    </div>
-
-    <div class="form-group"> 
-        <label for="cantidad_habitantes">Cantidad de habitantes:</label>
-        <input type="number" id="cantidad_habitantes" name="cantidad_habitantes">
-    </div>
-
-    <div class="form-group"> 
-        <label for="capacidad_quincho">Capacidad del quincho:</label>
-        <input type="number" id="capacidad_quincho" name="capacidad_quincho">
-    </div>
-
-    <div class="form-group"> 
-        <label for="otros_ambientes">Otros ambientes:</label>
-        <textarea id="otros_ambientes" name="otros_ambientes"></textarea>
-    </div>
-
-    <div class="form-group"> 
-        <label for="tipo_cochera">Tipo de cochera:</label>
-        <select id="tipo_cochera" name="tipo_cochera">
-            <option value="ninguna">Ninguna</option>
-            <option value="simple">Simple</option>
-            <option value="doble">Doble</option>
-            <option value="galeria">Galería</option>
-        </select>
-    </div>
-
-    <button type="submit">Ir a la Segunda Encuesta</button>
-</form>
-
+    <h2>Entrevista Personalizada (Paso 1)</h2>
+    <form action="continuar_entrevista.php" method="post">
+        <input type="hidden" name="id_presupuesto" value="<?php echo $id_presupuesto; ?>">
+        
+        <div class="form-grid">
+            <div class="form-group">
+                <label>¿Cuál es su ocupación?</label>
+                <textarea name="ocupacion" rows="2" required></textarea>
+            </div>
+            <div class="form-group">
+                <label>¿Cuántas personas ocupan la casa?</label>
+                <textarea name="habitantes" rows="2" required></textarea>
+            </div>
+            <div class="form-group">
+                <label>Permanencia en casa (Seguridad):</label>
+                <textarea name="seguridad" rows="2" required></textarea>
+            </div>
+            <div class="form-group">
+                <label>Espacio de trabajo ideal:</label>
+                <textarea name="trabajo_en_casa" rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+                <label>Discapacidades en el grupo familiar:</label>
+                <textarea name="salud" rows="2" required></textarea>
+            </div>
+            <div class="form-group">
+                <label>¿Tiene alguna fobia?</label>
+                <input type="text" name="fobias">
+            </div>
+            <div class="form-group full-width">
+                <label>Intereses y molestias (ventanas, techos, pasillos, etc):</label>
+                <textarea name="intereses" rows="3"></textarea>
+            </div>
+            <div class="form-group full-width">
+                <label>Rutinas diarias (Desde que amanece hasta que anochece):</label>
+                <textarea name="rutinas" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Pasatiempos:</label>
+                <input type="text" name="pasatiempos">
+            </div>
+            <div class="form-group">
+                <label>¿Recibe visitas?</label>
+                <select name="visitas">
+                    <option value="Diarias">Diarias</option>
+                    <option value="Eventuales">Eventuales</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+            <div class="form-group full-width">
+                <label>Detalles especiales (Ej: espacio para mascotas):</label>
+                <textarea name="detalles_visitas" rows="2"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Vehículos (actuales y futuros):</label>
+                <input type="text" name="vehiculos">
+            </div>
+            <div class="form-group">
+                <label>Mascotas:</label>
+                <input type="text" name="mascotas">
+            </div>
+            <div class="form-group">
+                <label>¿Qué le gustaría aprender?</label>
+                <input type="text" name="aprendizaje">
+            </div>
+            <div class="form-group">
+                <label>Negocio anexo a vivienda:</label>
+                <input type="text" name="negocio">
+            </div>
+            <div class="form-group full-width">
+                <label>Muebles especiales a contemplar:</label>
+                <textarea name="muebles" rows="2"></textarea>
+            </div>
+            <div class="form-group full-width">
+                <label>Detalles de gusto personal (Jacuzzi, luces, etc):</label>
+                <input type="text" name="detalles_casa">
+            </div>
+        </div>
+        <button type="submit" class="btn-primary">Siguiente: Ambientes</button>
+    </form>
+</section>
 </body>
 </html>

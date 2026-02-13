@@ -633,6 +633,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <link rel="stylesheet" href="modal-q.css">
     <script src="modal-q.js"></script>
+
+    <!-- Modal Q reutilizable -->
+    <div id="modal-q">
+      <div class="modal-content">
+        <h2 id="modal-q-title"></h2>
+        <p id="modal-q-msg"></p>
+        <button onclick="closeModalQ()">OK</button>
+      </div>
+    </div>
+
     <script>
     const projectPrices = <?php echo json_encode($project_prices); ?>;
 
@@ -709,10 +719,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <?php if (isset($_GET['success']) && $_GET['success'] == '1') { ?>
         showModalQ('¡El presupuesto ha sido enviado exitosamente!', false, function() {
-            setTimeout(function() {
-                window.location.href = 'index.php';
-            }, 2000);
+            window.location.href = 'index.php';
         }, '¡Éxito!');
+        // Redirigir automáticamente después de 3 segundos si no hacen clic en OK
+        setTimeout(function() {
+            closeModalQ();
+        }, 3000);
     <?php } elseif (isset($_GET['error']) && $_GET['error'] == '1') { ?>
         showModalQ('<?php echo isset($_SESSION['error_message']) ? $_SESSION['error_message'] : "Ha ocurrido un error al procesar su solicitud"; ?>', true, null, 'Error');
         <?php unset($_SESSION['error_message']); ?>

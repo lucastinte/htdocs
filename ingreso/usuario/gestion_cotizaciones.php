@@ -76,422 +76,209 @@ $res_items = mysqli_query($conexion, $sql);
     <title>Gestión de Cotizaciones</title>
     <link rel="stylesheet" href="usuarioform.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            background: #f5f5f5;
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding-bottom: 50px;
-        }
-        
-        header {
-            background: #2d3748 !important;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        
-        .container {
+        .management-section {
             max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo {
-            font-size: 1.5em;
-            font-weight: 700;
-            color: white;
-        }
-        
-        header button {
-            background: #e53e3e;
-            color: white;
-            border: none;
-            padding: 12px 28px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        header button:hover {
-            background: #c53030;
-            transform: translateY(-1px);
-        }
-        
-        .management-container {
-            max-width: 1200px;
-            margin: 40px auto;
+            margin: 30px auto;
             background: white;
-            padding: 50px;
-            border-radius: 16px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-        
-        h2 {
-            color: #2d3748;
-            margin-bottom: 35px;
-            font-size: 2em;
-            font-weight: 700;
-            border-bottom: 3px solid #8a2be2;
-            padding-bottom: 15px;
-        }
-        
         .config-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 25px;
-            margin-bottom: 50px;
-            padding: 35px;
-            background: #f9fafb;
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
         }
-        
         .config-item label {
             display: block;
-            margin-bottom: 10px;
-            font-weight: 700;
-            color: #4a5568;
-            font-size: 0.85em;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
         }
-        
         .config-item input {
             width: 100%;
-            padding: 14px 18px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            font-size: 1.05em;
-            font-weight: 600;
-            background: white;
-            color: #2d3748;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
-        
-        .config-item input:focus {
-            border-color: #8a2be2;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.1);
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 30px;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-        
-        thead {
-            background: #2d3748;
-        }
-        
-        th {
+        .btn-save {
+            background-color: #4CAF50;
             color: white;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 0.75em;
-            letter-spacing: 1px;
-            padding: 18px 16px;
-            text-align: center;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
         }
-        
-        tbody tr {
-            background: white;
-            transition: background 0.2s ease;
+        .btn-save:hover {
+            background-color: #45a049;
         }
-        
-        tbody tr:nth-child(even) {
-            background: #f9fafb;
-        }
-        
-        tbody tr:hover {
-            background: #f3f4f6;
-        }
-        
-        td {
-            padding: 18px 16px;
-            border-bottom: 1px solid #e5e7eb;
-            color: #2d3748;
-            font-weight: 500;
-            text-align: center;
-        }
-        
-        tbody tr:last-child td {
-            border-bottom: none;
-        }
-        
         .btn-add {
-            background: #8a2be2;
+            background-color: #4CAF50;
             color: white;
-            padding: 14px 28px;
+            padding: 10px 20px;
             border: none;
-            border-radius: 8px;
+            border-radius: 4px;
             cursor: pointer;
-            margin-bottom: 30px;
-            font-weight: 700;
-            font-size: 0.95em;
-            box-shadow: 0 4px 12px rgba(138, 43, 226, 0.3);
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            margin-bottom: 20px;
+            font-weight: bold;
         }
-        
-        .btn-add:hover {
-            background: #7928ca;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(138, 43, 226, 0.4);
-        }
-        
-        .actions {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-        
-        .actions button {
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 700;
-            transition: all 0.2s ease;
-            padding: 10px 18px;
-            font-size: 0.8em;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-        
         .btn-edit {
-            background: #ffc107;
-            color: #7c5e00;
-        }
-        
-        .btn-edit:hover {
-            background: #e0a800;
-            transform: translateY(-1px);
-        }
-        
-        .btn-delete {
-            background: #e53e3e;
+            background-color: #4CAF50;
             color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
-        
-        .btn-delete:hover {
-            background: #c53030;
-            transform: translateY(-1px);
+        .btn-delete {
+            background-color: #ff4d4d;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
-        
         .modal {
             display: none;
             position: fixed;
-            z-index: 2000;
+            z-index: 1;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
+            background-color: rgba(0,0,0,0.4);
             justify-content: center;
             align-items: center;
-            padding: 20px;
         }
-        
         .modal-content {
-            background: white;
-            padding: 45px;
-            border-radius: 12px;
+            background-color: #fefefe;
+            padding: 20px;
+            border: 1px solid #888;
             width: 100%;
-            max-width: 550px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: modalFadeIn 0.3s ease-out;
+            max-width: 500px;
+            border-radius: 8px;
         }
-        
-        @keyframes modalFadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .modal-content h3 {
-            color: #2d3748;
-            margin-top: 0;
-            margin-bottom: 30px;
-            font-size: 1.8em;
-            font-weight: 700;
-            text-align: center;
-            border-bottom: 3px solid #8a2be2;
-            padding-bottom: 12px;
-        }
-        
         .form-group-modal {
-            margin-bottom: 22px;
+            margin-bottom: 15px;
         }
-        
         .form-group-modal label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 700;
-            color: #4a5568;
-            font-size: 0.85em;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
-        
-        .modal-content input,
-        .modal-content select {
+        .form-group-modal input {
             width: 100%;
-            padding: 14px 18px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: all 0.3s ease;
-            background: #f9fafb;
-            color: #2d3748;
-            font-weight: 500;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
-        
-        .modal-content input:focus,
-        .modal-content select:focus {
-            outline: none;
-            border-color: #8a2be2;
-            box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.1);
-            background: white;
-        }
-        
         .modal-actions {
             display: flex;
-            gap: 15px;
-            margin-top: 35px;
+            gap: 10px;
+            margin-top: 20px;
         }
-        
         .modal-actions button {
             flex: 1;
-            padding: 16px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 1em;
+            padding: 10px;
+            border-radius: 4px;
             cursor: pointer;
-            transition: all 0.3s ease;
             border: none;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-weight: bold;
         }
-        
-        .btn-save {
-            background: #8a2be2;
-            color: white;
-            box-shadow: 0 4px 12px rgba(138, 43, 226, 0.3);
-        }
-        
-        .btn-save:hover {
-            background: #7928ca;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(138, 43, 226, 0.4);
-        }
-        
         .btn-cancel {
-            background: #e2e8f0;
-            color: #4a5568;
-        }
-        
-        .btn-cancel:hover {
-            background: #cbd5e0;
-            color: #2d3748;
+            background-color: #6c757d;
+            color: white;
         }
     </style>
 </head>
 <body>
     <header>
         <div class="container">
-            <p class="logo">Panel de Control - Cotizaciones</p>
+            <div class="user-badge">
+                <?php if (isset($_SESSION['usuario'])): ?>
+                    <p class="logo"> <span class="user-icon">&#128100;</span> <?php echo htmlspecialchars($_SESSION['usuario']); ?></p>
+                <?php endif; ?>
+            </div>
             <nav>
                 <a href="usuario.php"><button>Volver</button></a>
             </nav>
         </div>
     </header>
 
-    <div class="management-container">
-        <h2>Configuración de Precios Base (m²)</h2>
-        <form method="POST">
-            <div class="config-grid">
-                <div class="config-item">
-                    <label>Unifamiliar ($)</label>
-                    <input type="number" step="0.01" name="m2_unifamiliar" value="<?php echo $config['valor_unifamiliar']; ?>">
+    <main class="management-section">
+        <section>
+            <h2>Configuración de Precios Base (m²)</h2>
+            <form method="POST">
+                <div class="config-grid">
+                    <div class="config-item">
+                        <label>Unifamiliar ($)</label>
+                        <input type="number" step="0.01" name="m2_unifamiliar" value="<?php echo $config['valor_unifamiliar']; ?>">
+                    </div>
+                    <div class="config-item">
+                        <label>Colectiva ($)</label>
+                        <input type="number" step="0.01" name="m2_colectiva" value="<?php echo $config['valor_colectiva']; ?>">
+                    </div>
+                    <div class="config-item">
+                        <label>Quincho ($)</label>
+                        <input type="number" step="0.01" name="m2_quincho" value="<?php echo $config['valor_quincho']; ?>">
+                    </div>
+                    <div class="config-item">
+                        <label>Mano de Obra (%) - Base</label>
+                        <input type="number" step="0.01" name="porcentaje_mo_base" value="<?php echo $config['porcentaje_mo'] ?? 0; ?>">
+                    </div>
+                    <div class="config-item" style="display: flex; align-items: flex-end;">
+                        <button type="submit" name="update_config" class="btn-save" style="width: 100%;">Guardar Precios</button>
+                    </div>
                 </div>
-                <div class="config-item">
-                    <label>Colectiva ($)</label>
-                    <input type="number" step="0.01" name="m2_colectiva" value="<?php echo $config['valor_colectiva']; ?>">
-                </div>
-                <div class="config-item">
-                    <label>Quincho ($)</label>
-                    <input type="number" step="0.01" name="m2_quincho" value="<?php echo $config['valor_quincho']; ?>">
-                </div>
-                <div class="config-item">
-                    <label>Mano de Obra (%) - Base</label>
-                    <input type="number" step="0.01" name="porcentaje_mo_base" value="<?php echo $config['porcentaje_mo'] ?? 0; ?>">
-                </div>
-                <div class="config-item" style="display: flex; align-items: flex-end;">
-                    <button type="submit" name="update_config" class="btn-save" style="width: 100%; font-size: 0.9em; padding: 12px; border-radius: 12px;">Guardar Precios</button>
-                </div>
-            </div>
-        </form>
+            </form>
+        </section>
 
-        <h2>Ítems de Referencia</h2>
-        <button class="btn-add" onclick="showModal('add')">Agregar Nuevo Ítem</button>
-        
-        <table>
-            <thead>
-                <tr>
-                    <th>Orden</th>
-                    <th># Item</th>
-                    <th>Descripción</th>
-                    <th>Unidad</th>
-                    <th>Cantidad</th>
-                    <th>Precio Unitario</th>
-                    <th>% M.O.</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php while($item = mysqli_fetch_assoc($res_items)): ?>
-                <tr>
-                    <td><?php echo $item['orden']; ?></td>
-                    <td><?php echo $item['item_num']; ?></td>
-                    <td><?php echo $item['descripcion']; ?></td>
-                    <td><?php echo $item['unidad']; ?></td>
-                    <td><?php echo $item['cantidad']; ?></td>
-                    <td>$<?php echo number_format($item['precio_unitario'], 2, ',', '.'); ?></td>
-                    <td><?php echo number_format($item['porcentaje_mo'] ?? 0, 2); ?>%</td>
-                    <td class="actions">
-                        <button class="btn-edit" onclick='showModal("edit", <?php echo json_encode($item); ?>)'>Editar</button>
-                        <form method="POST" style="display:inline;" onsubmit="return confirm('¿Eliminar ítem?')">
-                            <input type="hidden" name="action" value="delete">
-                            <input type="hidden" name="id" value="<?php echo $item['id']; ?>">
-                            <button type="submit" class="btn-delete">Borrar</button>
-                        </form>
-                    </td>
-                </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
-    </div>
+        <section style="margin-top: 40px;">
+            <h2>Ítems de Referencia</h2>
+            <button class="btn-add" onclick="showModal('add')">AGREGAR NUEVO ÍTEM</button>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Orden</th>
+                        <th># Item</th>
+                        <th>Descripción</th>
+                        <th>Unidad</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>% M.O.</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while($item = mysqli_fetch_assoc($res_items)): ?>
+                    <tr>
+                        <td><?php echo $item['orden']; ?></td>
+                        <td><?php echo $item['item_num']; ?></td>
+                        <td><?php echo $item['descripcion']; ?></td>
+                        <td><?php echo $item['unidad']; ?></td>
+                        <td><?php echo $item['cantidad']; ?></td>
+                        <td>$<?php echo number_format($item['precio_unitario'], 2, ',', '.'); ?></td>
+                        <td><?php echo number_format($item['porcentaje_mo'] ?? 0, 2); ?>%</td>
+                        <td style="display: flex; gap: 5px; justify-content: center;">
+                            <button class="btn-edit" onclick='showModal("edit", <?php echo json_encode($item); ?>)'>Editar</button>
+                            <form method="POST" style="display:inline;" onsubmit="return confirm('¿Eliminar ítem?')">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="id" value="<?php echo $item['id']; ?>">
+                                <button type="submit" class="btn-delete">Borrar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        </section>
+    </main>
 
     <!-- Modal Form -->
     <div id="itemModal" class="modal">

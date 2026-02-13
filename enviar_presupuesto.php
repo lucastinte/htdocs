@@ -8,6 +8,18 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 include('db.php');
+
+// Fetch all config for the logic
+$sql_mo_config = "SELECT * FROM cotizacion_config WHERE clave = 'm2_base'";
+$res_mo_config = mysqli_query($conexion, $sql_mo_config);
+$row_mo_config = mysqli_fetch_assoc($res_mo_config);
+$project_prices = [
+    'unifamiliar' => $row_mo_config['valor_unifamiliar'],
+    'colectiva'   => $row_mo_config['valor_colectiva'],
+    'quincho'     => $row_mo_config['valor_quincho']
+];
+$global_mo_percent = $row_mo_config['porcentaje_mo'] ?? 3;
+
 include "header.php";
 $query = "SELECT fecha_hora FROM horarios_disponibles WHERE disponible = TRUE AND fecha_hora > NOW()";$result = mysqli_query($conexion, $query);
 $turnosDisponibles = [];
@@ -46,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
    mysqli_stmt_bind_param($stmt, "s", $turnoSeleccionado);
    mysqli_stmt_execute($stmt);
 
-    // Consulta para insertar en la base de datos (TODOS los campos)
+// Consulta para insertar en la base de datos (TODOS los campos)
     $insert_query = "INSERT INTO presupuestos (
         nombre, ocupacion, habitantes, seguridad, trabajo_en_casa, salud, telefono, email, direccion, 
         fobias, intereses, rutinas, pasatiempos, visitas, detalles_visitas, vehiculos, mascotas, 
@@ -59,9 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $tipo_proj = $_POST['tipo_proyecto'] ?? 'unifamiliar';
 
     // Vincular parámetros (24 en total)
-    // Tipos: s (string), i (int), d (double), b (blob)
-    // m2_cantidad es double 'd', habitantes puede ser int pero 's' es seguro.
-    // Asumiremos 's' para todo salvo m2.
     mysqli_stmt_bind_param($stmt, "ssssssssssssssssssssssds", 
         $nombre, $ocupacion, $habitantes, $seguridad, $trabajo_en_casa, $salud, $telefono, $email, $direccion, 
         $fobias, $intereses, $rutinas, $pasatiempos, $visitas, $detalles_visitas, $vehiculos, $mascotas, 
@@ -111,70 +120,56 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $pdf->Ln(10);
         $pdf->Output('F', $pdfPath);
 
-        // Fetch dynamic items for email (as calculated in the form)
-        $sql_items_db = "SELECT * FROM cotizacion_items ORDER BY orden ASC";
-        $res_items_db = mysqli_query($conexion, $sql_items_db);
-        
-        $sql_conf_db = "SELECT * FROM cotizacion_config WHERE clave = 'm2_base'";
-        $res_conf_db = mysqli_query($conexion, $sql_conf_db);
-        $conf_db = mysqli_fetch_assoc($res_conf_db);
-        
-        // Calcular precio base del m2 inflado con MO base
-        $mo_base_percent = $conf_db['porcentaje_mo'] ?? 0;
-        $raw_price = $conf_db['valor_' . $tipo_proj] ?? $conf_db['valor_unifamiliar'];
-        $price_m2_type = $raw_price * (1 + $mo_base_percent/100);
+        // Fetch items from DB for Email
+        $res_items_db = mysqli_query($conexion, "SELECT * FROM cotizacion_items ORDER BY orden ASC");
+        $items_data = mysqli_fetch_all($res_items_db, MYSQLI_ASSOC);
 
         $grandTotal = 0;
         $html_table_rows = "";
         
-        // Agregar filas informativas de precios base (Items 1-3)
-        // No suman al total, solo informativo
-        $prices_base = [
-            '1' => ['desc' => 'Precio Base: Vivienda Unifamiliar', 'price' => $conf_db['valor_unifamiliar'] * (1 + $mo_base_percent/100)],
-            '2' => ['desc' => 'Precio Base: Vivienda Colectiva', 'price' => $conf_db['valor_colectiva'] * (1 + $mo_base_percent/100)],
-            '3' => ['desc' => 'Precio Base: Quincho', 'price' => $conf_db['valor_quincho'] * (1 + $mo_base_percent/100)]
-        ];
+        // Row for Project Type First
+        $proj_base_price = $project_prices[$tipo_proj];
+        $proj_mo = $global_mo_percent; // Use global for project row
+        $proj_unit_final = $proj_base_price * (1 + ($proj_mo / 100));
+        $proj_total = $proj_unit_final * $m2_cant;
+        $grandTotal += $proj_total;
         
-        foreach($prices_base as $idx => $pb) {
-             $html_table_rows .= "<tr>
-                <td>$idx</td>
-                <td>{$pb['desc']}</td>
-                <td style='text-align:center'>m²</td>
-                <td style='text-align:center'>1</td>
-                <td style='text-align:right'>$" . number_format($pb['price'], 0, ',', '.') . "</td>
-                <td style='text-align:right'>$" . number_format($pb['price'], 0, ',', '.') . "</td>
-            </tr>";
-        }
-        
-        // Items dinámicos (4 en adelante)
-        $i = 4;
-        while($item = mysqli_fetch_assoc($res_items_db)) {
+        $html_table_rows .= "<tr>
+            <td>•</td>
+            <td>PROYECTO: " . strtoupper($tipo_proj) . " <span style='font-size:10px; color:#8a2be2;'>(Total M.O.)</span></td>
+            <td style='text-align:center'>m²</td>
+            <td style='text-align:center'>$m2_cant</td>
+            <td style='text-align:right'>$" . number_format($proj_unit_final, 0, ',', '.') . "</td>
+            <td style='text-align:right'>$" . number_format($proj_total, 0, ',', '.') . "</td>
+        </tr>";
+
+        foreach($items_data as $item) {
             $desc = $item['descripcion'];
             $unid = $item['unidad'];
-            $price = floatval($item['precio_unitario']);
-            $cant = floatval($item['cantidad']);
-            $mo_item_percent = floatval($item['porcentaje_mo'] ?? 0);
+            $base_price = $item['precio_unitario'];
+            $cant = $item['cantidad'];
+            $idx = $item['item_num'];
+            $mo_percent = $item['porcentaje_mo'];
 
             if (strtolower($unid) === 'm2' || strtolower($unid) === 'm²') {
                 $cant = $m2_cant;
-                $price = $price_m2_type;
             }
 
-            // Calculo: (Precio * Cantidad) * (1 + %Item)
-            $subtotal = $price * $cant;
-            $total = $subtotal * (1 + $mo_item_percent/100);
-            
+            $mo_factor = 1 + ($mo_percent / 100);
+            $unit_final = $base_price * $mo_factor;
+            $total = $unit_final * $cant;
             $grandTotal += $total;
 
+            $mo_label = ($mo_percent > 0) ? " <span style='font-size:10px; color:#8a2be2;'>(Total M.O.)</span>" : "";
+
             $html_table_rows .= "<tr>
-                <td>$i</td>
-                <td>$desc</td>
+                <td>$idx</td>
+                <td>$desc$mo_label</td>
                 <td style='text-align:center'>$unid</td>
                 <td style='text-align:center'>$cant</td>
-                <td style='text-align:right'>$" . number_format($price, 0, ',', '.') . "</td>
+                <td style='text-align:right'>$" . number_format($unit_final, 0, ',', '.') . "</td>
                 <td style='text-align:right'>$" . number_format($total, 0, ',', '.') . "</td>
             </tr>";
-            $i++;
         }
         
         $obs1 = "Para empezar el trabajo se pide abonar el 50% del ITEM DISEÑO DE PLANOS, luego el 30% una vez presentado todos los planos para la firma del comitente, y la cancelación del mismo una vez se entrega la carpeta aprobada por la municipalidad.";
@@ -248,6 +243,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <p style='font-size: 12px; color: #555;'>$obs1</p>
                     <p style='font-size: 12px; font-weight: bold;'>$obs2</p>
                     <p style='font-size: 12px; color: #555;'>$obs3</p>
+                    <p style='font-size: 12px; color: #8a2be2;'>* Los precios indicados como (Total M.O.) incluyen Mano de Obra.</p>
                 </div>
                 <div class='footer'>
                     <p>Atentamente,<br>Mat Construcciones</p>
@@ -281,6 +277,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     mysqli_stmt_close($stmt);
     mysqli_close($conexion);
 }
+
+// El porcentaje de M.O. ya fue obtenido al principio del archivo
 ?>
 
 <!DOCTYPE html>
@@ -288,40 +286,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enviar Presupuesto</title>
-    <link rel="stylesheet" href="index.css"> <!-- Cambia el nombre del archivo de CSS si es necesario -->
+    <title>Enviar Presupuesto - Mat Construcciones</title>
+    <link rel="stylesheet" href="index.css">
     <style>
-        .message {
-            text-align: center;
-            padding: 10px;
-            margin: 10px auto;
-            width: 80%;
-            max-width: 600px;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        .message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-            text-align: center;
-            padding: 10px;
-            margin: 10px auto;
-            width: 80%;
-            max-width: 600px;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        .message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
         body {
             position: relative;
             background-image: url("./imagen/nosotros/imagen3.jpg"); 
             background-size: cover; 
             background-repeat: no-repeat;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
         }
 
         body::before {
@@ -331,21 +306,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 255, 255, 0.7); /* Ajusta la opacidad según lo necesites */
-            z-index: -1; /* Asegura que esté detrás del contenido */
+            background-color: rgba(255, 255, 255, 0.7); 
+            z-index: -1; 
+        }
+
+        main {
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
         }
 
         .info-box {
-            background: rgba(120,120,120,0.18);
+            background: rgba(255, 255, 255, 0.95);
             color: #222;
             border-radius: 12px;
-            padding: 18px 22px;
-            margin: 0 auto 28px auto;
-            max-width: 700px;
-            font-size: 1.13em;
-            box-shadow: 0 2px 12px rgba(80,80,80,0.07);
+            padding: 25px;
+            margin: 20px auto;
+            max-width: 800px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             text-align: center;
-            border: 1px solid rgba(120,120,120,0.13);
+            border: 1px solid rgba(0,0,0,0.05);
         }
         
         .tabla-referencia {
@@ -400,7 +380,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             border: none;
             text-transform: uppercase;
             font-size: 0.9em;
-            letter-spacing: 0.5px;
         }
 
         .tabla-referencia td {
@@ -413,107 +392,64 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             background-color: rgba(147, 112, 219, 0.05);
         }
 
-        .tabla-referencia tbody tr:hover {
-            background-color: rgba(138, 43, 226, 0.1);
-            transition: background-color 0.3s ease;
-        }
-
-        .tabla-referencia tfoot {
-            font-weight: bold;
-            background: rgba(138, 43, 226, 0.1);
-        }
-
         .tabla-referencia tfoot td {
             border-top: 2px solid rgba(138, 43, 226, 0.2);
             color: #8a2be2;
             font-size: 1.1em;
-        }
-
-        .observaciones {
-            margin-top: 30px;
+            font-weight: bold;
             padding: 20px;
-            background: #f8f9fa;
-            border-radius: 6px;
-            border: 1px solid #e6e6e6;
-        }
-
-        .observaciones h3 {
-            color: #333;
-            margin-bottom: 12px;
-            letter-spacing: 0.3px;
-        }
-
-        .observaciones p {
-            margin-bottom: 8px;
-            line-height: 1.45;
-            color: #555;
-            font-size: 0.95em;
-        }
-
-        .observaciones .nota-variable {
-            color: #333;
-            font-weight: 700;
-            font-size: 0.97em;
-        }
-
-        .observaciones .nota-legal {
-            color: #666;
-            font-size: 0.9em;
-        }
-
-        .boton-inicio {
-            text-align: center;
-            padding: 40px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
         }
 
         .btn-comenzar {
             background: linear-gradient(135deg, #8a2be2, #9370db);
             border: none;
-            border-radius: 15px;
-            padding: 20px 40px;
+            border-radius: 12px;
+            padding: 25px 30px;
             color: white;
             cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
-            width: auto;
-            min-width: 300px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(138, 43, 226, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 100px;
         }
 
         .btn-comenzar:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 20px rgba(138, 43, 226, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(138, 43, 226, 0.5);
         }
 
-        .btn-comenzar h1 {
-            font-size: 2.5em;
-            margin: 0;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+        input, select {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1em;
+            box-sizing: border-box;
         }
 
-        .leyenda {
-            background: rgba(138, 43, 226, 0.1);
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 600px;
-            margin: 0 auto;
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
         }
 
-        .leyenda p {
-            margin: 10px 0;
-            font-size: 1.2em;
-            color: #666;
-        }
-
-        .leyenda .slogan {
-            font-size: 1.4em;
-            color: #8a2be2;
+        label {
+            display: block;
+            margin-bottom: 8px;
             font-weight: bold;
-            margin-top: 15px;
+            color: #444;
+        }
+
+        .mo-badge {
+            background: rgba(138, 43, 226, 0.1);
+            color: #8a2be2;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-left: 10px;
+            font-weight: bold;
         }
 
         #formulario-container {
@@ -521,419 +457,272 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             max-height: 0;
             overflow: hidden;
             transition: opacity 0.5s ease, max-height 0.5s ease;
-            scroll-margin-top: 100px;
         }
 
         #formulario-container.visible {
             opacity: 1;
-            max-height: 5000px; /* Valor alto para asegurar que todo el contenido sea visible */
+            max-height: 1000px;
         }
 
-        .info-box {
-            margin-top: 120px !important;
-            margin-bottom: 40px !important;
+        .observaciones {
+            background: #fdfbff;
+            border-left: 4px solid #8a2be2;
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 4px;
+            text-align: left;
         }
 
-        .btn-volver-container {
-            text-align: center;
-            padding: 40px 20px;
-            margin: 20px auto;
-            max-width: 600px;
-            border-top: 1px solid rgba(138, 43, 226, 0.2);
-        }
-
-        .btn-volver {
-            background: linear-gradient(135deg, #8a2be2, #9370db);
-            border: none;
-            border-radius: 30px;
-            padding: 15px 40px;
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 1.2em;
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.2);
-        }
-
-        .btn-volver:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(138, 43, 226, 0.4);
-            background: linear-gradient(135deg, #9370db, #8a2be2);
-        }
-
-        .btn-volver .flecha {
-            font-size: 1.4em;
-            line-height: 1;
-            transition: transform 0.3s ease;
-        }
-
-        .btn-volver:hover .flecha {
-            transform: translateX(-5px);
-        }
-
-        .tabla-referencia {
-            transition: opacity 0.5s ease, transform 0.5s ease;
-        }
-
-        .tabla-referencia.oculto {
-            opacity: 0;
-            transform: translateY(20px);
-            pointer-events: none;
-            position: absolute;
-        }
-
-        #presupuesto-form {
-            transition: transform 0.5s ease;
-        }
-
-        #presupuesto-form.arriba {
-            transform: translateY(-100vh);
-        }
+        .oculto { display: none !important; }
     </style>
-    
 </head>
 <body>
     <main>
-        <section id="presupuesto-referencia" class="tabla-referencia">
+        <!-- SECCIÓN 1: CALCULADORA INICIAL -->
+        <section id="intro-step" class="info-box" style="margin-top: 80px;">
+            <div class="titulo-carpeta" style="margin-bottom: 30px;">
+                <h2>COTIZADOR ONLINE</h2>
+                <p>Calculá tu presupuesto estimado ingresando los metros cuadrados</p>
+            </div>
+            
+            <div style="display: flex; gap: 20px; max-width: 600px; margin: 0 auto 30px auto; flex-wrap: wrap;">
+                <div class="form-group" style="flex: 1; min-width: 250px;">
+                    <label for="intro_m2">Metros Cuadrados (m²):</label>
+                    <input type="number" id="intro_m2" placeholder="Ej: 110" min="1" value="<?php echo isset($_REQUEST['m2']) ? $_REQUEST['m2'] : ''; ?>" style="width: 100%;">
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 250px;">
+                    <label for="intro_tipo">Tipo de Proyecto:</label>
+                    <select id="intro_tipo" style="width: 100%;">
+                        <option value="unifamiliar">Vivienda Unifamiliar</option>
+                        <option value="colectiva">Vivienda Colectiva</option>
+                        <option value="quincho">Quincho</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="btn-calcular" class="btn-comenzar" style="width: 100%; max-width: 400px; margin: 0 auto; display: flex;">
+                <span style="font-size: 1.8em; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; line-height: 1.1;">
+                    CALCULAR<br>PRESUPUESTO
+                </span>
+            </button>
+        </section>
+
+        <!-- SECCIÓN 2: TABLA DE REFERENCIA -->
+        <section id="presupuesto-referencia" class="tabla-referencia" style="display: none;">
             <div class="titulo-carpeta">
-                <h2>CARPETA TÉCNICA PLANO DE CONSTRUCCIÓN</h2>
+                <h2>PRESUPUESTO ESTIMADO</h2>
                 <p>Estructura, Eléctrico, Sanitario y Gas</p>
             </div>
 
             <?php
-            // Obtener configuración de m2
-            $sql_conf = "SELECT * FROM cotizacion_config WHERE clave = 'm2_base'";
-            $res_conf = mysqli_query($conexion, $sql_conf);
-            $conf_m2 = mysqli_fetch_assoc($res_conf);
-
-            // Obtener ítems
-            $sql_items = "SELECT * FROM cotizacion_items ORDER BY orden ASC";
-            $res_items = mysqli_query($conexion, $sql_items);
-            $items = [];
-            $total_mo = 0;
-            while($row = mysqli_fetch_assoc($res_items)) {
-                $items[] = $row;
-            }
+            $res_items_view = mysqli_query($conexion, "SELECT * FROM cotizacion_items ORDER BY orden ASC");
+            $items_view = mysqli_fetch_all($res_items_view, MYSQLI_ASSOC);
             ?>
 
-            <?php
-            // Capturar valores iniciales si vienen de una pantalla anterior
-            $m2_inicial = isset($_REQUEST['m2']) ? floatval($_REQUEST['m2']) : 1;
-            // El tipo de vivienda puede venir como texto o value
-            $tipo_inicial = isset($_REQUEST['tipo']) ? $_REQUEST['tipo'] : 'unifamiliar'; 
-            ?>
-
-            <!-- SECCIÓN OCULTA ELIMINADA: Los inputs ahora están en el formulario de abajo y son visibles/editables -->
-
-            <table border="1" cellpadding="5" cellspacing="0" id="tabla_cotizacion">
+            <table id="tabla_cotizacion">
                 <thead>
                     <tr>
                         <th>ITEM</th>
                         <th>DESCRIPCIÓN</th>
-                        <th>Unid.</th>
-                        <th>Cant.</th>
-                        <th>Unitario</th>
-                        <th>Total M.O.</th>
+                        <th>UNID.</th>
+                        <th style="text-align:center">CANT.</th>
+                        <th>UNITARIO</th>
+                        <th>SUBTOTAL</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
-                    // Recalcular precios con MO base para mostrar en tabla
-                    $mo_base = $conf_m2['porcentaje_mo'] ?? 0;
-                    $precio_unif_show = $conf_m2['valor_unifamiliar'] * (1 + $mo_base/100);
-                    $precio_cole_show = $conf_m2['valor_colectiva'] * (1 + $mo_base/100);
-                    $precio_quin_show = $conf_m2['valor_quincho'] * (1 + $mo_base/100);
-                    ?>
-                    <!-- Filas informativas de precios base por m² (Items 1-3) -->
-                    <tr style="background-color: #f9f9f9;">
-                        <td>1</td>
-                        <td>Precio Base: Vivienda Unifamiliar</td>
+                    <!-- Row for Dynamic Project Calculation -->
+                    <tr id="row-proyecto" data-is-project="1" data-mo-percent="<?php echo $global_mo_percent; ?>">
+                        <td>•</td>
+                        <td id="proyecto-desc">PROYECTO: VIVIENDA UNIFAMILIAR <span class="mo-badge">Total M.O.</span></td>
                         <td>m²</td>
-                        <td>1</td>
-                        <td>$<?php echo number_format($precio_unif_show, 0, ',', '.'); ?></td>
-                        <td>$<?php echo number_format($precio_unif_show, 0, ',', '.'); ?></td>
-                    </tr>
-                    <tr style="background-color: #f9f9f9;">
-                        <td>2</td>
-                        <td>Precio Base: Vivienda Colectiva</td>
-                        <td>m²</td>
-                        <td>1</td>
-                        <td>$<?php echo number_format($precio_cole_show, 0, ',', '.'); ?></td>
-                        <td>$<?php echo number_format($precio_cole_show, 0, ',', '.'); ?></td>
-                    </tr>
-                    <tr style="background-color: #f9f9f9;">
-                        <td>3</td>
-                        <td>Precio Base: Quincho</td>
-                        <td>m²</td>
-                        <td>1</td>
-                        <td>$<?php echo number_format($precio_quin_show, 0, ',', '.'); ?></td>
-                        <td>$<?php echo number_format($precio_quin_show, 0, ',', '.'); ?></td>
+                        <td class="cant-cell" style="text-align:center">0</td>
+                        <td class="unit-cell">$0</td>
+                        <td class="total-cell">$0</td>
                     </tr>
 
-                    <?php 
-                    $i = 4; // Comenzamos enumeración desde 4
-                    foreach ($items as $item): 
-                    ?>
-                    <tr data-item-num="<?php echo $i; ?>" 
-                        data-base-price="<?php echo $item['precio_unitario']; ?>" 
-                        data-unit="<?php echo $item['unidad']; ?>"
+                    <?php foreach ($items_view as $item): ?>
+                    <tr data-base-price="<?php echo $item['precio_unitario']; ?>" 
                         data-base-cant="<?php echo $item['cantidad']; ?>"
-                        data-mo-percent="<?php echo $item['porcentaje_mo'] ?? 0; ?>">
-                        <td><?php echo $i; ?></td>
-                        <td><?php echo $item['descripcion']; ?></td>
+                        data-is-m2="<?php echo (strtolower($item['unidad']) === 'm2' || strtolower($item['unidad']) === 'm²') ? '1' : '0'; ?>"
+                        data-mo-percent="<?php echo $item['porcentaje_mo']; ?>">
+                        <td><?php echo $item['item_num']; ?></td>
+                        <td>
+                            <?php echo $item['descripcion']; ?>
+                            <?php if($item['porcentaje_mo'] > 0): ?>
+                                <span class="mo-badge">Total M.O.</span>
+                            <?php endif; ?>
+                        </td>
                         <td><?php echo $item['unidad']; ?></td>
-                        <td class="cant-cell"><?php echo $item['cantidad']; ?></td>
-                        <td class="unit-cell">$<?php echo number_format($item['precio_unitario'], 0, ',', '.'); ?></td>
-                        <td class="total-cell">$<?php echo number_format(($item['precio_unitario'] * $item['cantidad']) * (1 + ($item['porcentaje_mo'] ?? 0)/100), 0, ',', '.'); ?></td>
+                        <td class="cant-cell" style="text-align:center"><?php echo $item['cantidad']; ?></td>
+                        <td class="unit-cell">$<?php echo number_format($item['precio'], 0, ',', '.'); ?></td>
+                        <td class="total-cell">$0</td>
                     </tr>
-                    <?php 
-                    $i++;
-                    endforeach; 
-                    ?>
+                    <?php endforeach; ?>
                 </tbody>
                 <tfoot>
-                    <tr style="background-color: #f3e5f5;">
-                        <td colspan="5" style="text-align: right; font-size: 1.1em;"><strong>TOTAL M.O.</strong>:</td>
-                        <td id="total_mo_display" style="font-size: 1.2em; color: #8a2be2;"><strong>$0</strong></td>
+                    <tr>
+                        <td colspan="5" style="text-align: right;"><strong>TOTAL ESTIMADO M.O.</strong>:</td>
+                        <td id="total_mo_display" style="text-align: left; color: #8a2be2; font-size: 1.25em;">$0</td>
                     </tr>
                 </tfoot>
             </table>
 
             <div class="observaciones">
-                <h3>OBSERVACIONES</h3>
-                <p class="nota-legal">Para empezar el trabajo se pide abonar el 50% del ITEM DISEÑO DE PLANOS, luego el 30% una vez presentado todos los planos para la firma del comitente, y la cancelación del mismo una vez se entrega la carpeta aprobada por la municipalidad.</p>
-                <p class="nota-variable">Los precios de item 2 a 10 son variables, se rendirán con boleta, los precios son estimativos.</p>
-                <p class="nota-legal">El presupuesto no incluye la <strong>DIRECCIÓN TÉCNICA</strong>, pero sí visitas periódicas mensuales.</p>
+                <h3 style="margin-top: 0; color: #8a2be2;">OBSERVACIONES</h3>
+                <p>• Los precios indicados como "Total M.O." incluyen el concepto de Mano de Obra.</p>
+                <p>• Precios estimativos sujetos a cambios. Ítems del 2 al 10 se rinden con boleta.</p>
+                <p>• El presupuesto NO incluye Dirección Técnica.</p>
             </div>
 
-            <script>
-            function updateTable() {
-                const m2Input = document.getElementById('m2_input');
-                const typeSelect = document.getElementById('tipo_vivienda');
-                
-                const m2 = parseFloat(m2Input.value) || 0;
-                const typeText = typeSelect.options[typeSelect.selectedIndex].text;
-                const typeValue = typeSelect.value;
-                const m2Price = parseFloat(typeSelect.options[typeSelect.selectedIndex].getAttribute('data-price'));
-                
-                let sumTotal = 0;
-
-                // Solo sumamos las filas dinámicas (Items 4 en adelante)
-                document.querySelectorAll('#tabla_cotizacion tbody tr[data-base-price]').forEach(row => {
-                    const unit = row.getAttribute('data-unit').toLowerCase();
-                    let price = parseFloat(row.getAttribute('data-base-price'));
-                    let cant = parseFloat(row.getAttribute('data-base-cant'));
-                    let moPercent = parseFloat(row.getAttribute('data-mo-percent')) || 0;
-
-                    // Si la unidad es m2 o el item depende de m2
-                    if (unit === 'm2' || unit === 'm²') {
-                        cant = m2;
-                        price = m2Price; 
-                    }
-
-                    // Calculo: (Precio * Cantidad) + Porcentaje MO
-                    // Interpretación: El porcentaje es sobre el subtotal del ítem
-                    let subtotal = price * cant;
-                    let total = subtotal * (1 + (moPercent / 100));
-                    
-                    sumTotal += total;
-
-                    row.querySelector('.cant-cell').innerText = cant;
-                    row.querySelector('.unit-cell').innerText = '$' + price.toLocaleString('es-AR');
-                    row.querySelector('.total-cell').innerText = '$' + total.toLocaleString('es-AR', {minimumFractionDigits: 0, maximumFractionDigits: 0});
-                });
-
-                document.getElementById('total_mo_display').innerHTML = '<strong>$' + sumTotal.toLocaleString('es-AR', {minimumFractionDigits: 0, maximumFractionDigits: 0}) + '</strong>';
-                
-                // --- SINCRONIZACIÓN CON EL FORMULARIO ---
-                // Campos ocultos para el POST
-                if(document.getElementById('hidden_m2')) document.getElementById('hidden_m2').value = m2;
-                if(document.getElementById('hidden_tipo')) document.getElementById('hidden_tipo').value = typeValue;
-                
-                // Campos visibles de solo lectura para confirmación del usuario
-                /* if(document.getElementById('display_m2')) document.getElementById('display_m2').value = m2;
-                if(document.getElementById('display_tipo')) document.getElementById('display_tipo').value = typeText; */
-            }
-
-            document.getElementById('m2_input').addEventListener('input', updateTable);
-            document.getElementById('tipo_vivienda').addEventListener('change', updateTable);
-            window.addEventListener('load', updateTable);
-            </script>
+            <div style="text-align: center; margin-top: 30px;">
+                <button id="btnVolver" style="padding: 12px 25px; cursor: pointer; border: 2px solid #8a2be2; color: #8a2be2; background: white; border-radius: 30px; font-weight: bold;">
+                    ← VOLVER A EDITAR METROS
+                </button>
+            </div>
         </section>
 
+        <!-- SECCIÓN 3: FORMULARIO DE CITA -->
         <section id="presupuesto-form">
-            <div class="boton-inicio">
-                <button id="mostrarFormulario" class="btn-comenzar">
-                    <h1>¡COMIENZA YA!</h1>
-                </button>
-                <div class="leyenda">
-                    <p>Llena un pre-formulario y agenda un turno</p>
-                    <p class="slogan">Tu casa, tu hogar te espera. ¡No lo dudes!</p>
-                </div>
-            </div>
-            <div id="formulario-container" style="display: none;">
-                <div class="info-box">
-                    Completá este cuestionario para ayudarte a construir tu espacio ideal.<br>
-                    <b>Recordá que también debés agendar un turno para la cita.</b>
-                </div>
+            <div id="formulario-container" class="tabla-referencia" style="display: none; margin-top: 30px;">
+                <h2 style="text-align: center; color: #8a2be2; margin-bottom: 30px;">AGENDAR CITA Y ENVIAR</h2>
                 <form action="enviar_presupuesto.php" method="post">
-                <input type="hidden" name="m2_cantidad" id="hidden_m2">
-                <input type="hidden" name="tipo_proyecto" id="hidden_tipo">
-                <div class="form-row-summary" style="display: flex; gap: 20px; margin-bottom: 20px; background: #f0f0f0; padding: 15px; border-radius: 8px;">
-                    <div style="flex: 1;">
-                        <label for="m2_input" style="font-weight: bold; color: #555;">Metros Cuadrados (m²):</label>
-                        <input type="number" id="m2_input" name="m2_cantidad" value="<?php echo $m2_inicial; ?>" min="1" style="border: 1px solid #ced4da; font-weight: bold; width: 100%; padding: 8px; border-radius: 4px;">
+                    <input type="hidden" name="m2_cantidad" id="hidden_m2">
+                    <input type="hidden" name="tipo_proyecto" id="hidden_tipo">
+                    
+                    <div class="form-group">
+                        <label for="nombre">Apellido y Nombre:</label>
+                        <input type="text" id="nombre" name="nombre" required style="width: 100%;">
                     </div>
-                    <div style="flex: 1;">
-                        <label for="tipo_vivienda" style="font-weight: bold; color: #555;">Tipo de Vivienda Cotizada:</label>
-                        <select id="tipo_vivienda" name="tipo_proyecto" style="border: 1px solid #ced4da; font-weight: bold; width: 100%; padding: 8px; border-radius: 4px;">
-                            <?php
-                            $mo_base = $conf_m2['porcentaje_mo'] ?? 0;
-                            $precio_unif = $conf_m2['valor_unifamiliar'] * (1 + $mo_base/100);
-                            $precio_cole = $conf_m2['valor_colectiva'] * (1 + $mo_base/100);
-                            $precio_quin = $conf_m2['valor_quincho'] * (1 + $mo_base/100);
 
-                            $tipos = [
-                                'unifamiliar' => ['label' => 'Unifamiliar', 'price' => $precio_unif],
-                                'colectiva' => ['label' => 'Vivienda Colectiva', 'price' => $precio_cole],
-                                'quincho' => ['label' => 'Quincho', 'price' => $precio_quin]
-                            ];
-                            foreach ($tipos as $val => $data) {
-                                $selected = ($val == $tipo_inicial) ? 'selected' : '';
-                                echo '<option value="' . $val . '" data-price="' . $data['price'] . '" ' . $selected . '>' . $data['label'] . '</option>';
-                            }
-                            ?>
+                    <div class="form-group">
+                        <label for="telefono">Teléfono:</label>
+                        <input type="text" id="telefono" name="telefono" required style="width: 100%;">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required style="width: 100%;">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="direccion">Dirección:</label>
+                        <input type="text" id="direccion" name="direccion" required style="width: 100%;">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="turno">Seleccione un turno para la cita:</label>
+                        <select id="turno" name="turno" required style="width: 100%;">
+                            <?php if (!empty($turnosDisponibles)) : ?>
+                                <?php foreach ($turnosDisponibles as $turno) : ?>
+                                    <option value="<?php echo $turno; ?>"><?php echo date('d/m/Y H:i', strtotime($turno)); ?> hs</option>
+                                <?php endforeach; ?>
+                            <?php else : ?>
+                                <option value="">No hay turnos disponibles</option>
+                            <?php endif; ?>
                         </select>
                     </div>
-                </div>
-
-                <label for="nombre">Apellido y Nombre:</label>
-                <input type="text" id="nombre" name="nombre" required>
-
-                <label for="telefono">Teléfono:</label>
-                <input type="text" id="telefono" name="telefono" required>
-
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-
-                <label for="direccion">Dirección:</label>
-                <input type="text" id="direccion" name="direccion" required>
-
-                <label for="turno">Seleccione un turno para la cita:</label>
-                <select id="turno" name="turno">
-                    <?php if (!empty($turnosDisponibles)) : ?>
-                        <?php foreach ($turnosDisponibles as $turno) : ?>
-                            <option value="<?php echo $turno; ?>"><?php echo $turno; ?></option>
-                        <?php endforeach; ?>
-                    <?php else : ?>
-                        <option value="">No hay turnos disponibles</option>
-                    <?php endif; ?>
-                </select>
-                
-                <button type="submit">Enviar</button>
-            </form>
-            <div class="btn-volver-container" style="display: none;">
-                <button id="btnVolver" class="btn-volver">
-                    <span class="flecha">←</span> Volver a la tabla de presupuesto
-                </button>
+                    
+                    <button type="submit" class="btn-comenzar" style="width: 100%; margin-top: 10px;">
+                        <h3 style="margin:0; text-transform: uppercase;">Enviar</h3>
+                    </button>
+                </form>
             </div>
         </section>
     </main>
 
-    <!-- Modal Q reutilizable -->
-    <div id="modal-q" style="display:none">
-      <div class="modal-content">
-        <h2 id="modal-q-title"></h2>
-        <p id="modal-q-msg"></p>
-        <button onclick="closeModalQ()">OK</button>
-      </div>
-    </div>
     <link rel="stylesheet" href="modal-q.css">
     <script src="modal-q.js"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const boton = document.getElementById('mostrarFormulario');
-        const formulario = document.getElementById('formulario-container');
-        const btnVolver = document.getElementById('btnVolver');
-        const tablaReferencia = document.querySelector('.tabla-referencia');
-        const presupuestoForm = document.getElementById('presupuesto-form');
-        const btnVolverContainer = document.querySelector('.btn-volver-container');
+    const projectPrices = <?php echo json_encode($project_prices); ?>;
+
+    function updateTable() {
+        const m2 = parseFloat(document.getElementById('intro_m2').value) || 0;
+        const type = document.getElementById('intro_tipo').value;
+        let sumTotal = 0;
+
+        // Update Project Row
+        const rowProj = document.getElementById('row-proyecto');
+        const projBasePrice = projectPrices[type] || 0;
+        const projMOPercent = parseFloat(rowProj.getAttribute('data-mo-percent')) || 0;
+        const projUnitFinal = projBasePrice * (1 + (projMOPercent / 100));
+        const projSubtotal = projUnitFinal * m2;
         
-        function scrollToForm() {
-            formulario.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-        
-        boton.addEventListener('click', function() {
-            // Ocultar tabla con animación
-            tablaReferencia.classList.add('oculto');
+        document.getElementById('proyecto-desc').innerHTML = 'PROYECTO: ' + type.toUpperCase() + ' <span class="mo-badge">Total M.O.</span>';
+        rowProj.querySelector('.cant-cell').innerText = m2;
+        rowProj.querySelector('.unit-cell').innerText = '$' + Math.round(projUnitFinal).toLocaleString('es-AR');
+        rowProj.querySelector('.total-cell').innerText = '$' + Math.round(projSubtotal).toLocaleString('es-AR');
+        sumTotal += projSubtotal;
+
+        document.querySelectorAll('#tabla_cotizacion tbody tr:not(#row-proyecto)').forEach(row => {
+            const isM2 = row.getAttribute('data-is-m2') === '1';
+            const moPercent = parseFloat(row.getAttribute('data-mo-percent')) || 0;
+            let price = parseFloat(row.getAttribute('data-base-price')) || 0;
+            let baseCant = parseFloat(row.getAttribute('data-base-cant')) || 1;
+            let cant = isM2 ? m2 : baseCant;
+
+            let unitFinal = price * (1 + (moPercent / 100));
+            let subtotal = unitFinal * cant;
             
-            // Ocultar botón de comenzar y mostrar formulario
-            boton.parentElement.style.display = 'none';
-            btnVolverContainer.style.display = 'block';
-            formulario.style.display = 'block';
-            
-            setTimeout(() => {
-                formulario.classList.add('visible');
-                scrollToForm(); // Scroll al formulario después de que sea visible
-            }, 50);
+            sumTotal += subtotal;
+
+            row.querySelector('.cant-cell').innerText = cant;
+            row.querySelector('.unit-cell').innerText = '$' + Math.round(unitFinal).toLocaleString('es-AR');
+            row.querySelector('.total-cell').innerText = '$' + Math.round(subtotal).toLocaleString('es-AR');
         });
 
-        btnVolver.addEventListener('click', function() {
-            // Mostrar tabla nuevamente
-            tablaReferencia.classList.remove('oculto');
-            
-            // Ocultar formulario y mostrar botón de comenzar
-            formulario.classList.remove('visible');
-            btnVolverContainer.style.display = 'none';
-            
-            setTimeout(() => {
-                formulario.style.display = 'none';
-                boton.parentElement.style.display = 'flex';
-            }, 500);
-        });
+        document.getElementById('total_mo_display').innerHTML = '<strong>$' + Math.round(sumTotal).toLocaleString('es-AR') + '</strong>';
+        
+        if(document.getElementById('hidden_m2')) document.getElementById('hidden_m2').value = m2;
+        if(document.getElementById('hidden_tipo')) document.getElementById('hidden_tipo').value = document.getElementById('intro_tipo').value;
+    }
+
+    document.getElementById('intro_m2').addEventListener('input', updateTable);
+    document.getElementById('intro_tipo').addEventListener('change', updateTable);
+    
+    document.getElementById('btn-calcular').addEventListener('click', function() {
+        const m2 = parseFloat(document.getElementById('intro_m2').value) || 0;
+        if(m2 <= 0) {
+            alert("Por favor ingrese una cantidad válida de metros cuadrados.");
+            return;
+        }
+        
+        updateTable();
+        
+        document.getElementById('intro-step').style.display = 'none';
+        document.getElementById('presupuesto-referencia').style.display = 'block';
+        
+        const formContainer = document.getElementById('formulario-container');
+        formContainer.style.display = 'block';
+        setTimeout(() => formContainer.classList.add('visible'), 100);
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    document.getElementById('btnVolver').addEventListener('click', function() {
+        document.getElementById('intro-step').style.display = 'block';
+        document.getElementById('presupuesto-referencia').style.display = 'none';
+        document.getElementById('formulario-container').classList.remove('visible');
+        document.getElementById('formulario-container').style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
     <?php if (isset($_GET['success']) && $_GET['success'] == '1') { ?>
         showModalQ('¡El presupuesto ha sido enviado exitosamente!', false, function() {
-            // Después de mostrar el modal, esperar 2 segundos y redirigir
             setTimeout(function() {
                 window.location.href = 'index.php';
             }, 2000);
         }, '¡Éxito!');
     <?php } elseif (isset($_GET['error']) && $_GET['error'] == '1') { ?>
         showModalQ('<?php echo isset($_SESSION['error_message']) ? $_SESSION['error_message'] : "Ha ocurrido un error al procesar su solicitud"; ?>', true, null, 'Error');
-        <?php unset($_SESSION['error_message']); // Limpiar el mensaje de error ?>
-        // Después de cerrar el modal, volver a mostrar la tabla
-        const formulario = document.getElementById('formulario-container');
-        const btnVolverContainer = document.querySelector('.btn-volver-container');
-        const tablaReferencia = document.querySelector('.tabla-referencia');
-        const boton = document.getElementById('mostrarFormulario');
-        
-        // Mostrar tabla nuevamente
-        tablaReferencia.classList.remove('oculto');
-        
-        // Ocultar formulario y mostrar botón de comenzar
-        formulario.classList.remove('visible');
-        btnVolverContainer.style.display = 'none';
-        
-        setTimeout(() => {
-            formulario.style.display = 'none';
-            boton.parentElement.style.display = 'flex';
-            // Scroll al inicio de la página
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }, 500);
-      }, '¡Presupuesto Enviado!');
+        <?php unset($_SESSION['error_message']); ?>
     <?php } elseif (isset($message)) { ?>
       showModalQ('<?php echo htmlspecialchars($message); ?>', <?php echo (strpos($message, 'Error') !== false ? 'true' : 'false'); ?>, null, <?php echo (strpos($message, 'Error') !== false ? "'Error al Enviar Presupuesto'" : "'¡Presupuesto Enviado!'"); ?>);
     <?php } ?>
     </script>
 
-    <footer>
-        <div class="container">
-            <p>&copy; Mat Construcciones</p>
-        </div>
+    <footer style="text-align: center; padding: 50px 0; color: #777;">
+        <p>&copy; Mat Construcciones</p>
     </footer>
 </body>
 </html>

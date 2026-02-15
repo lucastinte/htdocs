@@ -105,7 +105,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
         if ($stmt_update->execute()) {
             $message_usuario = "Usuario modificado con éxito.";
-            error_log("UPDATE exitoso. Provincia guardada como: " . ($provincia === null ? 'NULL' : $provincia));
+            error_log("UPDATE exitoso.");
         } else {
             $message_usuario = "Error al modificar el usuario: " . $stmt_update->error;
             error_log("Error en UPDATE: " . $stmt_update->error);
@@ -251,12 +251,6 @@ if (!$result) {
 
     function confirmFormAction(event) {
         event.preventDefault();
-        // Validar que provincia no sea '0'
-        let provinciaValue = document.getElementById('provincia').value.trim();
-        if (provinciaValue === '0') {
-            provinciaValue = '';
-            document.getElementById('provincia').value = '';
-        }
         showModalQ(
             '¿Estás seguro de que deseas realizar esta acción?',
             false,

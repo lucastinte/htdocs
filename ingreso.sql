@@ -133,9 +133,49 @@ CREATE TABLE `presupuestos` (
   `muebles` TEXT,
   `detalles_casa` TEXT,
   `turno` DATETIME, 
+  `m2_cantidad` DOUBLE DEFAULT 0,
+  `tipo_proyecto` VARCHAR(50) DEFAULT 'unifamiliar',
   `fecha_creacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `entrevista_completada` BOOLEAN DEFAULT FALSE -- Nuevo campo
+  `entrevista_completada` BOOLEAN DEFAULT FALSE 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `cotizacion_config` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `clave` VARCHAR(50) NOT NULL,
+  `valor_unifamiliar` DECIMAL(10,2) NOT NULL,
+  `valor_colectiva` DECIMAL(10,2) NOT NULL,
+  `valor_quincho` DECIMAL(10,2) NOT NULL,
+  `porcentaje_mo` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  UNIQUE KEY `unique_clave` (`clave`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `cotizacion_config` (`clave`, `valor_unifamiliar`, `valor_colectiva`, `valor_quincho`, `porcentaje_mo`) 
+VALUES ('m2_base', 125000.00, 145000.00, 95000.00, 3.00);
+
+CREATE TABLE `cotizacion_items` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `item_num` INT NOT NULL,
+  `descripcion` VARCHAR(255) NOT NULL,
+  `unidad` VARCHAR(50) NOT NULL,
+  `cantidad` DECIMAL(10,2) NOT NULL,
+  `precio_unitario` DECIMAL(10,2) NOT NULL,
+  `porcentaje_mo` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  `orden` INT NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `cotizacion_items` (`item_num`, `descripcion`, `unidad`, `cantidad`, `precio_unitario`, `porcentaje_mo`, `orden`) VALUES
+(10, 'DISEÑO DE PLANOS', 'Global', 1.00, 150000.00, 0.00, 1),
+(11, 'NIVELACION Y EXCAVACION', 'm2', 1.00, 4500.00, 100.00, 2),
+(12, 'CIMIENTOS (PLATEA ARMADA)', 'm2', 1.00, 12500.00, 100.00, 3),
+(13, 'MAMPOSTERIA ELEVACION', 'm2', 1.00, 8500.00, 100.00, 4),
+(14, 'ESTRUCTURA H.A.', 'm2', 1.00, 14000.00, 100.00, 5),
+(15, 'CUBIERTA DE TECHO', 'm2', 1.00, 9500.00, 100.00, 6),
+(16, 'INSTALACION SANITARIA', 'Global', 1.00, 85000.00, 100.00, 7),
+(17, 'INSTALACION ELECTRICA', 'Global', 1.00, 75000.00, 100.00, 8),
+(18, 'REVOQUES Y TERMINACIONES', 'm2', 1.00, 6500.00, 100.00, 9),
+(19, 'PISOS Y CONTRAPISOS', 'm2', 1.00, 7500.00, 100.00, 10);
+
+
 
 CREATE TABLE `primera_encuesta` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
